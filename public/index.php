@@ -62,7 +62,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-6 reveal-up">
                     <img
-                        src="assets/images/home/sparoom.png"
+                        src="assets/images/home/SpaRoom.png"
                         alt="Luxury spa room with a calm, elegant interior and resort-style ambience"
                         class="intro-image img-fluid"
                     >
@@ -179,7 +179,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                     Explore the story behind Azure Horizon Resort & Spa and discover the inspiration
                     behind its coastal charm, luxurious stays and signature experiences.
                 </p>
-                <a href="about.php" class="cta-button">Explore About Us</a>
+                <a href="about.php" class="cta-button">Explore More</a>
             </div>
         </div>
     </section>

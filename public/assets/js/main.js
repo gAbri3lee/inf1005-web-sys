@@ -1,42 +1,45 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Add active class to current nav link
-    const currentPath = window.location.pathname.split('/').pop();
+document.addEventListener('DOMContentLoaded', function () {
+    const navbar = document.querySelector('.site-navbar');
+
+    function handleNavbarScroll() {
+        if (!navbar) return;
+        if (window.scrollY > 30) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    }
+
+    handleNavbarScroll();
+    window.addEventListener('scroll', handleNavbarScroll);
+
+    const currentPath = window.location.pathname.split('/').pop() || 'index.php';
     const navLinks = document.querySelectorAll('.nav-link');
+
     navLinks.forEach(link => {
-        if (link.getAttribute('href') === currentPath) {
+        const href = link.getAttribute('href');
+        if (href === currentPath) {
             link.classList.add('active');
+            link.setAttribute('aria-current', 'page');
         }
     });
 
-    // Simple form validation for booking
-    const bookingForm = document.querySelector('form[action^="booking.php"]');
-    if (bookingForm) {
-        bookingForm.addEventListener('submit', function(e) {
-            const checkIn = document.getElementById('check_in').value;
-            const checkOut = document.getElementById('check_out').value;
-            if (new Date(checkIn) >= new Date(checkOut)) {
-                e.preventDefault();
-                alert('Check-out date must be after check-in date.');
-            }
-        });
-    }
+    const revealItems = document.querySelectorAll('.reveal-up');
 
-    // Dynamic price calculation for booking
-    const checkInInput = document.getElementById('check_in');
-    const checkOutInput = document.getElementById('check_out');
-    if (checkInInput && checkOutInput) {
-        const pricePerNight = parseFloat(document.querySelector('.fw-bold.text-primary.fs-4').textContent.replace('Price: $', '').replace(' / night', ''));
-        const updatePrice = () => {
-            const checkIn = new Date(checkInInput.value);
-            const checkOut = new Date(checkOutInput.value);
-            if (checkIn && checkOut && checkOut > checkIn) {
-                const days = (checkOut - checkIn) / (1000 * 60 * 60 * 24);
-                const totalPrice = days * pricePerNight;
-                const priceDisplay = document.querySelector('.fw-bold.text-primary.fs-4');
-                priceDisplay.innerHTML = `Total Price: $${totalPrice.toFixed(2)} (${days} nights)`;
-            }
-        };
-        checkInInput.addEventListener('change', updatePrice);
-        checkOutInput.addEventListener('change', updatePrice);
+    if ('IntersectionObserver' in window && revealItems.length > 0) {
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.15
+        });
+
+        revealItems.forEach(item => revealObserver.observe(item));
+    } else {
+        revealItems.forEach(item => item.classList.add('visible'));
     }
 });
