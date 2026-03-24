@@ -1,6 +1,6 @@
 <?php
 session_start();
-include __DIR__ . '/../app/includes/header.php';
+include __DIR__ . '/../app/includes/navbar.php';
 ?>
 
 <section class="about-hero">

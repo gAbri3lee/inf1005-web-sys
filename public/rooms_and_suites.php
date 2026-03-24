@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../app/includes/db.php';
-include __DIR__ . '/../app/includes/header.php';
+include __DIR__ . '/../app/includes/navbar.php';
 ?>
 
 <section class="bg-dark text-white py-5 text-center">
