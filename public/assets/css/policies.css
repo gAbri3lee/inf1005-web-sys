@@ -1,0 +1,120 @@
+.policies-page {
+	padding-top: 0;
+}
+
+/* Make navbar readable on this page (consistent with Reviews/Rooms). */
+.site-navbar {
+	background: rgba(244, 214, 220, 0.55);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	box-shadow: 0 10px 30px rgba(120, 90, 100, 0.12);
+}
+
+.navbar-brand {
+	color: #4f2f38 !important;
+}
+
+.nav-link {
+	color: #5c3a44 !important;
+}
+
+.nav-link:hover,
+.nav-link.active {
+	color: #2f1a21 !important;
+}
+
+.btn-outline-light {
+	color: #5c3a44;
+	border-color: rgba(92, 58, 68, 0.45);
+}
+
+.btn-outline-light:hover,
+.btn-nav-action:hover {
+	background: rgba(255, 255, 255, 0.65);
+	color: #2f1a21;
+	border-color: rgba(92, 58, 68, 0.35);
+}
+
+/* Safety: avoid invisible content if reveal-up isn't toggled. */
+.policies-page .reveal-up {
+	opacity: 1;
+	transform: none;
+}
+
+.policies-shell {
+	padding: 170px 0 110px;
+	background:
+		radial-gradient(circle at 15% 15%, rgba(214, 173, 96, 0.14), transparent 50%),
+		radial-gradient(circle at 85% 0%, rgba(209, 139, 115, 0.16), transparent 48%),
+		linear-gradient(180deg, rgba(255, 250, 246, 0.92) 0%, rgba(248, 239, 230, 0.92) 100%);
+}
+
+.policies-card {
+	border-radius: var(--radius-xl);
+	padding: 44px;
+}
+
+.policies-header {
+	max-width: 900px;
+	margin: 0 auto 26px;
+}
+
+.policies-title {
+	font-size: clamp(2.1rem, 4.8vw, 3.4rem);
+	line-height: 1.05;
+	font-weight: 700;
+	margin-bottom: 12px;
+}
+
+.policies-subtitle {
+	color: var(--text-soft);
+	font-size: 1.05rem;
+}
+
+.policies-meta {
+	margin-top: 12px;
+	color: var(--text-soft);
+	font-size: 0.95rem;
+}
+
+.policies-section {
+	margin-top: 26px;
+}
+
+.policies-section h2 {
+	font-size: 1.35rem;
+	font-weight: 800;
+	color: #4f2f38;
+	margin-bottom: 10px;
+}
+
+.policies-section p,
+.policies-section li {
+	color: var(--text-soft);
+}
+
+.policies-section ul {
+	margin: 0;
+	padding-left: 18px;
+	display: grid;
+	gap: 8px;
+}
+
+.policies-note {
+	margin-top: 26px;
+	border-radius: var(--radius-lg);
+	padding: 16px 18px;
+	background: rgba(214, 173, 96, 0.10);
+	border: 1px solid rgba(184, 134, 69, 0.18);
+	color: rgba(31, 41, 55, 0.82);
+}
+
+@media (max-width: 767.98px) {
+	.policies-shell {
+		padding: 140px 0 90px;
+	}
+
+	.policies-card {
+		padding: 26px;
+	}
+}
