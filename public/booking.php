@@ -3,13 +3,17 @@ session_start();
 require_once __DIR__ . '/../app/includes/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    $next = ltrim((string)($_SERVER['REQUEST_URI'] ?? ''), '/');
+    if ($next === '') {
+        $next = 'booking.php';
+    }
+    header('Location: login.php?next=' . rawurlencode($next));
     exit();
 }
 
 $room_id = $_GET['room_id'] ?? null;
 if (!$room_id) {
-    header('Location: rooms.php');
+    header('Location: rooms_and_suites.php');
     exit();
 }
 
@@ -18,7 +22,7 @@ $stmt->execute([$room_id]);
 $room = $stmt->fetch();
 
 if (!$room) {
-    header('Location: rooms.php');
+    header('Location: rooms_and_suites.php');
     exit();
 }
 
@@ -46,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-include __DIR__ . '/../app/includes/header.php';
+include __DIR__ . '/../app/includes/navbar.php';
 ?>
 
 <section class="py-5">
@@ -57,7 +61,6 @@ include __DIR__ . '/../app/includes/header.php';
                     <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" class="card-img-top" alt="<?php echo htmlspecialchars($room['name']); ?>">
                     <div class="card-body p-4">
                         <h2 class="card-title h3"><?php echo htmlspecialchars($room['name']); ?></h2>
-                        <p class="card-text text-muted"><?php echo htmlspecialchars($row['category']); ?></p>
                         <p class="card-text"><?php echo htmlspecialchars($room['description']); ?></p>
                         <p class="fw-bold text-primary fs-4">Price: $<?php echo number_format($room['price'], 2); ?> / night</p>
                     </div>

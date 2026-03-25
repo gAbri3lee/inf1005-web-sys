@@ -1,0 +1,104 @@
+.auth-page {
+    padding-top: 0;
+    background:
+        linear-gradient(rgba(9, 15, 24, 0.42), rgba(9, 15, 24, 0.62)),
+        linear-gradient(rgba(190, 120, 75, 0.14), rgba(28, 22, 20, 0.22)),
+        url('../images/HotelHomePage.png') center center / cover no-repeat;
+    min-height: 100vh;
+}
+
+/* Remove global footer top gap on auth pages (prevents white strip). */
+.site-footer {
+	margin-top: 0;
+}
+
+.auth-hero {
+    padding: 170px 0 28px;
+    color: var(--white);
+    background: transparent;
+}
+
+.auth-hero .section-eyebrow {
+	color: #fff7e8;
+}
+
+.auth-title {
+    font-size: clamp(2.3rem, 5vw, 3.6rem);
+    line-height: 1.05;
+    font-weight: 700;
+    margin-bottom: 14px;
+	color: #fff8ee;
+	text-shadow: 0 12px 30px rgba(0, 0, 0, 0.34);
+}
+
+.auth-subtitle {
+    color: rgba(255, 248, 238, 0.86);
+    max-width: 640px;
+}
+
+.auth-section {
+    padding: 40px 0 110px;
+}
+
+.auth-card {
+    padding: 2.2rem;
+}
+
+.auth-card-title {
+    font-size: 1.85rem;
+    margin-bottom: 1.25rem;
+}
+
+.auth-card .form-control {
+    border-radius: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(31, 41, 55, 0.12);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.auth-card .form-control:focus {
+    border-color: rgba(184, 134, 69, 0.62);
+    box-shadow: 0 0 0 0.25rem rgba(214, 173, 96, 0.18);
+}
+
+.auth-footer-text {
+    margin-top: 1.4rem;
+    text-align: center;
+    color: var(--text-soft);
+}
+
+.auth-footer-text a {
+    color: inherit;
+    font-weight: 600;
+}
+
+.auth-footer-text a:hover {
+    color: #8f5d47;
+}
+
+.auth-honeypot {
+    position: absolute;
+    left: -9999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+@media (max-width: 767.98px) {
+    .auth-page {
+        padding-top: 0;
+    }
+
+    .auth-hero {
+        padding: 140px 0 18px;
+    }
+
+    .auth-section {
+        padding: 26px 0 90px;
+    }
+
+    .auth-card {
+        padding: 1.6rem;
+    }
+}

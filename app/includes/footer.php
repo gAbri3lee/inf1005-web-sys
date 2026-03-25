@@ -49,5 +49,19 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="assets/js/main.js"></script>
+
+<?php
+    // Optional per-page JS injection (set $pageScripts = ['assets/js/page.js']; before including footer.php)
+    if (isset($pageScripts)) {
+        $scripts = is_array($pageScripts) ? $pageScripts : [$pageScripts];
+        foreach ($scripts as $src) {
+            $src = (string)$src;
+            if ($src !== '') {
+                echo '<script src="' . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . '"></script>' . "\n";
+            }
+        }
+    }
+?>
+    
 </body>
 </html>

@@ -133,6 +133,24 @@ section {
     margin-left: auto;
 }
 
+.navbar-logo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.navbar-logo {
+    width: auto;
+    height: 46px;
+    max-height: 46px;
+}
+
+.navbar-brand-text {
+    display: inline-flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
 .nav-link {
     color: rgba(255, 255, 255, 0.88) !important;
     font-size: 0.96rem;
@@ -782,6 +800,11 @@ section {
 
     .stats-wrap {
         grid-template-columns: 1fr;
+    }
+
+    .navbar-logo {
+        height: 40px;
+        max-height: 40px;
     }
 
     .about-intro-card,
