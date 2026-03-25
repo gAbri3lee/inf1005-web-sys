@@ -40,11 +40,7 @@
 	border-color: rgba(92, 58, 68, 0.35);
 }
 
-/* Safety: avoid invisible content if reveal-up isn't toggled. */
-.rooms-page .reveal-up {
-	opacity: 1;
-	transform: none;
-}
+
 
 .rooms-shell {
 	padding: 170px 0 110px;

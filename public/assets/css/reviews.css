@@ -36,11 +36,7 @@
 	border-color: rgba(92, 58, 68, 0.35);
 }
 
-/* Safety: if JS doesn't toggle `.reveal-up.visible`, don't keep content invisible. */
-.reviews-page .reveal-up {
-	opacity: 1;
-	transform: none;
-}
+
 
 .reviews-shell {
 	padding: 170px 0 110px;
