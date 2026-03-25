@@ -50,11 +50,6 @@ function render_average_stars(?float $averageRating): string
 	if ($averageRating === null) {
 		return '';
 	}
-
-	// UX rule requested:
-	// - 5.0 => show 5 full stars
-	// - 4.0–4.9 => show 4.5 stars
-	// - otherwise => nearest 0.5
 	if ($averageRating >= 5.0) {
 		$display = 5.0;
 	} elseif ($averageRating >= 4.0) {
@@ -155,7 +150,6 @@ function safe_uploaded_image(string $inputName, string $targetDir, array &$error
 		return null;
 	}
 
-	// Return public-relative path
 	return 'uploads/reviews/' . $filename;
 }
 
@@ -224,10 +218,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	}
 }
 
-// Repo-backed list for easy future DB integration.
 $requestedPage = (int)($_GET['page'] ?? 1);
 $list = reviews_repo_list([
-	'category' => $activeCategory,
+	'category' => '',
 	'page' => $requestedPage,
 	'pageSize' => $pageSize,
 ]);
@@ -242,7 +235,6 @@ if (isset($_GET['submitted']) && $_GET['submitted'] === '1') {
 	$successMessage = 'Thanks! Your review is saved for this session only. Publishing to the database will be available once it is set up.';
 }
 
-// Inject page CSS/JS in valid locations
 $pageStylesheets = ['assets/css/reviews.css'];
 $pageScripts = ['assets/js/reviews.js'];
 
@@ -287,14 +279,14 @@ include __DIR__ . '/../app/includes/navbar.php';
 							</div>
 						<?php endif; ?>
 
-							<div class="row g-4 align-items-start" id="reviews-browse">
+							<div class="row g-4 align-items-start" id="reviews-browse" data-initial-category="<?php echo htmlspecialchars($activeCategory, ENT_QUOTES, 'UTF-8'); ?>">
 							<div class="col-lg-7 col-xl-8">
 								<div class="reviews-filter reveal-up">
 									<div class="reviews-filter-label">Filter by category</div>
 									<div class="reviews-filter-chips">
-											<a class="btn btn-sm js-preserve-scroll <?php echo $activeCategory === '' ? 'btn-gold' : 'btn-outline-secondary'; ?>" href="reviews.php">All</a>
+												<button type="button" class="btn btn-sm js-review-filter <?php echo $activeCategory === '' ? 'btn-gold' : 'btn-outline-secondary'; ?>" data-category="" aria-pressed="<?php echo $activeCategory === '' ? 'true' : 'false'; ?>">All</button>
 										<?php foreach ($categoryOptions as $key => $label): ?>
-												<a class="btn btn-sm js-preserve-scroll <?php echo $activeCategory === $key ? 'btn-gold' : 'btn-outline-secondary'; ?>" href="reviews.php?category=<?php echo urlencode($key); ?>"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></a>
+													<button type="button" class="btn btn-sm js-review-filter <?php echo $activeCategory === $key ? 'btn-gold' : 'btn-outline-secondary'; ?>" data-category="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>" aria-pressed="<?php echo $activeCategory === $key ? 'true' : 'false'; ?>"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></button>
 										<?php endforeach; ?>
 									</div>
 								</div>
@@ -308,7 +300,13 @@ include __DIR__ . '/../app/includes/navbar.php';
 										</div>
 									<?php else: ?>
 										<?php foreach ($pagedReviews as $review): ?>
-											<div class="col-12 col-md-6">
+											<?php
+												$cats = $review['categories'] ?? [];
+												$cats = is_array($cats) ? array_values($cats) : [];
+												$cats = sanitize_categories($cats, $categoryOptions);
+												$dataCats = htmlspecialchars(implode(',', $cats), ENT_QUOTES, 'UTF-8');
+											?>
+											<div class="col-12 col-md-6 js-review-item" data-categories="<?php echo $dataCats; ?>">
 												<article class="content-card review-card reveal-up">
 													<div class="review-head">
 														<div>
@@ -341,7 +339,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 															<img class="review-image" src="<?php echo htmlspecialchars($img, ENT_QUOTES, 'UTF-8'); ?>" alt="Review image" loading="lazy">
 														</div>
 													<?php endif; ?>
-												</article>
+										</article>
 											</div>
 										<?php endforeach; ?>
 									<?php endif; ?>
@@ -351,19 +349,19 @@ include __DIR__ . '/../app/includes/navbar.php';
 									<nav class="mt-5 reveal-up" aria-label="Reviews pagination">
 										<ul class="pagination justify-content-center mb-0">
 											<li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
-												<a class="page-link js-preserve-scroll" href="reviews.php?page=<?php echo max(1, $page - 1); ?><?php echo $activeCategory !== '' ? '&category=' . urlencode($activeCategory) : ''; ?>" aria-label="Previous">
+												<a class="page-link" href="reviews.php?page=<?php echo max(1, $page - 1); ?>" aria-label="Previous">
 													<span aria-hidden="true">&laquo;</span>
 												</a>
 											</li>
 
 											<?php for ($p = 1; $p <= $totalPages; $p++): ?>
 												<li class="page-item <?php echo $p === $page ? 'active' : ''; ?>">
-													<a class="page-link js-preserve-scroll" href="reviews.php?page=<?php echo $p; ?><?php echo $activeCategory !== '' ? '&category=' . urlencode($activeCategory) : ''; ?>"><?php echo $p; ?></a>
+													<a class="page-link" href="reviews.php?page=<?php echo $p; ?>"><?php echo $p; ?></a>
 												</li>
 											<?php endfor; ?>
 
 											<li class="page-item <?php echo $page >= $totalPages ? 'disabled' : ''; ?>">
-												<a class="page-link js-preserve-scroll" href="reviews.php?page=<?php echo min($totalPages, $page + 1); ?><?php echo $activeCategory !== '' ? '&category=' . urlencode($activeCategory) : ''; ?>" aria-label="Next">
+												<a class="page-link" href="reviews.php?page=<?php echo min($totalPages, $page + 1); ?>" aria-label="Next">
 													<span aria-hidden="true">&raquo;</span>
 												</a>
 											</li>
@@ -396,7 +394,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 											</div>
 										<?php endif; ?>
 
-										<form action="reviews.php<?php echo $activeCategory !== '' ? '?category=' . urlencode($activeCategory) : ''; ?>" method="POST" enctype="multipart/form-data" novalidate>
+										<form action="reviews.php" method="POST" enctype="multipart/form-data" novalidate>
 											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['reviews_form_token'], ENT_QUOTES, 'UTF-8'); ?>">
 											<div class="reviews-honeypot" aria-hidden="true">
 												<label for="website" class="form-label">Website</label>

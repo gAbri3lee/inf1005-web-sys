@@ -7,8 +7,6 @@ $rooms = rooms_repo_all();
 
 $viewOptions = ['Garden', 'Ocean', 'City', 'Lagoon'];
 $occupancyOptions = [2, 3, 4];
-
-// Inject page CSS/JS in valid locations
 $pageStylesheets = ['assets/css/rooms_and_suites.css'];
 $pageScripts = ['assets/js/rooms_and_suites.js'];
 
@@ -125,7 +123,7 @@ include __DIR__ . '/../app/includes/navbar.php';
     </section>
 
     <!-- Room details modal (Bootstrap) -->
-    <div class="modal fade" id="roomDetailsModal" tabindex="-1" aria-labelledby="roomDetailsTitle" aria-hidden="true">
+    <div class="modal fade room-details-modal" id="roomDetailsModal" tabindex="-1" aria-labelledby="roomDetailsTitle" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">

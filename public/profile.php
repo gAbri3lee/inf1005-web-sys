@@ -11,7 +11,7 @@ $stmt = $pdo->prepare("SELECT b.*, r.name as room_name FROM bookings b JOIN room
 $stmt->execute([$_SESSION['user_id']]);
 $bookings = $stmt->fetchAll();
 
-include __DIR__ . '/../app/includes/header.php';
+include __DIR__ . '/../app/includes/navbar.php';
 ?>
 
 <section class="bg-dark text-white py-5 text-center">
@@ -28,7 +28,7 @@ include __DIR__ . '/../app/includes/header.php';
                 <div class="card shadow border-0 p-4">
                     <h2 class="mb-4">Your Booking History</h2>
                     <?php if (empty($bookings)): ?>
-                        <p class="text-center">You have no bookings yet. <a href="rooms.php">Book a room now!</a></p>
+                        <p class="text-center">You have no bookings yet. <a href="rooms_and_suites.php">Book a room now!</a></p>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-hover">

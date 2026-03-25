@@ -2,8 +2,6 @@
 session_start();
 $errors = [];
 $successMessage = '';
-
-// Temporary hardcoded login (remove when database auth is ready)
 const TEMP_LOGIN_EMAIL = 'demo@azurehorizon.test';
 const TEMP_LOGIN_PASSWORD = 'demo1234';
 const TEMP_LOGIN_NAME = 'Demo User';
@@ -15,8 +13,7 @@ function normalize_next_path(string $next): string
         return 'index.php';
     }
 
-    // Only allow simple local php filenames (prevents open redirects)
-    if (!preg_match('/^[A-Za-z0-9_-]+\.php$/', $next)) {
+    if (!preg_match('/^[A-Za-z0-9_-]+\.php(?:\?[A-Za-z0-9_.~%\-=&]*)?$/', $next)) {
         return 'index.php';
     }
 
@@ -74,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Inject page CSS into <head> (W3C-valid)
 $pageStylesheets = ['assets/css/login.css'];
 
 include __DIR__ . '/../app/includes/navbar.php';

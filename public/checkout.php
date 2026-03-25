@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+if (!isset($_SESSION['user_id'])) {
+	header('Location: login.php?next=' . rawurlencode('checkout.php'));
+	exit();
+}
+
 require_once __DIR__ . '/../app/includes/rooms_repository.php';
 
 $pageStylesheets = ['assets/css/rooms_and_suites.css'];

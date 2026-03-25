@@ -5,9 +5,32 @@
 	const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
 	const modalEl = qs('#roomDetailsModal');
-	if (!modalEl) return;
+	let bsModal = null;
+	const canUseBootstrapModal = Boolean(modalEl && window.bootstrap && window.bootstrap.Modal);
+	if (canUseBootstrapModal) {
+		try {
+			bsModal = new window.bootstrap.Modal(modalEl);
+		} catch (_) {
+			bsModal = null;
+		}
+	}
 
-	const bsModal = new bootstrap.Modal(modalEl);
+	const modalContent = modalEl ? qs('.modal-content', modalEl) : null;
+	let springTimeout = null;
+	if (modalEl && modalContent) {
+		modalEl.addEventListener('show.bs.modal', () => {
+			modalContent.classList.remove('is-springing');
+			void modalContent.offsetWidth;
+			modalContent.classList.add('is-springing');
+			if (springTimeout) {
+				clearTimeout(springTimeout);
+			}
+			springTimeout = setTimeout(() => {
+				modalContent.classList.remove('is-springing');
+				springTimeout = null;
+			}, 700);
+		});
+	}
 
 	const cards = qsa('.js-room-card');
 	const groups = qsa('.js-room-group');
@@ -19,24 +42,24 @@
 	const accessibleCheck = qs('.js-filter-accessible');
 	const clearBtn = qs('.js-clear-filters');
 
-	const modalName = qs('.js-room-name', modalEl);
-	const modalShort = qs('.js-room-short', modalEl);
-	const modalPrice = qs('.js-room-price', modalEl);
-	const modalRoomId = qs('.js-room-id', modalEl);
-	const carouselIndicators = qs('.js-room-carousel-indicators', modalEl);
-	const carouselInner = qs('.js-room-carousel-inner', modalEl);
+	const modalName = modalEl ? qs('.js-room-name', modalEl) : null;
+	const modalShort = modalEl ? qs('.js-room-short', modalEl) : null;
+	const modalPrice = modalEl ? qs('.js-room-price', modalEl) : null;
+	const modalRoomId = modalEl ? qs('.js-room-id', modalEl) : null;
+	const carouselIndicators = modalEl ? qs('.js-room-carousel-indicators', modalEl) : null;
+	const carouselInner = modalEl ? qs('.js-room-carousel-inner', modalEl) : null;
 
-	const listOverview = qs('.js-room-overview', modalEl);
-	const listBenefits = qs('.js-room-benefits', modalEl);
-	const listBedding = qs('.js-room-bedding', modalEl);
-	const listFeatures = qs('.js-room-features', modalEl);
-	const listBath = qs('.js-room-bath', modalEl);
-	const listFurnish = qs('.js-room-furnish', modalEl);
+	const listOverview = modalEl ? qs('.js-room-overview', modalEl) : null;
+	const listBenefits = modalEl ? qs('.js-room-benefits', modalEl) : null;
+	const listBedding = modalEl ? qs('.js-room-bedding', modalEl) : null;
+	const listFeatures = modalEl ? qs('.js-room-features', modalEl) : null;
+	const listBath = modalEl ? qs('.js-room-bath', modalEl) : null;
+	const listFurnish = modalEl ? qs('.js-room-furnish', modalEl) : null;
 
-	const checkInEl = qs('.js-check-in', modalEl);
-	const checkOutEl = qs('.js-check-out', modalEl);
-	const estTotalEl = qs('.js-est-total', modalEl);
-	const viewTotalBtn = qs('.js-view-total', modalEl);
+	const checkInEl = modalEl ? qs('.js-check-in', modalEl) : null;
+	const checkOutEl = modalEl ? qs('.js-check-out', modalEl) : null;
+	const estTotalEl = modalEl ? qs('.js-est-total', modalEl) : null;
+	const viewTotalBtn = modalEl ? qs('.js-view-total', modalEl) : null;
 
 	let activeRoom = null;
 
@@ -58,6 +81,7 @@
 	}
 
 	function setList(ul, items) {
+		if (!ul) return;
 		ul.innerHTML = '';
 		(items || []).forEach((text) => {
 			const li = document.createElement('li');
@@ -67,6 +91,7 @@
 	}
 
 	function buildCarousel(images) {
+		if (!carouselIndicators || !carouselInner) return;
 		carouselIndicators.innerHTML = '';
 		carouselInner.innerHTML = '';
 
@@ -109,12 +134,15 @@
 	}
 
 	function updateEstimate() {
+		if (!estTotalEl || !viewTotalBtn) return;
+
 		if (!activeRoom) {
 			estTotalEl.textContent = 'Select dates';
 			viewTotalBtn.disabled = true;
 			return;
 		}
 
+		if (!checkInEl || !checkOutEl) return;
 		const checkIn = checkInEl.value;
 		const checkOut = checkOutEl.value;
 		const nights = daysBetweenInclusive(checkIn, checkOut);
@@ -130,6 +158,7 @@
 	}
 
 	function setDateMins() {
+		if (!checkInEl || !checkOutEl) return;
 		const today = new Date();
 		const yyyy = today.getFullYear();
 		const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -140,11 +169,12 @@
 	}
 
 	function openRoom(room) {
+		if (!modalEl || !bsModal) return;
 		activeRoom = room;
-		modalName.textContent = room?.name || 'Room';
-		modalShort.textContent = room?.description || '';
-		modalPrice.textContent = `${money(Number(room?.price_per_night || 0))} / night`;
-		modalRoomId.value = String(room?.id || '');
+		if (modalName) modalName.textContent = room?.name || 'Room';
+		if (modalShort) modalShort.textContent = room?.description || '';
+		if (modalPrice) modalPrice.textContent = `${money(Number(room?.price_per_night || 0))} / night`;
+		if (modalRoomId) modalRoomId.value = String(room?.id || '');
 
 		setList(listOverview, [
 			`${room?.view || '—'} view`,
@@ -164,8 +194,8 @@
 
 		buildCarousel(room?.images || []);
 
-		checkInEl.value = '';
-		checkOutEl.value = '';
+		if (checkInEl) checkInEl.value = '';
+		if (checkOutEl) checkOutEl.value = '';
 		setDateMins();
 		updateEstimate();
 
@@ -193,16 +223,63 @@
 
 	function applyFilters() {
 		let shown = 0;
+		const leaveMs = 220;
+		const enterMs = 420;
+		const timeouts = applyFilters._timeouts || (applyFilters._timeouts = new WeakMap());
+		let groupUpdateTimeout = applyFilters._groupUpdateTimeout || null;
+
+		function clearTimer(el) {
+			const t = timeouts.get(el);
+			if (t) {
+				clearTimeout(t);
+				timeouts.delete(el);
+			}
+		}
+
 		cards.forEach((cardEl) => {
 			const ok = matchesFilters(cardEl);
-			cardEl.classList.toggle('d-none', !ok);
-			if (ok) shown += 1;
+			const isHidden = cardEl.classList.contains('d-none');
+
+			clearTimer(cardEl);
+			cardEl.classList.remove('filter-enter', 'filter-leave');
+
+			if (ok) {
+				shown += 1;
+				if (isHidden) {
+					cardEl.classList.remove('d-none');
+					void cardEl.offsetWidth;
+					cardEl.classList.add('filter-enter');
+					const tid = setTimeout(() => {
+						cardEl.classList.remove('filter-enter');
+						timeouts.delete(cardEl);
+					}, enterMs + 30);
+					timeouts.set(cardEl, tid);
+				}
+			} else {
+				if (!isHidden) {
+					const tid = setTimeout(() => {
+						cardEl.classList.add('d-none');
+						cardEl.classList.remove('filter-leave');
+						timeouts.delete(cardEl);
+					}, leaveMs);
+					timeouts.set(cardEl, tid);
+				}
+			}
 		});
 
-		groups.forEach((groupEl) => {
-			const visibleCards = qsa('.js-room-card', groupEl).filter((c) => !c.classList.contains('d-none'));
-			groupEl.classList.toggle('d-none', visibleCards.length === 0);
-		});
+		function updateGroupVisibility() {
+			groups.forEach((groupEl) => {
+				const visibleCards = qsa('.js-room-card', groupEl).filter((c) => !c.classList.contains('d-none'));
+				groupEl.classList.toggle('d-none', visibleCards.length === 0);
+			});
+		}
+
+		updateGroupVisibility();
+		if (groupUpdateTimeout) {
+			clearTimeout(groupUpdateTimeout);
+		}
+		groupUpdateTimeout = setTimeout(updateGroupVisibility, leaveMs + 50);
+		applyFilters._groupUpdateTimeout = groupUpdateTimeout;
 
 		if (countEl) countEl.textContent = String(shown);
 		if (emptyEl) emptyEl.classList.toggle('d-none', shown !== 0);
@@ -212,6 +289,7 @@
 		const btn = qs('.js-open-room', cardEl);
 		if (!btn) return;
 		btn.addEventListener('click', () => {
+			if (!modalEl || !bsModal) return;
 			const room = parseRoom(cardEl);
 			if (room) openRoom(room);
 		});
@@ -227,7 +305,7 @@
 		});
 	}
 
-	checkInEl.addEventListener('change', () => {
+	if (checkInEl) checkInEl.addEventListener('change', () => {
 		// Keep check-out >= check-in
 		if (checkInEl.value) {
 			checkOutEl.min = checkInEl.value;
@@ -237,7 +315,7 @@
 		}
 		updateEstimate();
 	});
-	checkOutEl.addEventListener('change', updateEstimate);
+	if (checkOutEl) checkOutEl.addEventListener('change', updateEstimate);
 
 	applyFilters();
 })();

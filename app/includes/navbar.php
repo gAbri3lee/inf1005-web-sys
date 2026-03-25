@@ -16,6 +16,19 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <?php
+    // Optional per-page CSS injection (set $pageStylesheets = ['assets/css/page.css']; before including navbar.php)
+    if (isset($pageStylesheets)) {
+        $styles = is_array($pageStylesheets) ? $pageStylesheets : [$pageStylesheets];
+        foreach ($styles as $href) {
+            $href = (string)$href;
+            if ($href !== '') {
+                echo '<link rel="stylesheet" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">' . "\n";
+            }
+        }
+    }
+    ?>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark site-navbar fixed-top" aria-label="Main navigation">

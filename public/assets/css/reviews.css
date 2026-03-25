@@ -3,7 +3,6 @@
 	padding-top: 0;
 }
 
-/* Make navbar readable on this page (like login/register) */
 .site-navbar {
 	background: rgba(244, 214, 220, 0.55);
 	backdrop-filter: blur(12px);
@@ -119,6 +118,45 @@
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
+}
+
+@keyframes reviewsFilterBounceIn {
+	0% {
+		opacity: 0;
+		transform: translateY(14px) scale(0.98);
+	}
+	60% {
+		opacity: 1;
+		transform: translateY(-6px) scale(1.02);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes reviewsFilterBounceOut {
+	0% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+	100% {
+		opacity: 0;
+		transform: translateY(10px) scale(0.98);
+	}
+}
+
+.js-review-item {
+	will-change: transform, opacity;
+}
+
+.js-review-item.filter-enter {
+	animation: reviewsFilterBounceIn 420ms cubic-bezier(0.22, 1.45, 0.36, 1) both;
+}
+
+.js-review-item.filter-leave {
+	animation: reviewsFilterBounceOut 220ms ease both;
+	pointer-events: none;
 }
 
 .reviews-category-grid {
@@ -242,7 +280,6 @@
 	box-shadow: 0 0 0 0.25rem rgba(214, 173, 96, 0.18);
 }
 
-/* Match website theme: chips + pagination (override Bootstrap default blue). */
 .reviews-page .btn-outline-secondary {
 	color: #5c3a44;
 	border-color: rgba(92, 58, 68, 0.35);
