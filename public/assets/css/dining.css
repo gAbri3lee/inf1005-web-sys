@@ -1,0 +1,123 @@
+.page-hero {
+    min-height: 82vh;
+    display: flex;
+    align-items: end;
+    position: relative;
+    color: var(--white);
+    overflow: hidden;
+}
+
+.page-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255, 250, 246, 0) 0%, rgba(255, 250, 246, 0) 84%, rgba(255, 250, 246, 0.3) 94%, #fffaf6 100%);
+    pointer-events: none;
+}
+
+.page-hero-dining {
+    background:
+        linear-gradient(180deg, rgba(12, 18, 25, 0.22) 0%, rgba(12, 18, 25, 0.76) 100%),
+        linear-gradient(120deg, rgba(182, 121, 76, 0.24) 0%, rgba(40, 26, 17, 0.22) 100%),
+        url('../images/home/RestaurantFieryBlaze.png') center center / cover no-repeat;
+}
+
+.page-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 220px 0 96px;
+}
+
+.page-hero-title {
+    font-size: clamp(2.4rem, 5.5vw, 4.7rem);
+    line-height: 1.02;
+    font-weight: 700;
+    color: #fff8ee;
+    margin-bottom: 18px;
+    text-shadow: 0 12px 30px rgba(0, 0, 0, 0.32);
+}
+
+.page-hero-text {
+    font-size: clamp(1.04rem, 2vw, 1.22rem);
+    line-height: 1.82;
+    max-width: 760px;
+    color: rgba(255, 247, 235, 0.92);
+    margin: 0 0 1.8rem;
+    padding-left: 1.4rem;
+    border-left: 3px solid rgba(255, 241, 223, 0.82);
+    text-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.dining-intro-card {
+    padding: 2.2rem;
+    height: 100%;
+}
+
+.dining-intro-grid {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.dining-intro-grid article {
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, #fffaf6 0%, #f7ede4 100%);
+    border: 1px solid rgba(111, 78, 52, 0.08);
+}
+
+.dining-intro-grid h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.dining-intro-grid p,
+.venue-meta li {
+    color: var(--text-soft);
+}
+
+.venue-card img {
+    background: linear-gradient(135deg, #f6e2cf, #ecd2bb);
+}
+
+.venue-meta {
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1rem;
+}
+
+.venue-meta strong {
+    color: var(--text-dark);
+}
+
+.dining-stats {
+    margin-top: 2rem;
+}
+
+@media (max-width: 991.98px) {
+    .page-hero {
+        min-height: 72vh;
+        background-position: center center;
+    }
+
+    .page-hero-content {
+        padding: 185px 0 78px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .page-hero-content {
+        padding: 160px 0 68px;
+    }
+
+    .page-hero-title {
+        font-size: clamp(2.3rem, 10vw, 3.5rem);
+    }
+
+    .page-hero-text {
+        padding-left: 1rem;
+    }
+
+    .dining-intro-card {
+        padding: 1.5rem;
+    }
+}

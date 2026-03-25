@@ -1,0 +1,154 @@
+.page-hero {
+    min-height: 82vh;
+    display: flex;
+    align-items: end;
+    position: relative;
+    color: var(--white);
+    overflow: hidden;
+}
+
+.page-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255, 250, 246, 0) 0%, rgba(255, 250, 246, 0) 84%, rgba(255, 250, 246, 0.3) 94%, #fffaf6 100%);
+    pointer-events: none;
+}
+
+.page-hero-contact {
+    background:
+        linear-gradient(180deg, rgba(12, 18, 25, 0.2) 0%, rgba(12, 18, 25, 0.72) 100%),
+        linear-gradient(120deg, rgba(150, 105, 92, 0.2) 0%, rgba(17, 24, 39, 0.2) 100%),
+        url('../images/home/AboutUsSpa.png') center center / cover no-repeat;
+}
+
+.page-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 220px 0 96px;
+}
+
+.page-hero-title {
+    font-size: clamp(2.4rem, 5.5vw, 4.7rem);
+    line-height: 1.02;
+    font-weight: 700;
+    color: #fff8ee;
+    margin-bottom: 18px;
+    text-shadow: 0 12px 30px rgba(0, 0, 0, 0.32);
+}
+
+.page-hero-text {
+    font-size: clamp(1.04rem, 2vw, 1.22rem);
+    line-height: 1.82;
+    max-width: 760px;
+    color: rgba(255, 247, 235, 0.92);
+    margin: 0 0 1.8rem;
+    padding-left: 1.4rem;
+    border-left: 3px solid rgba(255, 241, 223, 0.82);
+    text-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.contact-info-card,
+.contact-form-card {
+    padding: 2.2rem;
+    height: 100%;
+}
+
+.contact-quick-notes {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.contact-quick-notes article,
+.contact-detail-item {
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, #fffaf6 0%, #f7ede4 100%);
+    border: 1px solid rgba(111, 78, 52, 0.08);
+}
+
+.contact-detail-item h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.contact-detail-item p,
+.contact-quick-notes p,
+.form-note {
+    color: var(--text-soft);
+}
+
+.contact-detail-group {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.contact-detail-item p,
+.contact-detail-item a {
+    margin: 0;
+    color: var(--text-soft);
+}
+
+.contact-detail-item a:hover {
+    color: #8f5d47;
+}
+
+.contact-form-card .form-control,
+.contact-form-card .form-select {
+    border-radius: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(31, 41, 55, 0.12);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.contact-form-card .form-control:focus,
+.contact-form-card .form-select:focus {
+    border-color: rgba(184, 134, 69, 0.62);
+    box-shadow: 0 0 0 0.25rem rgba(214, 173, 96, 0.18);
+}
+
+.contact-form-card textarea.form-control {
+    min-height: 11rem;
+    resize: vertical;
+}
+
+.contact-illustration {
+    width: min(10rem, 28vw);
+    height: auto;
+    align-self: center;
+}
+
+@media (max-width: 991.98px) {
+    .page-hero {
+        min-height: 72vh;
+        background-position: center center;
+    }
+
+    .page-hero-content {
+        padding: 185px 0 78px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .page-hero-content {
+        padding: 160px 0 68px;
+    }
+
+    .page-hero-title {
+        font-size: clamp(2.3rem, 10vw, 3.5rem);
+    }
+
+    .page-hero-text {
+        padding-left: 1rem;
+    }
+
+    .contact-info-card,
+    .contact-form-card {
+        padding: 1.5rem;
+    }
+
+    .contact-illustration {
+        width: min(8rem, 38vw);
+    }
+}
