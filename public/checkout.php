@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errors) {
 	}
 
 	if (!$errors) {
-		$successMessage = 'Checkout complete (demo). Your booking has been recorded.';
+		$successMessage = 'Checkout complete. Your booking has been recorded.';
 		unset($_SESSION['pending_booking']);
 		$formData = array_map(static fn() => '', $formData);
 	}
@@ -121,7 +121,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 			<div class="content-card rooms-card reveal-up">
 				<header class="rooms-header text-center">
 					<h1 class="rooms-title">Checkout</h1>
-					<p class="rooms-subtitle mb-0">Enter billing information to confirm your booking (demo).</p>
+					<p class="rooms-subtitle mb-0">Enter billing information to confirm your booking.</p>
 				</header>
 
 				<?php if ($errors): ?>
