@@ -62,7 +62,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-6 reveal-up">
                     <img
-                        src="assets/images/home/SpaRoom.png"
+                        src="assets/images/SpaRoom.png"
                         alt="Luxury spa room with a calm, elegant interior and resort-style ambience"
                         class="intro-image img-fluid"
                     >
@@ -84,7 +84,7 @@ include __DIR__ . '/../app/includes/navbar.php';
             <div class="row g-4">
                 <div class="col-lg-4 reveal-up">
                     <article class="feature-card">
-                        <img src="assets/images/home/Suite1.png" alt="Refined suite with king bed, warm wood finishes and sea-facing terrace">
+                        <img src="assets/images/Suite1.png" alt="Refined suite with king bed, warm wood finishes and sea-facing terrace">
                         <h3>Horizon Suite</h3>
                         <p>
                             A polished, ocean-facing suite with soft neutral tones, a private terrace and
@@ -96,7 +96,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-4 reveal-up">
                     <article class="feature-card">
-                        <img src="assets/images/home/Suite2.png" alt="Expansive resort exterior with pool, palm trees and sunset coastal backdrop">
+                        <img src="assets/images/Suite2.png" alt="Expansive resort exterior with pool, palm trees and sunset coastal backdrop">
                         <h3>Lagoon Villa</h3>
                         <p>
                             A villa-inspired stay that feels open, breezy and serene, perfect for guests drawn
@@ -108,7 +108,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-4 reveal-up">
                     <article class="feature-card">
-                        <img src="assets/images/home/Suite3.png" alt="Grand duplex-style luxury suite with staircase, chandelier and dramatic interior design">
+                        <img src="assets/images/Suite3.png" alt="Grand duplex-style luxury suite with staircase, chandelier and dramatic interior design">
                         <h3>Celeste Duplex Villa</h3>
                         <p>
                             A dramatic two-level villa concept with statement architecture, generous space and
@@ -139,7 +139,7 @@ include __DIR__ . '/../app/includes/navbar.php';
             <div class="row g-4">
                 <div class="col-lg-6 reveal-up">
                     <article class="dining-card">
-                        <img src="assets/images/home/RestaurantFieryBlaze.png" alt="Warm upscale grill restaurant interior with live fire cooking and elegant evening ambience">
+                        <img src="assets/images/RestaurantFieryBlaze.png" alt="Warm upscale grill restaurant interior with live fire cooking and elegant evening ambience">
                         <div class="dining-card-body">
                             <span class="badge-soft">Grill & Fire Dining</span>
                             <h3>Fiery Blaze</h3>
@@ -154,7 +154,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-6 reveal-up">
                     <article class="dining-card">
-                        <img src="assets/images/home/RestaurantSunsetLagoon.png" alt="Beachfront restaurant with ocean view, open-air seating and sunset dining atmosphere">
+                        <img src="assets/images/RestaurantSunsetLagoon.png" alt="Beachfront restaurant with ocean view, open-air seating and sunset dining atmosphere">
                         <div class="dining-card-body">
                             <span class="badge-soft">Beach Club & Bar</span>
                             <h3>Sunset Lagoon</h3>

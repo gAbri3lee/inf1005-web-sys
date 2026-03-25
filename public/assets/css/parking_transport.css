@@ -4,9 +4,14 @@
 }
 
 .transport-hero {
-    background: linear-gradient(135deg, #1f2329 0%, #2a1f1a 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    background-image: url('../images/parking1.png');
+    /* background: linear-gradient(135deg, #1f2329 0%, #2a1f1a 100%); */
     color: #fff;
-    padding: 80px 0 60px;
+    padding: 0px 0 60px;
 }
 
 .transport-eyebrow {
