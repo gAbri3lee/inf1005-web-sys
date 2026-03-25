@@ -51,17 +51,17 @@
 <script src="assets/js/main.js"></script>
 
 <?php
-    // Optional per-page CSS injection (set $pageStylesheets = ['assets/css/page.css']; before including navbar.php)
-    if (isset($pageStylesheets)) {
-        $styles = is_array($pageStylesheets) ? $pageStylesheets : [$pageStylesheets];
-        foreach ($styles as $href) {
-            $href = (string)$href;
-            if ($href !== '') {
-                echo '<link rel="stylesheet" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">' . "\n";
+    // Optional per-page JS injection (set $pageScripts = ['assets/js/page.js']; before including footer.php)
+    if (isset($pageScripts)) {
+        $scripts = is_array($pageScripts) ? $pageScripts : [$pageScripts];
+        foreach ($scripts as $src) {
+            $src = (string)$src;
+            if ($src !== '') {
+                echo '<script src="' . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . '"></script>' . "\n";
             }
         }
     }
-    ?>
+?>
     
 </body>
 </html>
