@@ -39,6 +39,7 @@
                 src="assets/images/logo_updated.png"
                 alt="Horizon Sands Bali Beach Resort and Hotel logo"
                 class="navbar-logo"
+                height="46"
             >
             <span class="navbar-brand-text">
                 <span class="navbar-brand-title">Horizon Sands</span>
