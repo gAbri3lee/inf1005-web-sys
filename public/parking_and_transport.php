@@ -46,7 +46,7 @@ include __DIR__ . '/../app/includes/navbar.php';
             <div class="transport-info-card">
                 <div class="row g-4 align-items-center">
                     <div class="col-lg-6">
-                        <h2 class="section-title mb-2">Getting to Azure Horizon</h2>
+                        <h2 class="section-title mb-2">Getting to Horizon Sands Bali</h2>
                         <p class="section-text mb-0">
                             Choose the most convenient option based on how you are arriving. Use the tabs below
                             to view key details for parking, airport transfers, and public transport.
@@ -57,7 +57,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <span class="address-label">Hotel Address</span>
                             <div class="address-line-wrap">
                                 <p id="hotelAddress" class="hotel-address mb-0">
-                                    Azure Horizon Hotel, 123 Marina View, Singapore 018960
+                                    Horizon Sands Bali, 123 Marina View, Singapore 018960
                                 </p>
                                 <button type="button" id="copyAddressBtn" class="btn btn-outline-dark rounded-pill btn-sm">
                                     Copy Address

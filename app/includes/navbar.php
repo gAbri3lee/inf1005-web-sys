@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Azure Horizon Resort & Spa</title>
-    <meta name="description" content="Azure Horizon Resort & Spa - Dive Into Bliss with sunset-facing suites, villas, dining, and coastal luxury experiences.">
+    <title>Horizon Sands Bali</title>
+    <meta name="description" content="Horizon Sands Bali - Dive Into Bliss with sunset-facing suites, villas, dining, and coastal luxury experiences.">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -20,7 +20,17 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark site-navbar fixed-top" aria-label="Main navigation">
     <div class="container">
-        <a class="navbar-brand" href="index.php">AZURE HORIZON</a>
+        <a class="navbar-brand navbar-logo-link" href="index.php" aria-label="Horizon Sands Bali home">
+            <img
+                src="assets/images/logo_updated.png"
+                alt="Horizon Sands Bali Beach Resort and Hotel logo"
+                class="navbar-logo"
+            >
+            <span class="navbar-brand-text">
+                <span class="navbar-brand-title">Horizon Sands</span>
+                <span class="navbar-brand-subtitle">Bali</span>
+            </span>
+        </a>
 
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>

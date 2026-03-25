@@ -247,7 +247,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             </h2>
                             <div id="collapse11" class="accordion-collapse collapse" aria-labelledby="heading11" data-bs-parent="#faqAccordion11">
                                 <div class="accordion-body">
-                                    Yes. Azure Horizon offers on-site dining venues, lounge experiences, and selected in-room dining options during operating hours.
+                                    Yes. Horizon Sands Bali offers on-site dining venues, lounge experiences, and selected in-room dining options during operating hours.
                                 </div>
                             </div>
                         </div>
@@ -281,7 +281,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             </h2>
                             <div id="collapse13" class="accordion-collapse collapse" aria-labelledby="heading13" data-bs-parent="#faqAccordion13">
                                 <div class="accordion-body">
-                                    Azure Horizon maintains a non-smoking environment in guest rooms and most public areas. Designated smoking zones may be available.
+                                    Horizon Sands Bali maintains a non-smoking environment in guest rooms and most public areas. Designated smoking zones may be available.
                                 </div>
                             </div>
                         </div>

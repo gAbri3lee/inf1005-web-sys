@@ -8,12 +8,12 @@ include __DIR__ . '/../app/includes/navbar.php';
         <div class="container page-hero-content">
             <div class="row">
                 <div class="col-lg-8 col-xl-7 reveal-up">
-                    <span class="hero-tag">Dining at Azure Horizon</span>
+                    <span class="hero-tag">Dining at Horizon Sands Bali</span>
                     <h1 class="page-hero-title">Three distinct venues, each shaped by the coast.</h1>
                     <p class="page-hero-text">
                         From open-fire grilling indoors under dramatic vaulted ceilings, to beachfront dining
                         with the tide at your feet and slow mornings in our all-day café, every meal at
-                        Azure Horizon is designed to feel immersive, relaxed and memorable.
+                        Horizon Sands Bali is designed to feel immersive, relaxed and memorable.
                     </p>
                     <div class="hero-actions">
                         <a href="#venues" class="btn btn-gold">Explore Our Venues</a>

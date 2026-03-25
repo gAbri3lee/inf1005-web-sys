@@ -33,10 +33,10 @@ include __DIR__ . '/../app/includes/navbar.php';
         <div class="container">
             <div class="row align-items-center g-5">
                 <div class="col-lg-6 reveal-up">
-                    <span class="section-eyebrow">Welcome to Azure Horizon</span>
+                    <span class="section-eyebrow">Welcome to Horizon Sands Bali</span>
                     <h2 class="section-title">A sunset-crafted stay designed to feel calm, warm and unforgettable.</h2>
                     <p class="section-text">
-                        Nestled along the shoreline, Azure Horizon Resort & Spa offers a refined escape shaped by
+                        Nestled along the shoreline, Horizon Sands Bali offers a refined escape shaped by
                         ocean views, elegant interiors and moments of complete relaxation.
                     </p>
                     <p class="section-text">
@@ -125,7 +125,7 @@ include __DIR__ . '/../app/includes/navbar.php';
         <div class="container">
             <div class="row align-items-end mb-5">
                 <div class="col-lg-7 reveal-up">
-                    <span class="section-eyebrow">Dining at Azure Horizon</span>
+                    <span class="section-eyebrow">Dining at Horizon Sands Bali</span>
                     <h2 class="section-title">Two signature dining moods, one unforgettable coastline.</h2>
                 </div>
                 <div class="col-lg-5 reveal-up">
@@ -176,7 +176,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                 <span class="section-eyebrow text-white">Discover more</span>
                 <h2 class="section-title">Unwind in elegance, embrace the horizon.</h2>
                 <p class="section-text mx-auto mb-4">
-                    Explore the story behind Azure Horizon Resort & Spa and discover the inspiration
+                    Explore the story behind Horizon Sands Bali and discover the inspiration
                     behind its coastal charm, luxurious stays and signature experiences.
                 </p>
                 <a href="about.php" class="cta-button">Explore More</a>

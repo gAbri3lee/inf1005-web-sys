@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$errors) {
-        $successMessage = 'Thank you for contacting Azure Horizon. Our team will get back to you shortly.';
+        $successMessage = 'Thank you for contacting Horizon Sands Bali. Our team will get back to you shortly.';
         $formData = [
             'name' => '',
             'email' => '',
@@ -83,7 +83,7 @@ include __DIR__ . '/../app/includes/navbar.php';
         <div class="container page-hero-content">
             <div class="row">
                 <div class="col-lg-8 col-xl-7 reveal-up">
-                    <span class="hero-tag">Contact Azure Horizon</span>
+                    <span class="hero-tag">Contact Horizon Sands Bali</span>
                     <h1 class="page-hero-title">We are here to help before, during and after your stay.</h1>
                     <p class="page-hero-text">
                         Whether you are planning a reservation, arranging a special celebration or simply have a
@@ -121,7 +121,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             </div>
                             <div class="contact-detail-item">
                                 <h3>Email</h3>
-                                <p><a href="mailto:hello@azurehorizon.test">hello@azurehorizon.test</a></p>
+                                <p><a href="mailto:hello@horizonsandsbali.test">hello@horizonsandsbali.test</a></p>
                             </div>
                             <div class="contact-detail-item">
                                 <h3>Guest services hours</h3>

@@ -132,11 +132,11 @@ $serviceGroups = [
         <div class="container">
             <div class="amenities-hero-shell reveal-up">
                 <p class="amenities-kicker">At This Hotel</p>
-                <h1 class="amenities-hero-title">Amenities at Azure Horizon Resort &amp; Spa</h1>
+                <h1 class="amenities-hero-title">Amenities at Horizon Sands Bali</h1>
                 <p class="amenities-hero-text">
                     Everything you need for a relaxing stay is right here. 
                     Discover the facilities, services, and guest conveniences available 
-                    from comfort to recreational activities, all designed to enhance your experience at Azure Horizon Resort
+                    from comfort to recreational activities, all designed to enhance your experience at Horizon Sands Bali
                 </p>
             </div>
                 <div class="amenities-hero-meta" aria-label="Amenities summary">

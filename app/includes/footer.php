@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row g-4">
             <div class="col-lg-4">
-                <h2 class="footer-brand">AZURE HORIZON</h2>
+                <h2 class="footer-brand">HORIZON SANDS BALI</h2>
                 <p class="footer-text">
                     A fictional sunset-luxury escape crafted for your web systems project.
                     Elegant stays, seaside dining, and a calm coastal atmosphere in every page.
@@ -34,14 +34,14 @@
                 <h3 class="footer-title">Stay Connected</h3>
                 <p class="footer-text mb-2">Sunset Bay, Azure Coast</p>
                 <p class="footer-text mb-2">+65 6123 4567</p>
-                <p class="footer-text mb-0">hello@azurehorizon.test</p>
+                <p class="footer-text mb-0">hello@horizonsandsbali.test</p>
             </div>
         </div>
 
         <hr class="footer-divider">
 
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-            <p class="footer-copy mb-0">&copy; 2026 Azure Horizon Resort & Spa. All rights reserved.</p>
+            <p class="footer-copy mb-0">&copy; 2026 Horizon Sands Bali. All rights reserved.</p>
             <p class="footer-copy mb-0">Built with PHP, Bootstrap, CSS, JavaScript and MySQL.</p>
         </div>
     </div>

@@ -35,7 +35,7 @@ include __DIR__ . '/../app/includes/header.php';
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card shadow border-0 p-4">
-                    <h2 class="text-center mb-4">Login to Azure Horizon</h2>
+                    <h2 class="text-center mb-4">Login to Horizon Sands Bali</h2>
                     <?php if ($error): ?>
                         <div class="alert alert-danger"><?php echo $error; ?></div>
                     <?php endif; ?>
