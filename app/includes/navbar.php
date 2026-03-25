@@ -29,7 +29,6 @@
         }
     }
     ?>
-    
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark site-navbar fixed-top" aria-label="Main navigation">
