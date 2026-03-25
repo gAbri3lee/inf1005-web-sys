@@ -1,86 +1,151 @@
+html,
+body,
+.transport-page,
+.transport-main-section {
+    background: #fffaf6;
+}
+
 .transport-page {
-    background: #f6f1ea;
+    background: #fffaf6;
     color: #1f1f1f;
 }
 
+/* ===== HERO SECTION ===== */
 .transport-hero {
+    position: relative;
     min-height: 100vh;
+    padding: 7rem 0 4rem;
+    background: url('../images/parking_and_transport/parking1.png') center center / cover no-repeat;
     display: flex;
     align-items: center;
-    position: relative;
-    background-image: url('../images/parking1.png');
-    /* background: linear-gradient(135deg, #1f2329 0%, #2a1f1a 100%); */
-    color: #fff;
-    padding: 0px 0 60px;
+    overflow: hidden;
+    isolation: isolate;
 }
 
+.transport-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(30, 22, 16, 0.46) 0%,
+            rgba(30, 22, 16, 0.28) 34%,
+            rgba(30, 22, 16, 0.12) 62%,
+            rgba(30, 22, 16, 0.06) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(246, 241, 234, 0.10) 0%,
+            rgba(246, 241, 234, 0.02) 30%,
+            rgba(24, 18, 14, 0.18) 100%
+        );
+}
+
+.transport-hero .container {
+    position: relative;
+    z-index: 1;
+}
+
+.transport-hero .row {
+    min-height: calc(100vh - 11rem);
+}
+
+/* LEFT HERO CONTENT */
 .transport-eyebrow {
-    display: inline-block;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: #e3c08d;
-    padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.68rem 1.15rem;
+    margin-bottom: 1.35rem;
     border-radius: 999px;
+    background: rgba(255, 248, 240, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #f3dfb5;
+    font-size: 0.92rem;
     font-weight: 600;
-    margin-bottom: 18px;
+    letter-spacing: 0.03em;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 .transport-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2.6rem, 5vw, 4.6rem);
-    line-height: 0.95;
-    margin-bottom: 18px;
+    margin: 0 0 1.1rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 6vw, 5.4rem);
+    line-height: 0.97;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #fff5e6;
+    max-width: 8.5ch;
+    text-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
 }
 
 .transport-subtitle {
-    color: rgba(255,255,255,0.82);
-    font-size: 1.05rem;
-    max-width: 720px;
+    margin: 0;
+    max-width: 40rem;
+    font-size: 1.08rem;
+    line-height: 1.78;
+    color: rgba(255, 250, 244, 0.92);
+    text-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
 
+/* RIGHT HERO CARD */
 .transport-hero-card {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 24px;
-    padding: 24px;
+    margin-left: auto;
+    max-width: 29rem;
+    padding: 1rem;
+    border-radius: 1.75rem;
+    background: rgba(248, 242, 234, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 18px 40px rgba(45, 28, 16, 0.14);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .hero-stat-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
 }
 
 .hero-stat-box {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    padding: 18px;
     display: flex;
     flex-direction: column;
-    min-height: 110px;
+    justify-content: flex-end;
+    min-height: 8.8rem;
+    padding: 1.2rem 1.15rem;
+    border-radius: 1.2rem;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .hero-stat-box-wide {
     grid-column: 1 / -1;
-    min-height: 92px;
+    min-height: 7.2rem;
 }
 
 .hero-stat-number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #e3c08d;
+    display: block;
+    margin-bottom: 0.42rem;
+    font-size: clamp(1.85rem, 2.8vw, 2.35rem);
     line-height: 1;
-    margin-bottom: 8px;
+    font-weight: 700;
+    color: #f0cd91;
+    letter-spacing: -0.02em;
 }
 
 .hero-stat-label {
-    color: rgba(255,255,255,0.84);
-    font-size: 0.96rem;
+    display: block;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(255, 250, 244, 0.88);
 }
 
+/* ===== MAIN SECTION ===== */
 .transport-main-section {
     padding: 48px 0 70px;
+    background: #f6f1ea;
 }
 
 .transport-info-card,
@@ -88,15 +153,19 @@
 .travel-times-card,
 .arrival-accordion-card,
 .contact-cta-card {
-    background: #fff;
+    background: #ffffff;
     border-radius: 24px;
     padding: 32px;
-    box-shadow: 0 14px 40px rgba(0,0,0,0.06);
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid rgba(35, 24, 15, 0.06);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.06);
+}
+
+.transport-tabs-card {
+    margin-top: 1.5rem;
 }
 
 .section-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Cormorant Garamond', serif;
     font-size: 2.1rem;
     color: #23180f;
 }
@@ -142,18 +211,19 @@
     color: #7c5f40;
 }
 
+/* ===== FEATURE CARDS ===== */
 .feature-card {
-    background: #fff;
+    background: #ffffff;
     border-radius: 22px;
     padding: 26px;
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 10px 28px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .feature-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 16px 32px rgba(0,0,0,0.08);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
 }
 
 .feature-icon {
@@ -168,9 +238,9 @@
 }
 
 .feature-card h3 {
-    font-size: 1.3rem;
-    color: #23180f;
     margin-bottom: 10px;
+    color: #23180f;
+    font-size: 1.3rem;
 }
 
 .feature-card p {
@@ -181,9 +251,10 @@
 .feature-list {
     margin: 0;
     padding-left: 18px;
-    color: #5f5245;
+    color: #67594b;
 }
 
+/* ===== TABS ===== */
 .transport-tab-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -192,14 +263,17 @@
 }
 
 .transport-tab-btn {
+    appearance: none;
     border: 1px solid #dfcfbc;
     background: #fbf8f4;
     color: #5f4124;
     padding: 12px 20px;
     border-radius: 999px;
     font-weight: 600;
+    line-height: 1.2;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: none;
 }
 
 .transport-tab-btn:hover,
@@ -217,17 +291,21 @@
     display: block;
 }
 
+/* ===== DETAIL CARD ===== */
 .detail-card {
     background: #fcfaf7;
     border: 1px solid #ebdece;
     border-radius: 22px;
     padding: 24px;
+    height: 100%;
 }
 
 .detail-card h3 {
-    color: #23180f;
     margin-bottom: 16px;
-    font-size: 1.4rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.45rem;
+    line-height: 1.2;
+    color: #23180f;
 }
 
 .status-badges {
@@ -238,12 +316,15 @@
 }
 
 .status-badge {
+    display: inline-flex;
+    align-items: center;
     background: #f3e6d2;
     color: #6a4d2f;
     padding: 8px 14px;
     border-radius: 999px;
     font-size: 0.9rem;
     font-weight: 600;
+    line-height: 1.2;
 }
 
 .info-grid {
@@ -254,9 +335,10 @@
 .info-row {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
     gap: 18px;
-    border-bottom: 1px solid #eadfce;
     padding-bottom: 10px;
+    border-bottom: 1px solid #eadfce;
 }
 
 .info-label {
@@ -279,8 +361,12 @@
 
 .detail-list {
     margin: 0;
-    padding-left: 18px;
+    padding-left: 1.2rem;
     color: #5f5245;
+}
+
+.detail-list li + li {
+    margin-top: 0.45rem;
 }
 
 .extra-content {
@@ -292,7 +378,10 @@
     display: block;
 }
 
+/* ===== TRAVEL TIMES ===== */
 .travel-note-badge {
+    display: inline-flex;
+    align-items: center;
     background: #f5eadb;
     color: #765639;
     padding: 8px 14px;
@@ -325,11 +414,12 @@
     color: #6d5c4d;
 }
 
+/* ===== ACCORDION ===== */
 .custom-accordion-item {
     border: none;
     border-radius: 18px !important;
     overflow: hidden;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
     margin-bottom: 14px;
 }
 
@@ -347,13 +437,14 @@
 }
 
 .custom-accordion-item .accordion-body {
-    background: #fff;
+    background: #ffffff;
     color: #5f5245;
     padding: 20px 22px 22px;
 }
 
+/* ===== CONTACT CTA ===== */
 .contact-cta-card h3 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Cormorant Garamond', serif;
     font-size: 1.8rem;
     color: #23180f;
 }
@@ -362,9 +453,31 @@
     color: #6d5c4d;
 }
 
+/* ===== RESPONSIVE ===== */
 @media (max-width: 991.98px) {
     .transport-hero {
-        padding: 60px 0 48px;
+        padding: 6.5rem 0 3.25rem;
+        background-position: 60% center;
+    }
+
+    .transport-hero .row {
+        min-height: auto;
+        row-gap: 2rem;
+    }
+
+    .transport-title {
+        font-size: clamp(2.8rem, 9vw, 4.4rem);
+        max-width: 10ch;
+    }
+
+    .transport-subtitle {
+        max-width: 100%;
+        font-size: 1rem;
+    }
+
+    .transport-hero-card {
+        margin-left: 0;
+        max-width: 100%;
     }
 
     .transport-info-card,
@@ -381,12 +494,64 @@
 }
 
 @media (max-width: 767.98px) {
+    .transport-hero {
+        min-height: 100svh;
+        padding: 6rem 0 2.5rem;
+        background-position: 66% center;
+    }
+
+    .transport-hero::before {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(36, 25, 18, 0.34) 0%,
+                rgba(36, 25, 18, 0.20) 30%,
+                rgba(36, 25, 18, 0.36) 100%
+            );
+    }
+
+    .transport-eyebrow {
+        font-size: 0.86rem;
+        padding: 0.6rem 0.95rem;
+        margin-bottom: 1rem;
+    }
+
+    .transport-title {
+        font-size: clamp(2.35rem, 11vw, 3.65rem);
+        max-width: none;
+    }
+
+    .transport-subtitle {
+        font-size: 0.97rem;
+        line-height: 1.65;
+    }
+
+    .transport-hero-card {
+        padding: 0.85rem;
+        border-radius: 1.3rem;
+    }
+
     .hero-stat-grid {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .hero-stat-box,
+    .hero-stat-box-wide {
+        min-height: auto;
+        padding: 1rem;
     }
 
     .hero-stat-box-wide {
         grid-column: auto;
+    }
+
+    .hero-stat-number {
+        font-size: 1.65rem;
+    }
+
+    .hero-stat-label {
+        font-size: 0.92rem;
     }
 
     .transport-tab-btn {
