@@ -88,7 +88,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         data-room="<?php echo $roomJson; ?>">
                                         <article class="content-card room-card h-100">
                                             <div class="room-media">
-                                                <img class="room-image" src="<?php echo htmlspecialchars($cover, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string)($room['name'] ?? 'Room'), ENT_QUOTES, 'UTF-8'); ?>" loading="lazy" onerror="this.onerror=null;this.src='assets/images/HotelHomePage.png';">
+                                                    <img class="room-image" src="<?php echo htmlspecialchars($cover, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string)($room['name'] ?? 'Room'), ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
                                             </div>
                                             <div class="room-body">
                                                 <div class="room-top">

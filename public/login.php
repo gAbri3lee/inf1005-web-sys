@@ -1,7 +1,6 @@
 <?php
 session_start();
 $errors = [];
-$successMessage = '';
 const TEMP_LOGIN_EMAIL = 'demo@azurehorizon.test';
 const TEMP_LOGIN_PASSWORD = 'demo1234';
 const TEMP_LOGIN_NAME = 'Demo User';
@@ -103,12 +102,6 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         <li><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></li>
                                     <?php endforeach; ?>
                                 </ul>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($successMessage): ?>
-                            <div class="alert alert-success" role="alert">
-                                <?php echo htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'); ?>
                             </div>
                         <?php endif; ?>
 
