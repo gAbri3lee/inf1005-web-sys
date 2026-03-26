@@ -1,10 +1,11 @@
 .page-hero {
     min-height: 82vh;
     display: flex;
-    align-items: end;
+    align-items: flex-start;
     position: relative;
     color: var(--white);
     overflow: hidden;
+    padding-top: 7.5rem;
 }
 
 .page-hero::after {
@@ -19,13 +20,14 @@
     background:
         linear-gradient(180deg, rgba(12, 18, 25, 0.22) 0%, rgba(12, 18, 25, 0.76) 100%),
         linear-gradient(120deg, rgba(182, 121, 76, 0.24) 0%, rgba(40, 26, 17, 0.22) 100%),
-        url('../images/home/RestaurantFieryBlaze.png') center center / cover no-repeat;
+        url('../images/dining/RestaurantFieryBlaze.png') center center / cover no-repeat;
 }
 
 .page-hero-content {
     position: relative;
     z-index: 2;
-    padding: 220px 0 96px;
+    width: 100%;
+    padding: 2.5rem 0 6rem;
 }
 
 .page-hero-title {
@@ -48,8 +50,12 @@
     text-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
 }
 
+.page-main-offset {
+    padding-top: clamp(4.5rem, 7vw, 6.5rem);
+}
+
 .dining-intro-card {
-    padding: 2.2rem;
+    padding: clamp(1.5rem, 3vw, 2.2rem);
     height: 100%;
 }
 
@@ -97,16 +103,25 @@
     .page-hero {
         min-height: 72vh;
         background-position: center center;
+        padding-top: 7rem;
     }
 
     .page-hero-content {
-        padding: 185px 0 78px;
+        padding: 2rem 0 5rem;
+    }
+
+    .page-main-offset {
+        padding-top: clamp(4rem, 6vw, 5rem);
     }
 }
 
 @media (max-width: 767.98px) {
+    .page-hero {
+        padding-top: 6.5rem;
+    }
+
     .page-hero-content {
-        padding: 160px 0 68px;
+        padding: 1.75rem 0 4.5rem;
     }
 
     .page-hero-title {
@@ -117,7 +132,11 @@
         padding-left: 1rem;
     }
 
+    .page-main-offset {
+        padding-top: 3.5rem;
+    }
+
     .dining-intro-card {
-        padding: 1.5rem;
+        padding: 1.35rem;
     }
 }

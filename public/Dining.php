@@ -2,6 +2,7 @@
 session_start();
 include __DIR__ . '/../app/includes/navbar.php';
 ?>
+<link rel="stylesheet" href="assets/css/dining.css">
 
 <main>
     <section class="page-hero page-hero-dining">
@@ -94,8 +95,8 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-4 col-md-6 reveal-up">
                     <article class="dining-card venue-card h-100">
-                        <img
-                            src="assets/images/home/RestaurantFieryBlaze.png"
+                        <img 
+                            src="assets/images/dining/RestaurantFieryBlaze.png" 
                             alt="Indoor open-fire grill restaurant with dramatic flames, copper hood, chefs at work and intimate evening dining atmosphere"
                         >
                         <div class="dining-card-body">
@@ -117,10 +118,10 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-4 col-md-6 reveal-up">
                     <article class="dining-card venue-card h-100">
-                        <img
-                            src="assets/images/home/RestaurantSunsetLagoon.png"
-                            alt="Beachfront restaurant and bar with open-air terrace, ocean views, palm trees and guests dining at sunset"
-                        >
+                        <img 
+                            src="assets/images/dining/RestaurantSunsetLagoon.png" 
+                            alt="Open-air beachfront restaurant and bar with ocean views, relaxed seating and sunset dining by the water"
+                        >                       
                         <div class="dining-card-body">
                             <span class="badge-soft">Beach Dining &amp; Bar</span>
                             <h3>Sunset Lagoon</h3>
@@ -141,7 +142,10 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-4 col-md-6 reveal-up">
                     <article class="dining-card venue-card h-100">
-                       <img src="assets/images/home/Cafe.png" alt="Bright café interior with large windows, warm timber furniture, guests dining at wooden tables and a pastry display counter along the wall">
+                       <img 
+                            src="assets/images/dining/Cafe.png" 
+                            alt="Bright and inviting café with artisan coffee, pastries, brunch dishes and relaxed daytime seating"
+                        >
                         <div class="dining-card-body">
                             <span class="badge-soft">All-Day Café</span>
                             <h3>The Cove Café</h3>
@@ -163,7 +167,7 @@ include __DIR__ . '/../app/includes/navbar.php';
         </div>
     </section>
 
-    <section class="section-padding">
+    <section class="section-padding page-main-offset">
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4 reveal-up">

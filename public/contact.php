@@ -77,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 include __DIR__ . '/../app/includes/navbar.php';
 ?>
+<link rel="stylesheet" href="assets/css/contact.css">
 
 <main>
     <section class="page-hero page-hero-contact">
@@ -98,7 +99,7 @@ include __DIR__ . '/../app/includes/navbar.php';
         </div>
     </section>
 
-    <section class="section-padding">
+    <section class="section-padding page-main-offset">
         <div class="container">
             <div class="row g-4 align-items-stretch">
                 <div class="col-lg-5 reveal-up">
@@ -113,7 +114,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                         <div class="contact-detail-group">
                             <div class="contact-detail-item">
                                 <h3>Address</h3>
-                                <p>1 Azure Bay Drive<br>Singapore 098765</p>
+                                <p>Sunset Bay Drive<br>Azure Coast, Bali 80361</p>
                             </div>
                             <div class="contact-detail-item">
                                 <h3>Phone</h3>
@@ -144,13 +145,13 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-7 reveal-up" id="contact-form">
                     <div class="content-card contact-form-card h-100">
-                        <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-end mb-4">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4 mb-4">
                             <div>
                                 <span class="section-eyebrow">Enquiry form</span>
                                 <h2 class="section-title mb-2">Send us a message</h2>
                                 <p class="section-text mb-0">Complete the form below and our team will get back to you.</p>
                             </div>
-                            <img src="assets/images/home/AboutUsSpa.png" alt="Hotel guest services and concierge themed visual" class="contact-illustration">
+                            <img src="assets/images/AboutUsSpa.png" alt="Hotel guest services and concierge themed visual" class="contact-illustration">
                         </div>
 
                         <?php if ($successMessage !== ''): ?>
