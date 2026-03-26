@@ -5,6 +5,13 @@
 	const browse = document.querySelector('#reviews-browse');
 	const buttons = Array.from(document.querySelectorAll('.js-review-filter'));
 	const items = Array.from(document.querySelectorAll('.js-review-item'));
+	const reviewRevealItems = Array.from(document.querySelectorAll('.reviews-page .reveal-up'));
+
+	if (reviewRevealItems.length) {
+		requestAnimationFrame(() => {
+			reviewRevealItems.forEach((item) => item.classList.add('visible'));
+		});
+	}
 
 	if (!browse || !buttons.length || !items.length) {
 		return;
