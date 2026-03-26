@@ -117,6 +117,10 @@
 			img.className = 'd-block w-100';
 			img.loading = 'lazy';
 			img.src = String(src);
+			img.onerror = function () {
+				this.onerror = null;
+				this.src = 'assets/images/HotelHomePage.png';
+			};
 			img.alt = activeRoom?.name ? `${activeRoom.name} image ${idx + 1}` : `Room image ${idx + 1}`;
 
 			item.appendChild(img);

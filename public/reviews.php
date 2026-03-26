@@ -150,7 +150,7 @@ function safe_uploaded_image(string $inputName, string $targetDir, array &$error
 		return null;
 	}
 
-	return 'uploads/reviews/' . $filename;
+	return './uploads/reviews/' . $filename;
 }
 
 $isLoggedIn = isset($_SESSION['user_id']);
@@ -322,6 +322,9 @@ include __DIR__ . '/../app/includes/navbar.php';
 													<?php
 														$cats = $review['categories'] ?? [];
 														$img = (string)($review['image_path'] ?? $review['image'] ?? '');
+														if ($img !== '' && strpos($img, 'uploads/reviews/') === 0) {
+															$img = './' . ltrim($img, './');
+														}
 													?>
 
 													<?php if (is_array($cats) && $cats): ?>
@@ -336,7 +339,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
 													<?php if ($img !== ''): ?>
 														<div class="review-image-wrap">
-															<img class="review-image" src="<?php echo htmlspecialchars($img, ENT_QUOTES, 'UTF-8'); ?>" alt="Review image" loading="lazy">
+															<img class="review-image" src="<?php echo htmlspecialchars($img, ENT_QUOTES, 'UTF-8'); ?>" alt="Review image" loading="lazy" onerror="this.onerror=null;this.src='assets/images/HotelHomePage.png';">
 														</div>
 													<?php endif; ?>
 										</article>

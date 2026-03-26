@@ -2,6 +2,12 @@
 	padding-top: 0;
 }
 
+.rooms-page .reveal-up {
+	opacity: 1 !important;
+	transform: none !important;
+	filter: none !important;
+}
+
 .site-footer {
 	margin-top: 0;
 }

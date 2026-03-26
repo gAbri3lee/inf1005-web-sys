@@ -16,7 +16,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 <main class="rooms-page">
     <section class="rooms-shell">
         <div class="container">
-            <div class="content-card rooms-card reveal-up">
+            <div class="content-card rooms-card">
                 <header class="rooms-header text-center">
                     <h1 class="rooms-title">Rooms &amp; Suites</h1>
                     <p class="rooms-subtitle mb-0">Browse by occupancy, view, and accessibility — then pick your dates to see the total.</p>
@@ -86,9 +86,9 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         data-view="<?php echo htmlspecialchars((string)($room['view'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
                                         data-accessible="<?php echo $accessible ? '1' : '0'; ?>"
                                         data-room="<?php echo $roomJson; ?>">
-                                        <article class="content-card room-card h-100 reveal-up">
+                                        <article class="content-card room-card h-100">
                                             <div class="room-media">
-                                                <img class="room-image" src="<?php echo htmlspecialchars($cover, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string)($room['name'] ?? 'Room'), ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
+                                                <img class="room-image" src="<?php echo htmlspecialchars($cover, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string)($room['name'] ?? 'Room'), ENT_QUOTES, 'UTF-8'); ?>" loading="lazy" onerror="this.onerror=null;this.src='assets/images/HotelHomePage.png';">
                                             </div>
                                             <div class="room-body">
                                                 <div class="room-top">
