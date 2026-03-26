@@ -144,7 +144,7 @@
 
 .amenity-feature-row {
     display: grid;
-    grid-template-columns: minmax(300px, 420px) 1fr;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
     gap: 28px;
     align-items: stretch;
     padding: 24px;
@@ -155,6 +155,7 @@
 }
 
 .amenity-feature-media {
+    min-width: 0;
     aspect-ratio: 16 / 9;
     overflow: hidden;
     border-radius: 14px;
@@ -172,6 +173,18 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.amenity-feature-content > * {
+    max-width: 36rem;
+}
+
+.amenity-feature-content h3,
+.amenity-feature-description,
+.amenity-feature-hours {
+    margin-top: 0;
 }
 
 .amenity-feature-category {
@@ -342,17 +355,47 @@ button:focus-visible {
     }
 }
 
+@media (max-width: 1199.98px) {
+    .amenity-feature-row {
+        gap: 22px;
+        padding: 22px;
+    }
+
+    .amenity-feature-content > * {
+        max-width: 100%;
+    }
+
+    .amenity-feature-content h3 {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+    }
+
+    .amenity-feature-description {
+        font-size: 0.98rem;
+        line-height: 1.7;
+    }
+}
+
 @media (max-width: 991.98px) {
     .amenities-hero {
         min-height: auto;
         padding: 170px 0 72px;
     }
 
-    .amenity-feature-row,
     .hotel-features-grid,
     .detail-grid,
     .service-groups {
         grid-template-columns: 1fr;
+    }
+
+    .amenity-feature-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .amenity-feature-media {
+        width: 100%;
+        max-width: none;
     }
 }
 
@@ -373,7 +416,51 @@ button:focus-visible {
         padding: 20px;
     }
 
+    .amenity-feature-content h3 {
+        font-size: 1.3rem;
+    }
+
+    .amenity-feature-description,
+    .amenity-feature-hours {
+        font-size: 0.97rem;
+    }
+
+    .amenity-feature-actions > *,
+    .amenity-feature-link {
+        width: 100%;
+        text-align: center;
+    }
+
     .amenities-hero-meta {
         flex-direction: column;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .amenities-section {
+        padding: 60px 0;
+    }
+
+    .amenity-feature-row,
+    .detail-block {
+        padding: 18px;
+    }
+
+    .amenity-feature-row {
+        gap: 18px;
+    }
+
+    .amenity-feature-category {
+        font-size: 0.76rem;
+    }
+
+    .amenity-feature-content h3 {
+        font-size: 1.2rem;
+    }
+
+    .amenity-feature-description,
+    .amenity-feature-hours {
+        font-size: 0.94rem;
+        line-height: 1.65;
     }
 }

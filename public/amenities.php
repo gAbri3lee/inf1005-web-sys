@@ -153,7 +153,6 @@ $serviceGroups = [
                         <span>parking and leisure facilities</span>
                     </div>
                 </div>
-            </div>
         </div>
     </section>
 
