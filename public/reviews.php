@@ -253,11 +253,11 @@ include __DIR__ . '/../app/includes/navbar.php';
 							<div class="reviews-stats">
 								<div class="reviews-stat">
 									<span class="reviews-stat-label">Total reviews</span>
-									<span class="reviews-stat-value"><?php echo $totalReviews; ?></span>
+									<span class="reviews-stat-value js-reviews-total"><?php echo $totalReviews; ?></span>
 								</div>
 								<div class="reviews-stat">
 									<span class="reviews-stat-label">Average rating</span>
-									<span class="reviews-stat-value">
+									<span class="reviews-stat-value js-reviews-average">
 										<?php if ($averageRating === null): ?>
 											—
 										<?php else: ?>
@@ -265,7 +265,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 										<?php endif; ?>
 									</span>
 									<?php if ($averageRating !== null): ?>
-										<div class="reviews-stat-stars">
+										<div class="reviews-stat-stars js-reviews-average-stars">
 											<?php echo render_average_stars($averageRating); ?>
 										</div>
 									<?php endif; ?>
@@ -339,7 +339,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
 													<?php if ($img !== ''): ?>
 														<div class="review-image-wrap">
-															<img class="review-image" src="<?php echo htmlspecialchars($img, ENT_QUOTES, 'UTF-8'); ?>" alt="Review image" loading="lazy" onerror="this.onerror=null;this.src='assets/images/HotelHomePage.png';">
+															<img class="review-image" src="<?php echo htmlspecialchars($img, ENT_QUOTES, 'UTF-8'); ?>" alt="Review image" loading="lazy">
 														</div>
 													<?php endif; ?>
 										</article>

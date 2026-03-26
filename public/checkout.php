@@ -19,6 +19,11 @@ if (!is_array($pending)) {
 	$errors[] = 'Your booking selection is missing. Please choose a room and dates first.';
 }
 
+// Keep any previously entered checkout form data if the user is bounced around.
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && empty($_SESSION['checkout_form_data']) && isset($_POST) && is_array($_POST)) {
+	// No-op: placeholder to make intent clear (form data is saved only on POST validation errors).
+}
+
 $room = null;
 if (!$errors) {
 	$roomId = (int)($pending['room_id'] ?? 0);
@@ -40,6 +45,15 @@ $formData = [
 	'expiry' => '',
 	'cvv' => '',
 ];
+
+if (isset($_SESSION['checkout_form_data']) && is_array($_SESSION['checkout_form_data'])) {
+	$stored = $_SESSION['checkout_form_data'];
+	foreach ($formData as $k => $_) {
+		if (array_key_exists($k, $stored)) {
+			$formData[$k] = trim((string)$stored[$k]);
+		}
+	}
+}
 
 function digits_only(string $value): string
 {
@@ -108,7 +122,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errors) {
 	if (!$errors) {
 		$successMessage = 'Checkout complete. Your booking has been recorded.';
 		unset($_SESSION['pending_booking']);
+		unset($_SESSION['checkout_form_data']);
 		$formData = array_map(static fn() => '', $formData);
+	} else {
+		$_SESSION['checkout_form_data'] = $formData;
 	}
 }
 
@@ -133,7 +150,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 						</ul>
 					</div>
 					<div class="d-grid d-md-flex justify-content-md-center gap-2 mt-3">
-						<a class="btn btn-gold" href="rooms_and_suites.php">Back to Rooms</a>
+						<a class="btn btn-gold" href="checkout.php">Back to Checkout</a>
 					</div>
 				<?php else: ?>
 					<?php if ($successMessage): ?>

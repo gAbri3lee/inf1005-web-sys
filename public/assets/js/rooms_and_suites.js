@@ -1,8 +1,20 @@
 (() => {
 	'use strict';
 
+	const FALLBACK_IMAGE_SRC = 'assets/images/HotelHomePage.png';
+
+	function attachImageFallback(img) {
+		if (!img) return;
+		img.addEventListener('error', function () {
+			if (img.getAttribute('src') === FALLBACK_IMAGE_SRC) return;
+			img.setAttribute('src', FALLBACK_IMAGE_SRC);
+		});
+	}
+
 	const qs = (sel, root = document) => root.querySelector(sel);
 	const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+	qsa('img.room-image').forEach(attachImageFallback);
 
 	const modalEl = qs('#roomDetailsModal');
 	let bsModal = null;
@@ -96,7 +108,7 @@
 		carouselInner.innerHTML = '';
 
 		const list = Array.isArray(images) ? images : [];
-		const safeList = list.length ? list : ['assets/images/HotelHomePage.png'];
+		const safeList = list.length ? list : [FALLBACK_IMAGE_SRC];
 
 		safeList.forEach((src, idx) => {
 			const btn = document.createElement('button');
@@ -117,10 +129,7 @@
 			img.className = 'd-block w-100';
 			img.loading = 'lazy';
 			img.src = String(src);
-			img.onerror = function () {
-				this.onerror = null;
-				this.src = 'assets/images/HotelHomePage.png';
-			};
+			attachImageFallback(img);
 			img.alt = activeRoom?.name ? `${activeRoom.name} image ${idx + 1}` : `Room image ${idx + 1}`;
 
 			item.appendChild(img);

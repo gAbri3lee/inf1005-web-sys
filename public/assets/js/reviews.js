@@ -1,13 +1,76 @@
 (function () {
 	'use strict';
 
+	const FALLBACK_IMAGE_SRC = 'assets/images/HotelHomePage.png';
+
 	const STORAGE_KEY = 'reviews_active_category';
 	const browse = document.querySelector('#reviews-browse');
 	const buttons = Array.from(document.querySelectorAll('.js-review-filter'));
 	const items = Array.from(document.querySelectorAll('.js-review-item'));
+	const totalEl = document.querySelector('.js-reviews-total');
+	const averageEl = document.querySelector('.js-reviews-average');
+	const averageStarsEl = document.querySelector('.js-reviews-average-stars');
+	const reviewRevealItems = Array.from(document.querySelectorAll('.reviews-page .reveal-up'));
+	const reviewImages = Array.from(document.querySelectorAll('.reviews-page img.review-image'));
 
-	if (!browse || !buttons.length || !items.length) {
+	if (reviewImages.length) {
+		reviewImages.forEach((img) => {
+			img.addEventListener('error', function () {
+				if (!img || img.getAttribute('src') === FALLBACK_IMAGE_SRC) return;
+				img.setAttribute('src', FALLBACK_IMAGE_SRC);
+			});
+		});
+	}
+
+	if (reviewRevealItems.length) {
+		requestAnimationFrame(() => {
+			reviewRevealItems.forEach((item) => item.classList.add('visible'));
+		});
+	}
+
+	if (!browse || !buttons.length) {
 		return;
+	}
+
+	function getItemRating(itemEl) {
+		const stars = itemEl.querySelector('.review-stars');
+		const label = stars ? (stars.getAttribute('aria-label') || '') : '';
+		const m = String(label).match(/(\d+(?:\.\d+)?)/);
+		if (m) return Number(m[1]);
+		return NaN;
+	}
+
+	function renderAverageStars(display) {
+		if (display == null || Number.isNaN(display)) return '';
+		const v = Math.max(0, Math.min(5, Math.round(Number(display) * 2) / 2));
+		let out = `<span class="review-stars" aria-label="${v.toFixed(1)} out of 5 stars">`;
+		for (let i = 1; i <= 5; i += 1) {
+			let state = 'star';
+			if (v >= i) state = 'star filled';
+			else if (v >= (i - 0.5)) state = 'star half';
+			out += `<span class="${state}" aria-hidden="true">★</span>`;
+		}
+		out += '</span>';
+		return out;
+	}
+
+	function updateStats() {
+		if (!totalEl && !averageEl && !averageStarsEl) return;
+
+		const visibleItems = items.filter((el) => !el.classList.contains('d-none'));
+		const total = visibleItems.length;
+		if (totalEl) totalEl.textContent = String(total);
+
+		const ratings = visibleItems.map(getItemRating).filter((n) => Number.isFinite(n) && n > 0);
+		if (!ratings.length) {
+			if (averageEl) averageEl.textContent = '—';
+			if (averageStarsEl) averageStarsEl.innerHTML = '';
+			return;
+		}
+
+		const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+		if (averageEl) averageEl.textContent = `${avg.toFixed(1)} / 5`;
+		if (averageStarsEl) averageStarsEl.innerHTML = renderAverageStars(avg);
 	}
 
 	function getItemCategories(itemEl) {
@@ -96,6 +159,7 @@
 	}
 	setButtonStates(active);
 	applyFilter(active);
+	updateStats();
 
 	buttons.forEach((btn) => {
 		btn.addEventListener('click', function () {
@@ -110,6 +174,7 @@
 					itemEl.classList.toggle('d-none', !ok);
 					itemEl.classList.remove('filter-enter', 'filter-leave');
 				});
+				updateStats();
 				return;
 			}
 
@@ -118,6 +183,7 @@
 			persistCategory(active);
 			setButtonStates(active);
 			applyFilter(active);
+			updateStats();
 		});
 	});
 })();

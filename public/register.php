@@ -183,7 +183,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         id="first_name"
                                         name="first_name"
                                         value="<?php echo htmlspecialchars($formData['first_name'], ENT_QUOTES, 'UTF-8'); ?>"
-                                            autocomplete="given-name"
+                                        autocomplete="given-name"
                                         required
                                     >
                                 </div>
@@ -195,7 +195,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         id="last_name"
                                         name="last_name"
                                         value="<?php echo htmlspecialchars($formData['last_name'], ENT_QUOTES, 'UTF-8'); ?>"
-                                            autocomplete="family-name"
+                                        autocomplete="family-name"
                                         required
                                     >
                                 </div>
@@ -218,7 +218,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         id="postal_code"
                                         name="postal_code"
                                         value="<?php echo htmlspecialchars($formData['postal_code'], ENT_QUOTES, 'UTF-8'); ?>"
-                                            autocomplete="postal-code"
+                                        autocomplete="postal-code"
                                     >
                                 </div>
 
