@@ -16,9 +16,9 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/navbar.css">
 
     <?php
-    // Optional per-page CSS injection (set $pageStylesheets = ['assets/css/page.css']; before including navbar.php)
     if (isset($pageStylesheets)) {
         $styles = is_array($pageStylesheets) ? $pageStylesheets : [$pageStylesheets];
         foreach ($styles as $href) {
