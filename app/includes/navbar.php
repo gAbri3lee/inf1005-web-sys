@@ -31,8 +31,8 @@
     ?>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark site-navbar fixed-top" aria-label="Main navigation">
-    <div class="container">
+<nav class="navbar navbar-dark site-navbar fixed-top navbar-expand-custom" aria-label="Main navigation">
+    <div class="container-fluid navbar-shell">
         <a class="navbar-brand navbar-logo-link" href="index.php" aria-label="Horizon Sands Bali home">
             <img
                 src="assets/images/logo_updated.png"
@@ -51,7 +51,7 @@
         </button>
 
         <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav ms-auto align-items-lg-center">
+            <ul class="navbar-nav navbar-main-nav">
                 <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="about.php">About Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="rooms_and_suites.php">Suites & Villas</a></li>
@@ -61,23 +61,17 @@
                 <li class="nav-item"><a class="nav-link" href="FAQs.php">FAQs</a></li>
                 <li class="nav-item"><a class="nav-link" href="parking_and_transport.php">Parking & Transport</a></li>
                 <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
-
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <li class="nav-item ms-lg-2">
-                        <a class="btn btn-outline-light btn-nav-action" href="profile.php">My Account</a>
-                    </li>
-                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
-                        <a class="btn btn-gold" href="logout.php">Logout</a>
-                    </li>
-                <?php else: ?>
-                    <li class="nav-item ms-lg-2">
-                        <a class="btn btn-outline-light btn-nav-action" href="login.php">Login</a>
-                    </li>
-                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
-                        <a class="btn btn-gold" href="register.php">Register</a>
-                    </li>
-                <?php endif; ?>
             </ul>
+
+            <div class="navbar-actions">
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a class="btn btn-outline-light btn-nav-action" href="profile.php">My Account</a>
+                    <a class="btn btn-gold" href="logout.php">Logout</a>
+                <?php else: ?>
+                    <a class="btn btn-outline-light btn-nav-action" href="login.php">Login</a>
+                    <a class="btn btn-gold" href="register.php">Register</a>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </nav>

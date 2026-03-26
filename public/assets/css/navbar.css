@@ -15,14 +15,23 @@
     box-shadow: 0 10px 30px rgba(120, 90, 100, 0.12);
 }
 
+.navbar-shell {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    align-items: center;
+}
+
 .navbar-brand {
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    margin-right: 20px;
+    margin-right: 16px;
     padding: 0;
     flex-shrink: 0;
     color: var(--white) !important;
+    min-width: 0;
 }
 
 .navbar-logo-link {
@@ -33,8 +42,9 @@
 
 .navbar-logo {
     width: auto;
-    height: 46px;
-    max-height: 46px;
+    height: 42px;
+    max-height: 42px;
+    flex-shrink: 0;
 }
 
 .navbar-brand-text {
@@ -45,38 +55,62 @@
 }
 
 .navbar-brand-title {
-    font-size: 1.4rem;
+    font-size: 1.08rem;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #fff8ee;
     text-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    white-space: nowrap;
 }
 
 .navbar-brand-subtitle {
-    font-size: 0.72rem;
+    font-size: 0.6rem;
     font-weight: 600;
-    letter-spacing: 0.34em;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
     color: rgba(255, 248, 238, 0.86);
     margin-top: 4px;
+    white-space: nowrap;
 }
 
 .site-navbar .navbar-toggler {
     margin-left: auto;
+    color: #111111;
+    border-color: rgba(17, 17, 17, 0.18);
+}
+
+.site-navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2817,17,17,0.95%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.25' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
 .nav-link {
-    color: rgba(255, 255, 255, 0.88) !important;
-    font-size: 0.96rem;
-    font-weight: 500;
-    margin-left: 10px;
-    transition: var(--transition);
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 0.84rem;
+    font-weight: 600;
+    padding: 0.5rem 0.55rem !important;
+    white-space: nowrap;
+    transition: color 0.25s ease, opacity 0.25s ease;
 }
 
 .nav-link:hover,
+.nav-link:focus,
 .nav-link.active {
-    color: #fff7e8 !important;
+    color: #e2be81 !important;
+    opacity: 1;
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.navbar-actions .btn {
+    white-space: nowrap;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
 }
 
 .site-navbar.scrolled .navbar-brand {
@@ -97,8 +131,9 @@
 }
 
 .site-navbar.scrolled .nav-link:hover,
+.site-navbar.scrolled .nav-link:focus,
 .site-navbar.scrolled .nav-link.active {
-    color: #2f1a21 !important;
+    color: #e2be81 !important;
 }
 
 .site-navbar.scrolled .btn-outline-light {
@@ -117,34 +152,109 @@
     color: #2b1a13;
 }
 
+/* Default collapsed state */
+.navbar-expand-custom .navbar-collapse {
+    width: 100%;
+    margin-top: 14px;
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(244, 214, 220, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.navbar-expand-custom .navbar-main-nav {
+    width: 100%;
+}
+
+.navbar-expand-custom .nav-link {
+    color: #4f2f38 !important;
+    white-space: normal;
+    padding: 10px 0 !important;
+    font-size: 0.96rem;
+}
+
+.navbar-expand-custom .navbar-actions {
+    margin-top: 14px;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.navbar-expand-custom .navbar-actions .btn {
+    width: 100%;
+}
+
+/* Only expand when there is enough real space */
+@media (min-width: 1200px) {
+    .navbar-expand-custom {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+
+    .navbar-expand-custom .navbar-toggler {
+        display: none;
+    }
+
+    .navbar-expand-custom .navbar-collapse {
+        display: flex !important;
+        flex-basis: auto;
+        align-items: center;
+        justify-content: space-between;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        margin-top: 0;
+        padding: 0;
+        border-radius: 0;
+        width: auto;
+        flex-grow: 1;
+        overflow: hidden;
+    }
+
+    .navbar-expand-custom .navbar-main-nav {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        min-width: 0;
+    }
+
+    .navbar-expand-custom .nav-link {
+        color: rgba(255, 255, 255, 0.9) !important;
+        white-space: nowrap;
+        font-size: 0.84rem;
+        padding: 0.5rem 0.55rem !important;
+    }
+
+    .navbar-expand-custom .nav-link:hover,
+    .navbar-expand-custom .nav-link:focus,
+    .navbar-expand-custom .nav-link.active {
+        color: #e2be81 !important;
+    }
+
+    .navbar-expand-custom .navbar-actions {
+        margin-top: 0;
+        margin-left: 18px;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .navbar-expand-custom .navbar-actions .btn {
+        width: auto;
+    }
+}
+
 @media (max-width: 991.98px) {
     .site-navbar {
         background: transparent;
         backdrop-filter: none;
     }
 
-    .site-navbar .navbar-toggler {
-        color: #111111;
-        border-color: rgba(17, 17, 17, 0.18);
-    }
-
-    .site-navbar .navbar-toggler-icon {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2817,17,17,0.95%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.25' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-    }
-
-    .navbar-collapse {
-        margin-top: 14px;
-        padding: 16px;
-        border-radius: 18px;
-        background: rgba(244, 214, 220, 0.72);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-
-    .nav-link {
-        margin-left: 0;
-        padding: 10px 0;
-        color: #4f2f38 !important;
+    .navbar-shell {
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .navbar-brand {
@@ -154,24 +264,17 @@
     }
 
     .navbar-logo {
-        height: 50px;
-        max-width: 62px;
+        height: 38px;
+        max-width: 52px;
     }
 
     .navbar-brand-title {
-        font-size: 1.08rem;
-        letter-spacing: 0.12em;
+        font-size: 0.96rem;
+        letter-spacing: 0.08em;
     }
 
     .navbar-brand-subtitle {
-        font-size: 0.64rem;
-        letter-spacing: 0.28em;
-    }
-}
-
-@media (max-width: 767.98px) {
-    .navbar-logo {
-        height: 40px;
-        max-height: 40px;
+        font-size: 0.56rem;
+        letter-spacing: 0.2em;
     }
 }
