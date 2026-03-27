@@ -3,6 +3,11 @@
 	padding-top: 0;
 }
 
+/* Prevent the global footer top margin from showing the page background as a white band. */
+.reviews-page .site-footer {
+	margin-top: 0;
+}
+
 .site-navbar {
 	background: rgba(244, 214, 220, 0.55);
 	backdrop-filter: blur(12px);
