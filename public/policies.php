@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../app/includes/auth.php';
 
 // Inject page CSS in valid location
 $pageStylesheets = ['assets/css/policies.css'];

@@ -1,48 +1,38 @@
 <?php
-session_start();
+require_once __DIR__ . '/../app/includes/auth.php';
+
 $errors = [];
-const TEMP_LOGIN_EMAIL = 'demo@azurehorizon.test';
-const TEMP_LOGIN_PASSWORD = 'demo1234';
-const TEMP_LOGIN_NAME = 'Demo User';
-
-function normalize_next_path(string $next): string
-{
-    $next = trim($next);
-    if ($next === '') {
-        return 'index.php';
-    }
-
-    if (!preg_match('/^[A-Za-z0-9_-]+\.php(?:\?[A-Za-z0-9_.~%\-=&]*)?$/', $next)) {
-        return 'index.php';
-    }
-
-    return $next;
-}
-
+$databaseNotice = '';
 $formData = [
-    'email' => ''
+    'email' => '',
 ];
 
-$nextPath = normalize_next_path((string)($_GET['next'] ?? 'index.php'));
+$nextPath = auth_normalize_next_path((string)($_GET['next'] ?? $_POST['next'] ?? 'dashboard.php'), 'dashboard.php');
+$authNotice = auth_flash_get('auth_notice');
 
-if (!isset($_SESSION['login_form_token'])) {
-    $_SESSION['login_form_token'] = bin2hex(random_bytes(32));
+if (auth_is_logged_in()) {
+    auth_redirect($nextPath);
+}
+
+try {
+    require_once __DIR__ . '/../app/includes/db.php';
+} catch (Throwable $exception) {
+    $databaseNotice = 'Unable to connect to the account database right now. Please check your database settings and try again.';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $postedToken = $_POST['csrf_token'] ?? '';
-    $honeypot = trim($_POST['website'] ?? '');
+    $honeypot = trim((string)($_POST['website'] ?? ''));
+    $formData['email'] = strtolower(trim((string)($_POST['email'] ?? '')));
+    $password = (string)($_POST['password'] ?? '');
 
-    if (!hash_equals($_SESSION['login_form_token'], $postedToken)) {
+    if (!csrf_validate('login_form', $postedToken)) {
         $errors[] = 'Your session has expired. Please refresh the page and try again.';
     }
 
     if ($honeypot !== '') {
         $errors[] = 'Unable to submit your login request. Please try again.';
     }
-
-    $formData['email'] = trim($_POST['email'] ?? '');
-    $password = (string)($_POST['password'] ?? '');
 
     if (!filter_var($formData['email'], FILTER_VALIDATE_EMAIL)) {
         $errors[] = 'Please enter a valid email address.';
@@ -52,21 +42,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Please enter your password.';
     }
 
-    if (!$errors) {
-        $postedNext = normalize_next_path((string)($_POST['next'] ?? $nextPath));
+    if ($databaseNotice !== '') {
+        $errors[] = $databaseNotice;
+    }
 
-        if (
-            strcasecmp($formData['email'], TEMP_LOGIN_EMAIL) === 0
-            && hash_equals(TEMP_LOGIN_PASSWORD, $password)
-        ) {
-            $_SESSION['user_id'] = 1;
-            $_SESSION['full_name'] = TEMP_LOGIN_NAME;
-            $_SESSION['login_form_token'] = bin2hex(random_bytes(32));
-            header('Location: ' . $postedNext);
-            exit();
+    if (!$errors && isset($pdo)) {
+        $stmt = $pdo->prepare('SELECT id, email, password, full_name FROM users WHERE email = ? LIMIT 1');
+        $stmt->execute([$formData['email']]);
+        $user = $stmt->fetch();
+
+        if (!$user || !password_verify($password, (string)($user['password'] ?? ''))) {
+            $errors[] = 'Invalid email or password.';
+        } else {
+            auth_login_user($user);
+            csrf_refresh('login_form');
+            auth_flash_set('dashboard_notice', 'Welcome back. Your account dashboard is ready.');
+            auth_redirect($nextPath);
         }
-
-        $errors[] = 'Invalid email or password.';
     }
 }
 
@@ -81,8 +73,8 @@ include __DIR__ . '/../app/includes/navbar.php';
             <div class="row">
                 <div class="col-lg-8 col-xl-7 reveal-up">
                     <span class="section-eyebrow">Guest login</span>
-                    <h1 class="auth-title">Welcome back to Azure Horizon</h1>
-                    <p class="auth-subtitle mb-0">Sign in to manage your bookings, profile, and preferences.</p>
+                    <h1 class="auth-title">Welcome back to Horizon Sands Bali</h1>
+                    <p class="auth-subtitle mb-0">Sign in to access your dashboard, manage bookings, and continue with reviews or spa reservations.</p>
                 </div>
             </div>
         </div>
@@ -95,6 +87,18 @@ include __DIR__ . '/../app/includes/navbar.php';
                     <div class="content-card auth-card">
                         <h2 class="auth-card-title">Sign in</h2>
 
+                        <?php if ($authNotice): ?>
+                            <div class="alert alert-warning" role="alert">
+                                <?php echo htmlspecialchars($authNotice, ENT_QUOTES, 'UTF-8'); ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($databaseNotice && !$errors): ?>
+                            <div class="alert alert-warning" role="alert">
+                                <?php echo htmlspecialchars($databaseNotice, ENT_QUOTES, 'UTF-8'); ?>
+                            </div>
+                        <?php endif; ?>
+
                         <?php if ($errors): ?>
                             <div class="alert alert-danger" role="alert">
                                 <ul class="mb-0">
@@ -106,7 +110,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                         <?php endif; ?>
 
                         <form action="login.php" method="POST" novalidate>
-                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['login_form_token'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('login_form'), ENT_QUOTES, 'UTF-8'); ?>">
                             <input type="hidden" name="next" value="<?php echo htmlspecialchars($nextPath, ENT_QUOTES, 'UTF-8'); ?>">
                             <div class="auth-honeypot" aria-hidden="true">
                                 <label for="website" class="form-label">Website</label>
@@ -132,11 +136,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <button type="submit" class="btn btn-gold w-100">Login</button>
                         </form>
 
-                        <p class="auth-footer-text small mb-0">
-                            Temporary demo login:
-                            <strong><?php echo htmlspecialchars(TEMP_LOGIN_EMAIL, ENT_QUOTES, 'UTF-8'); ?></strong>
-                        </p>
-                        <p class="auth-footer-text mb-0">Don't have an account? <a href="register.php">Create one here</a></p>
+                        <p class="auth-footer-text mb-0">Need an account? <a href="register.php?next=<?php echo rawurlencode($nextPath); ?>">Create one here</a></p>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,10 @@
 <?php
-session_start();
+require_once __DIR__ . '/../app/includes/auth.php';
+
+auth_require_login(
+    auth_current_relative_url(),
+    'Please sign in or create an account to continue with your room booking.'
+);
 
 require_once __DIR__ . '/rooms_catalog.php';
 

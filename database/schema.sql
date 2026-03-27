@@ -14,105 +14,194 @@ CREATE TABLE IF NOT EXISTS users (
     UNIQUE KEY email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS rooms (
-    id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(150) NOT NULL,
-    slug VARCHAR(180) NOT NULL,
-    description TEXT NOT NULL,
-    price_per_night DECIMAL(10, 2) NOT NULL,
-    occupancy INT NOT NULL,
-    view_type VARCHAR(50) DEFAULT NULL,
-    is_accessible TINYINT(1) DEFAULT 0,
-    size_label VARCHAR(100) DEFAULT NULL,
-    bed_summary VARCHAR(100) DEFAULT NULL,
-    sort_order INT DEFAULT 1,
-    is_active TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY slug (slug)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS room_images (
-    id INT NOT NULL AUTO_INCREMENT,
-    room_id INT DEFAULT NULL,
-    image_path VARCHAR(255) DEFAULT NULL,
-    sort_order INT DEFAULT 1,
-    PRIMARY KEY (id),
-    KEY room_id (room_id),
-    CONSTRAINT room_images_ibfk_1
-        FOREIGN KEY (room_id) REFERENCES rooms(id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS room_features (
-    id INT NOT NULL AUTO_INCREMENT,
-    room_id INT DEFAULT NULL,
-    feature_text VARCHAR(255) DEFAULT NULL,
-    sort_order INT DEFAULT 1,
-    PRIMARY KEY (id),
-    KEY room_id (room_id),
-    CONSTRAINT room_features_ibfk_1
-        FOREIGN KEY (room_id) REFERENCES rooms(id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS room_benefits (
-    id INT NOT NULL AUTO_INCREMENT,
-    room_id INT DEFAULT NULL,
-    benefit_text VARCHAR(255) DEFAULT NULL,
-    sort_order INT DEFAULT 1,
-    PRIMARY KEY (id),
-    KEY room_id (room_id),
-    CONSTRAINT room_benefits_ibfk_1
-        FOREIGN KEY (room_id) REFERENCES rooms(id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS room_bathroom_features (
-    id INT NOT NULL AUTO_INCREMENT,
-    room_id INT DEFAULT NULL,
-    feature_text VARCHAR(255) DEFAULT NULL,
-    sort_order INT DEFAULT 1,
-    PRIMARY KEY (id),
-    KEY room_id (room_id),
-    CONSTRAINT room_bathroom_features_ibfk_1
-        FOREIGN KEY (room_id) REFERENCES rooms(id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS room_furnishings (
-    id INT NOT NULL AUTO_INCREMENT,
-    room_id INT DEFAULT NULL,
-    item_text VARCHAR(255) DEFAULT NULL,
-    sort_order INT DEFAULT 1,
-    PRIMARY KEY (id),
-    KEY room_id (room_id),
-    CONSTRAINT room_furnishings_ibfk_1
-        FOREIGN KEY (room_id) REFERENCES rooms(id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+DROP TABLE IF EXISTS room_images;
+DROP TABLE IF EXISTS room_features;
+DROP TABLE IF EXISTS room_benefits;
+DROP TABLE IF EXISTS room_bathroom_features;
+DROP TABLE IF EXISTS room_furnishings;
+DROP TABLE IF EXISTS amenities;
+DROP TABLE IF EXISTS rooms;
 
 CREATE TABLE IF NOT EXISTS bookings (
     id INT NOT NULL AUTO_INCREMENT,
     user_id INT DEFAULT NULL,
     room_id INT DEFAULT NULL,
+    room_name VARCHAR(150) DEFAULT NULL,
+    guest_name VARCHAR(150) DEFAULT NULL,
+    guest_email VARCHAR(150) DEFAULT NULL,
+    guest_phone VARCHAR(50) DEFAULT NULL,
+    billing_address VARCHAR(255) DEFAULT NULL,
+    billing_city VARCHAR(100) DEFAULT NULL,
+    billing_postal VARCHAR(30) DEFAULT NULL,
     check_in DATE DEFAULT NULL,
     check_out DATE DEFAULT NULL,
+    nights INT NOT NULL DEFAULT 1,
+    room_rate DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     total_price DECIMAL(10, 2) DEFAULT NULL,
     status VARCHAR(50) DEFAULT 'Confirmed',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    KEY room_id (room_id),
-    CONSTRAINT bookings_ibfk_1
-        FOREIGN KEY (room_id) REFERENCES rooms(id)
+    KEY bookings_room_idx (room_id),
+    KEY bookings_user_idx (user_id),
+    KEY bookings_dates_idx (check_in, check_out)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS amenities (
+SET @bookings_room_name_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND column_name = 'room_name'
+);
+SET @bookings_room_name_sql := IF(@bookings_room_name_exists = 0, 'ALTER TABLE bookings ADD COLUMN room_name VARCHAR(150) DEFAULT NULL AFTER room_id', 'SELECT 1');
+PREPARE bookings_room_name_stmt FROM @bookings_room_name_sql;
+EXECUTE bookings_room_name_stmt;
+DEALLOCATE PREPARE bookings_room_name_stmt;
+
+SET @bookings_guest_name_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND column_name = 'guest_name'
+);
+SET @bookings_guest_name_sql := IF(@bookings_guest_name_exists = 0, 'ALTER TABLE bookings ADD COLUMN guest_name VARCHAR(150) DEFAULT NULL AFTER room_name', 'SELECT 1');
+PREPARE bookings_guest_name_stmt FROM @bookings_guest_name_sql;
+EXECUTE bookings_guest_name_stmt;
+DEALLOCATE PREPARE bookings_guest_name_stmt;
+
+SET @bookings_guest_email_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND column_name = 'guest_email'
+);
+SET @bookings_guest_email_sql := IF(@bookings_guest_email_exists = 0, 'ALTER TABLE bookings ADD COLUMN guest_email VARCHAR(150) DEFAULT NULL AFTER guest_name', 'SELECT 1');
+PREPARE bookings_guest_email_stmt FROM @bookings_guest_email_sql;
+EXECUTE bookings_guest_email_stmt;
+DEALLOCATE PREPARE bookings_guest_email_stmt;
+
+SET @bookings_guest_phone_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND column_name = 'guest_phone'
+);
+SET @bookings_guest_phone_sql := IF(@bookings_guest_phone_exists = 0, 'ALTER TABLE bookings ADD COLUMN guest_phone VARCHAR(50) DEFAULT NULL AFTER guest_email', 'SELECT 1');
+PREPARE bookings_guest_phone_stmt FROM @bookings_guest_phone_sql;
+EXECUTE bookings_guest_phone_stmt;
+DEALLOCATE PREPARE bookings_guest_phone_stmt;
+
+SET @bookings_billing_address_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND column_name = 'billing_address'
+);
+SET @bookings_billing_address_sql := IF(@bookings_billing_address_exists = 0, 'ALTER TABLE bookings ADD COLUMN billing_address VARCHAR(255) DEFAULT NULL AFTER guest_phone', 'SELECT 1');
+PREPARE bookings_billing_address_stmt FROM @bookings_billing_address_sql;
+EXECUTE bookings_billing_address_stmt;
+DEALLOCATE PREPARE bookings_billing_address_stmt;
+
+SET @bookings_billing_city_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND column_name = 'billing_city'
+);
+SET @bookings_billing_city_sql := IF(@bookings_billing_city_exists = 0, 'ALTER TABLE bookings ADD COLUMN billing_city VARCHAR(100) DEFAULT NULL AFTER billing_address', 'SELECT 1');
+PREPARE bookings_billing_city_stmt FROM @bookings_billing_city_sql;
+EXECUTE bookings_billing_city_stmt;
+DEALLOCATE PREPARE bookings_billing_city_stmt;
+
+SET @bookings_billing_postal_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND column_name = 'billing_postal'
+);
+SET @bookings_billing_postal_sql := IF(@bookings_billing_postal_exists = 0, 'ALTER TABLE bookings ADD COLUMN billing_postal VARCHAR(30) DEFAULT NULL AFTER billing_city', 'SELECT 1');
+PREPARE bookings_billing_postal_stmt FROM @bookings_billing_postal_sql;
+EXECUTE bookings_billing_postal_stmt;
+DEALLOCATE PREPARE bookings_billing_postal_stmt;
+
+SET @bookings_nights_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND column_name = 'nights'
+);
+SET @bookings_nights_sql := IF(@bookings_nights_exists = 0, 'ALTER TABLE bookings ADD COLUMN nights INT NOT NULL DEFAULT 1 AFTER check_out', 'SELECT 1');
+PREPARE bookings_nights_stmt FROM @bookings_nights_sql;
+EXECUTE bookings_nights_stmt;
+DEALLOCATE PREPARE bookings_nights_stmt;
+
+SET @bookings_room_rate_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND column_name = 'room_rate'
+);
+SET @bookings_room_rate_sql := IF(@bookings_room_rate_exists = 0, 'ALTER TABLE bookings ADD COLUMN room_rate DECIMAL(10, 2) NOT NULL DEFAULT 0.00 AFTER nights', 'SELECT 1');
+PREPARE bookings_room_rate_stmt FROM @bookings_room_rate_sql;
+EXECUTE bookings_room_rate_stmt;
+DEALLOCATE PREPARE bookings_room_rate_stmt;
+
+SET @bookings_room_fk_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.table_constraints
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND constraint_name = 'bookings_ibfk_1'
+      AND constraint_type = 'FOREIGN KEY'
+);
+SET @drop_bookings_room_fk_sql := IF(@bookings_room_fk_exists > 0, 'ALTER TABLE bookings DROP FOREIGN KEY bookings_ibfk_1', 'SELECT 1');
+PREPARE drop_bookings_room_fk_stmt FROM @drop_bookings_room_fk_sql;
+EXECUTE drop_bookings_room_fk_stmt;
+DEALLOCATE PREPARE drop_bookings_room_fk_stmt;
+
+SET @bookings_user_fk_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.table_constraints
+    WHERE table_schema = DATABASE()
+      AND table_name = 'bookings'
+      AND constraint_name = 'bookings_user_fk'
+      AND constraint_type = 'FOREIGN KEY'
+);
+SET @bookings_user_fk_sql := IF(
+    @bookings_user_fk_exists = 0,
+    'ALTER TABLE bookings ADD CONSTRAINT bookings_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL',
+    'SELECT 1'
+);
+PREPARE bookings_user_fk_stmt FROM @bookings_user_fk_sql;
+EXECUTE bookings_user_fk_stmt;
+DEALLOCATE PREPARE bookings_user_fk_stmt;
+
+CREATE TABLE IF NOT EXISTS spa_bookings (
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    icon VARCHAR(50) DEFAULT NULL,
-    PRIMARY KEY (id)
+    user_id INT NOT NULL,
+    guest_name VARCHAR(150) NOT NULL,
+    guest_email VARCHAR(150) NOT NULL,
+    treatment_name VARCHAR(150) NOT NULL,
+    treatment_date DATE NOT NULL,
+    treatment_time TIME NOT NULL,
+    guests INT NOT NULL DEFAULT 1,
+    notes TEXT DEFAULT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'Pending',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY spa_bookings_user_idx (user_id),
+    KEY spa_bookings_schedule_idx (treatment_date, treatment_time),
+    CONSTRAINT spa_bookings_user_fk
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS reviews (

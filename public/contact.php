@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../app/includes/auth.php';
 
 if (!isset($_SESSION['contact_form_token'])) {
     $_SESSION['contact_form_token'] = bin2hex(random_bytes(32));
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $formData['subject'] = trim($_POST['subject'] ?? '');
     $formData['message'] = trim($_POST['message'] ?? '');
 
-    if ($formData['name'] === '' || mb_strlen($formData['name']) < 2) {
+    if ($formData['name'] === '' || app_string_length($formData['name']) < 2) {
         $errors[] = 'Please enter your full name.';
     }
 
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Please select a valid enquiry type.';
     }
 
-    if ($formData['message'] === '' || mb_strlen($formData['message']) < 10) {
+    if ($formData['message'] === '' || app_string_length($formData['message']) < 10) {
         $errors[] = 'Please enter a message with at least 10 characters.';
     }
 

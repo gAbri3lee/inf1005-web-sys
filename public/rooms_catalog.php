@@ -266,7 +266,7 @@ function rooms_catalog_find(int $roomId): ?array
     return null;
 }
 
-function rooms_catalog_occupancy_options(array $rooms = null): array
+function rooms_catalog_occupancy_options(?array $rooms = null): array
 {
     $rooms ??= rooms_catalog_all();
     $options = array_values(array_unique(array_map(
@@ -278,7 +278,7 @@ function rooms_catalog_occupancy_options(array $rooms = null): array
     return $options;
 }
 
-function rooms_catalog_view_options(array $rooms = null): array
+function rooms_catalog_view_options(?array $rooms = null): array
 {
     $rooms ??= rooms_catalog_all();
     $preferredOrder = ['Garden', 'Ocean', 'City', 'Lagoon'];
@@ -306,7 +306,7 @@ function rooms_catalog_view_options(array $rooms = null): array
     return $options;
 }
 
-function rooms_catalog_group_by_occupancy(array $rooms = null): array
+function rooms_catalog_group_by_occupancy(?array $rooms = null): array
 {
     $rooms ??= rooms_catalog_all();
     $groups = [];
@@ -335,7 +335,7 @@ function rooms_catalog_primary_image(array $room): string
     return rooms_catalog_image('HotelHomePage.webp');
 }
 
-function rooms_catalog_json(array $rooms = null): string
+function rooms_catalog_json(?array $rooms = null): string
 {
     $rooms ??= rooms_catalog_all();
     $json = json_encode(

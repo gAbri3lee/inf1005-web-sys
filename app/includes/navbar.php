@@ -31,6 +31,12 @@
     ?>
 </head>
 <body>
+<?php
+require_once __DIR__ . '/auth.php';
+
+$currentUser = auth_current_user();
+$authReturnPath = auth_current_relative_url();
+?>
 <nav class="navbar navbar-dark site-navbar fixed-top navbar-expand-custom" aria-label="Main navigation">
     <div class="container-fluid navbar-shell">
         <a class="navbar-brand navbar-logo-link" href="index.php" aria-label="Horizon Sands Bali home">
@@ -64,12 +70,15 @@
             </ul>
 
             <div class="navbar-actions">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a class="btn btn-outline-light btn-nav-action" href="profile.php">My Account</a>
-                    <a class="btn btn-gold" href="logout.php">Logout</a>
+                <?php if ($currentUser): ?>
+                    <a class="btn btn-outline-light btn-nav-action" href="dashboard.php">Dashboard</a>
+                    <form class="navbar-logout-form" action="logout.php" method="POST">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('logout_form'), ENT_QUOTES, 'UTF-8'); ?>">
+                        <button type="submit" class="btn btn-gold">Logout</button>
+                    </form>
                 <?php else: ?>
-                    <a class="btn btn-outline-light btn-nav-action" href="login.php">Login</a>
-                    <a class="btn btn-gold" href="register.php">Register</a>
+                    <a class="btn btn-outline-light btn-nav-action" href="login.php?next=<?php echo rawurlencode($authReturnPath); ?>">Login</a>
+                    <a class="btn btn-gold" href="register.php?next=<?php echo rawurlencode($authReturnPath); ?>">Register</a>
                 <?php endif; ?>
             </div>
         </div>

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../app/includes/auth.php';
 
 $faqCategories = [
 	'booking' => 'Booking & Check-in',

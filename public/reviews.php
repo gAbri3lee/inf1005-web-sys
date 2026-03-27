@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../app/includes/auth.php';
 
 $pageSize = 12;
 $errors = [];
@@ -32,10 +32,6 @@ const REVIEW_CATEGORY_COLUMNS = [
 ];
 
 $categoryOptions = REVIEW_CATEGORY_OPTIONS;
-
-if (!isset($_SESSION['reviews_form_token'])) {
-	$_SESSION['reviews_form_token'] = bin2hex(random_bytes(32));
-}
 
 function normalize_rating(mixed $value): int
 {
@@ -239,25 +235,6 @@ function reviews_db_list(PDO $pdo, array $options = []): array
 	];
 }
 
-function resolve_review_user_id(PDO $pdo, mixed $sessionUserId, string $sessionFullName): ?int
-{
-	$userId = (int)$sessionUserId;
-	if ($userId <= 0) {
-		return null;
-	}
-
-	$fullName = trim($sessionFullName);
-	if ($fullName === '') {
-		return null;
-	}
-
-	$stmt = $pdo->prepare('SELECT id FROM users WHERE id = ? AND full_name = ? LIMIT 1');
-	$stmt->execute([$userId, $fullName]);
-	$row = $stmt->fetch();
-
-	return $row ? $userId : null;
-}
-
 function reviews_db_add(PDO $pdo, array $review): int
 {
 	$normalized = normalize_review_record($review);
@@ -372,7 +349,7 @@ function safe_uploaded_image(string $inputName, string $targetDir, array &$error
 	return './uploads/reviews/' . $filename;
 }
 
-$isLoggedIn = isset($_SESSION['user_id']);
+$isLoggedIn = auth_is_logged_in();
 
 $activeCategory = strtolower(trim((string)($_GET['category'] ?? '')));
 if ($activeCategory !== '' && !array_key_exists($activeCategory, $categoryOptions)) {
@@ -383,14 +360,16 @@ if ($activeCategory !== '' && !array_key_exists($activeCategory, $categoryOption
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	if (!$isLoggedIn) {
-		header('Location: login.php?next=reviews.php');
-		exit();
+		auth_require_login(
+			'reviews.php',
+			'Please sign in or create an account before publishing a review.'
+		);
 	}
 
 	$postedToken = $_POST['csrf_token'] ?? '';
 	$honeypot = trim($_POST['website'] ?? '');
 
-	if (!hash_equals($_SESSION['reviews_form_token'], $postedToken)) {
+	if (!csrf_validate('reviews_form', $postedToken)) {
 		$errors[] = 'Your session has expired. Please refresh the page and try again.';
 	}
 
@@ -404,7 +383,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$categories = sanitize_categories((array)($_POST['categories'] ?? []), $categoryOptions);
 	$imagePath = safe_uploaded_image('review_image', __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'reviews', $errors);
 
-	if ($body === '' || mb_strlen($body) < 20) {
+	if ($body === '' || app_string_length($body) < 20) {
 		$errors[] = 'Please write a review of at least 20 characters.';
 	}
 
@@ -413,14 +392,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	}
 
 	if (!$errors) {
-		$name = trim((string)($_SESSION['full_name'] ?? ''));
+		$name = trim(auth_user_display_name());
 		if ($name === '') {
 			$name = 'Guest';
 		}
 
 		try {
 			reviews_db_add($pdo, [
-				'user_id' => resolve_review_user_id($pdo, $_SESSION['user_id'] ?? null, $name),
+				'user_id' => auth_user_id(),
 				'user_name' => $name,
 				'rating' => $rating,
 				'title' => $title === '' ? 'Guest review' : $title,
@@ -430,7 +409,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				'created_at' => time(),
 			]);
 
-			$_SESSION['reviews_form_token'] = bin2hex(random_bytes(32));
+			csrf_refresh('reviews_form');
 			header('Location: reviews.php?submitted=1');
 			exit();
 		} catch (Throwable $exception) {
@@ -624,8 +603,8 @@ include __DIR__ . '/../app/includes/navbar.php';
 											You must be logged in to write a review.
 										</div>
 										<div class="d-grid gap-2">
-											<a class="btn btn-gold" href="login.php?next=reviews.php">Login</a>
-											<a class="btn btn-outline-light btn-nav-action" href="register.php">Sign up</a>
+											<a class="btn btn-gold" href="login.php?next=<?php echo rawurlencode('reviews.php'); ?>">Login</a>
+											<a class="btn btn-outline-light btn-nav-action" href="register.php?next=<?php echo rawurlencode('reviews.php'); ?>">Sign up</a>
 										</div>
 									<?php else: ?>
 										<?php if ($errors): ?>
@@ -639,7 +618,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 										<?php endif; ?>
 
 										<form action="reviews.php" method="POST" enctype="multipart/form-data" novalidate>
-											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['reviews_form_token'], ENT_QUOTES, 'UTF-8'); ?>">
+											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('reviews_form'), ENT_QUOTES, 'UTF-8'); ?>">
 											<div class="reviews-honeypot" aria-hidden="true">
 												<label for="website" class="form-label">Website</label>
 												<input type="text" class="form-control" id="website" name="website" tabindex="-1" autocomplete="off">
