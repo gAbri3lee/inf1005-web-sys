@@ -139,7 +139,7 @@ include __DIR__ . '/../app/includes/navbar.php';
             <div class="row g-4">
                 <div class="col-lg-6 reveal-up">
                     <article class="dining-card">
-                        <img src="assets/images/RestaurantFieryBlaze.png" alt="Warm upscale grill restaurant interior with live fire cooking and elegant evening ambience">
+                        <img src="assets/images/dining/RestaurantFieryBlaze.png" alt="Warm upscale grill restaurant interior with live fire cooking and elegant evening ambience">
                         <div class="dining-card-body">
                             <span class="badge-soft">Grill & Fire Dining</span>
                             <h3>Fiery Blaze</h3>
@@ -154,7 +154,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-6 reveal-up">
                     <article class="dining-card">
-                        <img src="assets/images/RestaurantSunsetLagoon.png" alt="Beachfront restaurant with ocean view, open-air seating and sunset dining atmosphere">
+                        <img src="assets/images/dining/RestaurantSunsetLagoon.png" alt="Beachfront restaurant with ocean view, open-air seating and sunset dining atmosphere">
                         <div class="dining-card-body">
                             <span class="badge-soft">Beach Club & Bar</span>
                             <h3>Sunset Lagoon</h3>
