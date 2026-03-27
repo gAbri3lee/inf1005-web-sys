@@ -3,7 +3,7 @@
     background:
         linear-gradient(rgba(9, 15, 24, 0.30), rgba(9, 15, 24, 0.64)),
         linear-gradient(rgba(190, 120, 75, 0.14), rgba(28, 22, 20, 0.20)),
-        url('../images/HotelHomePage.png') center center / cover no-repeat;
+        url('../images/HotelHomePage.webp') center center / cover no-repeat;
     min-height: 100vh;
 }
 

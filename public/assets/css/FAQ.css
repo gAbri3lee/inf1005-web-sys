@@ -18,7 +18,7 @@
 	inset: 0;
 	background:
 		linear-gradient(135deg, rgba(32, 23, 20, 0.78), rgba(79, 47, 56, 0.54)),
-		url('../images/faq2.png') center center / cover no-repeat;
+		url('../images/faq2.webp') center center / cover no-repeat;
 	opacity: 0.92;
 }
 
@@ -368,7 +368,7 @@
 .faq-help-card {
 	background:
 		linear-gradient(160deg, rgba(34, 25, 23, 0.92) 0%, rgba(72, 42, 47, 0.9) 100%),
-		url('../images/DiscoverMore.png') center center / cover no-repeat;
+		url('../images/DiscoverMore.webp') center center / cover no-repeat;
 	color: #fff8ee;
 }
 

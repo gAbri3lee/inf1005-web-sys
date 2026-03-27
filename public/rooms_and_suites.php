@@ -78,7 +78,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                     <?php if ((int)($room['occupancy'] ?? 0) !== (int)$occ) continue; ?>
                                     <?php
                                         $roomJson = htmlspecialchars(json_encode($room, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
-                                        $cover = (string)($room['images'][0] ?? 'assets/images/HotelHomePage.png');
+                                        $cover = (string)($room['images'][0] ?? 'assets/images/HotelHomePage.webp');
                                         $accessible = !empty($room['accessible']);
                                     ?>
                                     <div class="col-12 col-md-6 col-xl-4 js-room-card"

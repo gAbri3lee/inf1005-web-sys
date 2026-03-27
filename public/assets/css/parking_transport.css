@@ -15,7 +15,7 @@ body,
     position: relative;
     min-height: 100vh;
     padding: 7rem 0 4rem;
-    background: url('../images/parking_and_transport/parking1.png') center center / cover no-repeat;
+    background: url('../images/parking_and_transport/parking1.webp') center center / cover no-repeat;
     display: flex;
     align-items: center;
     overflow: hidden;

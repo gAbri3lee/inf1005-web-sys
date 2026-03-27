@@ -35,7 +35,7 @@
     <div class="container-fluid navbar-shell">
         <a class="navbar-brand navbar-logo-link" href="index.php" aria-label="Horizon Sands Bali home">
             <img
-                src="assets/images/logo_updated.png"
+                    src="assets/images/logo_updated.webp"
                 alt="Horizon Sands Bali Beach Resort and Hotel logo"
                 class="navbar-logo"
                 height="46"

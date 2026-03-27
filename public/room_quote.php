@@ -82,7 +82,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 						<div class="col-lg-7">
 							<article class="content-card room-card h-100">
 								<div class="room-media">
-									<?php $cover = (string)($room['images'][0] ?? 'assets/images/HotelHomePage.png'); ?>
+									<?php $cover = (string)($room['images'][0] ?? 'assets/images/HotelHomePage.webp'); ?>
 									<img class="room-image" src="<?php echo htmlspecialchars($cover, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string)($room['name'] ?? 'Room'), ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
 								</div>
 								<div class="room-body">

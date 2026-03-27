@@ -20,7 +20,7 @@
     background:
         linear-gradient(180deg, rgba(12, 18, 25, 0.22) 0%, rgba(12, 18, 25, 0.76) 100%),
         linear-gradient(120deg, rgba(182, 121, 76, 0.24) 0%, rgba(40, 26, 17, 0.22) 100%),
-        url('../images/dining/RestaurantFieryBlaze.png') center center / cover no-repeat;
+        url('../images/dining/RestaurantFieryBlaze.webp') center center / cover no-repeat;
 }
 
 .page-hero-content {
