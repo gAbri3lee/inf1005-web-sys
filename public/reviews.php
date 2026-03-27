@@ -22,6 +22,15 @@ const REVIEW_CATEGORY_OPTIONS = [
 	'cleanliness' => 'Cleanliness',
 ];
 
+const REVIEW_CATEGORY_COLUMNS = [
+	'food' => 'food',
+	'room' => 'room',
+	'views' => 'views',
+	'service' => 'service',
+	'amenities' => 'amenities',
+	'cleanliness' => 'cleanliness',
+];
+
 $categoryOptions = REVIEW_CATEGORY_OPTIONS;
 
 if (!isset($_SESSION['reviews_form_token'])) {
@@ -96,6 +105,36 @@ function sanitize_categories(array $submitted, array $allowed): array
 	return $categories;
 }
 
+function normalize_category_flag(mixed $value): int
+{
+	return (int)((int)$value === 1);
+}
+
+function review_categories_from_row(array $review): array
+{
+	$categories = [];
+
+	foreach (REVIEW_CATEGORY_COLUMNS as $categoryKey => $columnName) {
+		if (normalize_category_flag($review[$columnName] ?? 0) === 1) {
+			$categories[] = $categoryKey;
+		}
+	}
+
+	return sanitize_categories($categories, REVIEW_CATEGORY_OPTIONS);
+}
+
+function review_category_flags(array $categories): array
+{
+	$normalizedCategories = sanitize_categories($categories, REVIEW_CATEGORY_OPTIONS);
+	$flags = [];
+
+	foreach (REVIEW_CATEGORY_COLUMNS as $categoryKey => $columnName) {
+		$flags[$columnName] = in_array($categoryKey, $normalizedCategories, true) ? 1 : 0;
+	}
+
+	return $flags;
+}
+
 function normalize_review_record(array $review): array
 {
 	$userId = $review['user_id'] ?? null;
@@ -123,7 +162,10 @@ function normalize_review_record(array $review): array
 		$createdAt = time();
 	}
 
-	$categories = sanitize_categories((array)($review['categories'] ?? []), REVIEW_CATEGORY_OPTIONS);
+	$categories = array_key_exists('categories', $review)
+		? sanitize_categories((array)$review['categories'], REVIEW_CATEGORY_OPTIONS)
+		: review_categories_from_row($review);
+	$categoryFlags = review_category_flags($categories);
 
 	return [
 		'id' => (int)($review['id'] ?? 0),
@@ -133,40 +175,15 @@ function normalize_review_record(array $review): array
 		'title' => $title,
 		'body' => $body,
 		'categories' => $categories,
+		'food' => $categoryFlags['food'],
+		'room' => $categoryFlags['room'],
+		'views' => $categoryFlags['views'],
+		'service' => $categoryFlags['service'],
+		'amenities' => $categoryFlags['amenities'],
+		'cleanliness' => $categoryFlags['cleanliness'],
 		'image_path' => $imagePath,
 		'created_at' => $createdAt,
 	];
-}
-
-function fetch_review_categories(PDO $pdo, array $reviewIds): array
-{
-	if (!$reviewIds) {
-		return [];
-	}
-
-	$placeholders = implode(',', array_fill(0, count($reviewIds), '?'));
-	$stmt = $pdo->prepare(
-		"SELECT review_id, category_code
-		FROM review_categories
-		WHERE review_id IN ($placeholders)
-		ORDER BY sort_order ASC, category_code ASC"
-	);
-	$stmt->execute($reviewIds);
-
-	$categoriesByReview = [];
-	foreach ($stmt->fetchAll() as $row) {
-		$reviewId = (int)($row['review_id'] ?? 0);
-		$categoryKey = strtolower(trim((string)($row['category_code'] ?? '')));
-		if ($reviewId > 0 && $categoryKey !== '') {
-			$categoriesByReview[$reviewId][] = $categoryKey;
-		}
-	}
-
-	foreach ($categoriesByReview as $reviewId => $categories) {
-		$categoriesByReview[$reviewId] = sanitize_categories($categories, REVIEW_CATEGORY_OPTIONS);
-	}
-
-	return $categoriesByReview;
 }
 
 function reviews_db_list(PDO $pdo, array $options = []): array
@@ -197,7 +214,7 @@ function reviews_db_list(PDO $pdo, array $options = []): array
 	if ($total > 0) {
 		$offset = ($page - 1) * $pageSize;
 		$stmt = $pdo->prepare(
-			'SELECT id, user_id, user_name, rating, title, body, image_path, UNIX_TIMESTAMP(created_at) AS created_at
+			'SELECT id, user_id, user_name, rating, title, body, image_path, food, room, views, service, amenities, cleanliness, UNIX_TIMESTAMP(created_at) AS created_at
 			FROM reviews
 			WHERE is_published = 1
 			ORDER BY created_at DESC, id DESC
@@ -208,12 +225,7 @@ function reviews_db_list(PDO $pdo, array $options = []): array
 		$stmt->execute();
 
 		$rows = $stmt->fetchAll();
-		$reviewIds = array_map(static fn(array $row): int => (int)$row['id'], $rows);
-		$categoriesByReview = fetch_review_categories($pdo, $reviewIds);
-
 		foreach ($rows as $row) {
-			$reviewId = (int)($row['id'] ?? 0);
-			$row['categories'] = $categoriesByReview[$reviewId] ?? [];
 			$items[] = normalize_review_record($row);
 		}
 	}
@@ -251,11 +263,9 @@ function reviews_db_add(PDO $pdo, array $review): int
 	$normalized = normalize_review_record($review);
 
 	try {
-		$pdo->beginTransaction();
-
 		$stmt = $pdo->prepare(
-			'INSERT INTO reviews (user_id, user_name, rating, title, body, image_path, is_published, created_at)
-			VALUES (:user_id, :user_name, :rating, :title, :body, :image_path, 1, FROM_UNIXTIME(:created_at))'
+			'INSERT INTO reviews (user_id, user_name, rating, title, body, image_path, food, room, views, service, amenities, cleanliness, is_published, created_at)
+			VALUES (:user_id, :user_name, :rating, :title, :body, :image_path, :food, :room, :views, :service, :amenities, :cleanliness, 1, FROM_UNIXTIME(:created_at))'
 		);
 		$stmt->bindValue(':user_id', $normalized['user_id'], $normalized['user_id'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
 		$stmt->bindValue(':user_name', $normalized['user_name'], PDO::PARAM_STR);
@@ -263,30 +273,17 @@ function reviews_db_add(PDO $pdo, array $review): int
 		$stmt->bindValue(':title', $normalized['title'], PDO::PARAM_STR);
 		$stmt->bindValue(':body', $normalized['body'], PDO::PARAM_STR);
 		$stmt->bindValue(':image_path', $normalized['image_path'] === '' ? null : $normalized['image_path'], $normalized['image_path'] === '' ? PDO::PARAM_NULL : PDO::PARAM_STR);
+		$stmt->bindValue(':food', $normalized['food'], PDO::PARAM_INT);
+		$stmt->bindValue(':room', $normalized['room'], PDO::PARAM_INT);
+		$stmt->bindValue(':views', $normalized['views'], PDO::PARAM_INT);
+		$stmt->bindValue(':service', $normalized['service'], PDO::PARAM_INT);
+		$stmt->bindValue(':amenities', $normalized['amenities'], PDO::PARAM_INT);
+		$stmt->bindValue(':cleanliness', $normalized['cleanliness'], PDO::PARAM_INT);
 		$stmt->bindValue(':created_at', $normalized['created_at'], PDO::PARAM_INT);
 		$stmt->execute();
 
-		$reviewId = (int)$pdo->lastInsertId();
-
-		if ($normalized['categories']) {
-			$categoryStmt = $pdo->prepare(
-				'INSERT INTO review_categories (review_id, category_code, sort_order) VALUES (:review_id, :category_code, :sort_order)'
-			);
-			foreach ($normalized['categories'] as $sortOrder => $categoryKey) {
-				$categoryStmt->bindValue(':review_id', $reviewId, PDO::PARAM_INT);
-				$categoryStmt->bindValue(':category_code', $categoryKey, PDO::PARAM_STR);
-				$categoryStmt->bindValue(':sort_order', $sortOrder + 1, PDO::PARAM_INT);
-				$categoryStmt->execute();
-			}
-		}
-
-		$pdo->commit();
-		return $reviewId;
+		return (int)$pdo->lastInsertId();
 	} catch (Throwable $exception) {
-		if ($pdo->inTransaction()) {
-			$pdo->rollBack();
-		}
-
 		throw $exception;
 	}
 }
