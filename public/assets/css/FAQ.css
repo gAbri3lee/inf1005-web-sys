@@ -6,6 +6,10 @@
 	color: var(--text-dark);
 }
 
+.faq-page + .site-footer {
+	margin-top: 0;
+}
+
 .faq-hero {
 	padding: 180px 0 72px;
 	position: relative;
