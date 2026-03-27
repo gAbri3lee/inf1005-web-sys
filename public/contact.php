@@ -118,7 +118,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             </div>
                             <div class="contact-detail-item">
                                 <h3>Phone</h3>
-                                <p><a href="tel:+6561234567">+65 6123 4567</a></p>
+                                <p><a href="tel:+62361754888">+62 361 754 888</a></p>
                             </div>
                             <div class="contact-detail-item">
                                 <h3>Email</h3>
@@ -173,6 +173,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>#contact-form" method="post" novalidate>
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['contact_form_token'], ENT_QUOTES, 'UTF-8'); ?>">
+
                             <div class="visually-hidden" aria-hidden="true">
                                 <label for="website">Leave this field empty</label>
                                 <input type="text" id="website" name="website" autocomplete="off" tabindex="-1">
@@ -183,14 +184,17 @@ include __DIR__ . '/../app/includes/navbar.php';
                                     <label for="name" class="form-label">Full name</label>
                                     <input type="text" class="form-control" id="name" name="name" maxlength="100" required value="<?php echo htmlspecialchars($formData['name'], ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
+
                                 <div class="col-md-6">
                                     <label for="email" class="form-label">Email address</label>
                                     <input type="email" class="form-control" id="email" name="email" maxlength="120" required value="<?php echo htmlspecialchars($formData['email'], ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
+
                                 <div class="col-md-6">
                                     <label for="phone" class="form-label">Phone number</label>
                                     <input type="text" class="form-control" id="phone" name="phone" maxlength="20" value="<?php echo htmlspecialchars($formData['phone'], ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
+
                                 <div class="col-md-6">
                                     <label for="subject" class="form-label">Subject</label>
                                     <select class="form-select" id="subject" name="subject" required>
@@ -202,10 +206,12 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         <option value="General Enquiry" <?php echo $formData['subject'] === 'General Enquiry' ? 'selected' : ''; ?>>General Enquiry</option>
                                     </select>
                                 </div>
+
                                 <div class="col-12">
                                     <label for="message" class="form-label">Message</label>
                                     <textarea class="form-control" id="message" name="message" rows="6" maxlength="1200" required><?php echo htmlspecialchars($formData['message'], ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
+
                                 <div class="col-12 d-flex flex-column flex-sm-row gap-3 align-items-sm-center justify-content-between">
                                     <p class="form-note mb-0">Please do not include payment card details or other sensitive information in this form.</p>
                                     <button type="submit" class="btn btn-gold">Submit Enquiry</button>
@@ -228,6 +234,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                         <p>Ask about room types, dining options, transport arrangements and special requests before arrival.</p>
                     </article>
                 </div>
+
                 <div class="col-lg-4 reveal-up">
                     <article class="moment-card h-100">
                         <div class="moment-icon" aria-hidden="true">02</div>
@@ -235,6 +242,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                         <p>Reach our guest services team at any time for assistance with dining, amenities and resort recommendations.</p>
                     </article>
                 </div>
+
                 <div class="col-lg-4 reveal-up">
                     <article class="moment-card h-100">
                         <div class="moment-icon" aria-hidden="true">03</div>
