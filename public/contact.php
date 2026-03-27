@@ -151,7 +151,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                 <h2 class="section-title mb-2">Send us a message</h2>
                                 <p class="section-text mb-0">Complete the form below and our team will get back to you.</p>
                             </div>
-                            <img src="assets/images/AboutUsSpa.png" alt="Hotel guest services and concierge themed visual" class="contact-illustration">
+                            <img src="assets/images/AboutUsSpa.webp" alt="Hotel guest services and concierge themed visual" class="contact-illustration">
                         </div>
 
                         <?php if ($successMessage !== ''): ?>

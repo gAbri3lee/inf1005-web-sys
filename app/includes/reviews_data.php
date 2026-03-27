@@ -5,17 +5,17 @@ declare(strict_types=1);
 function reviews_seed_reviews(): array
 {
 	$seedImagePool = [
-		'assets/images/HotelHomePage.png',
-		'assets/images/AboutUs.png',
-		'assets/images/dining/RestaurantSunsetLagoon.png',
-		'assets/images/dining/RestaurantFieryBlaze.png',
-		'assets/images/SpaRoom.png',
-		'assets/images/Suite1.png',
-		'assets/images/Suite2.png',
-		'assets/images/Suite3.png',
-		'assets/images/parking_and_transport/parking1.png',
-		'assets/images/Sustainability.png',
-		'assets/images/dining/Cafe.png',
+		'assets/images/HotelHomePage.webp',
+		'assets/images/AboutUs.webp',
+		'assets/images/dining/RestaurantSunsetLagoon.webp',
+		'assets/images/dining/RestaurantFieryBlaze.webp',
+		'assets/images/SpaRoom.webp',
+		'assets/images/Suite1.webp',
+		'assets/images/Suite2.webp',
+		'assets/images/Suite3.webp',
+		'assets/images/parking_and_transport/parking1.webp',
+		'assets/images/Sustainability.webp',
+		'assets/images/dining/Cafe.webp',
 	];
 
 	$pickSeedImage = function () use ($seedImagePool): string {

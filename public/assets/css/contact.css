@@ -31,7 +31,10 @@
 }
 
 .page-hero-contact {
-    background-image: url('../images/hotel_reception_backdrop.webp');
+    background:
+        linear-gradient(180deg, rgba(12, 18, 25, 0.2) 0%, rgba(12, 18, 25, 0.72) 100%),
+        linear-gradient(120deg, rgba(150, 105, 92, 0.2) 0%, rgba(17, 24, 39, 0.2) 100%),
+        url('../images/AboutUsSpa.webp') center center / cover no-repeat;
 }
 
 .page-hero-content {

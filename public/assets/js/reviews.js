@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	const FALLBACK_IMAGE_SRC = 'assets/images/HotelHomePage.png';
+	const FALLBACK_IMAGE_SRC = 'assets/images/HotelHomePage.webp';
 
 	const STORAGE_KEY = 'reviews_active_category';
 	const browse = document.querySelector('#reviews-browse');

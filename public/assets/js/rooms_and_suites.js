@@ -1,7 +1,7 @@
 (() => {
 	'use strict';
 
-	const FALLBACK_IMAGE_SRC = 'assets/images/HotelHomePage.png';
+	const FALLBACK_IMAGE_SRC = 'assets/images/HotelHomePage.webp';
 
 	function attachImageFallback(img) {
 		if (!img) return;

@@ -95,8 +95,8 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-4 col-md-6 reveal-up">
                     <article class="dining-card venue-card h-100">
-                        <img 
-                            src="assets/images/dining/RestaurantFieryBlaze.png" 
+                            <img 
+                                src="assets/images/dining/RestaurantFieryBlaze.webp" 
                             alt="Indoor open-fire grill restaurant with dramatic flames, copper hood, chefs at work and intimate evening dining atmosphere"
                         >
                         <div class="dining-card-body">
@@ -118,8 +118,8 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-4 col-md-6 reveal-up">
                     <article class="dining-card venue-card h-100">
-                        <img 
-                            src="assets/images/dining/RestaurantSunsetLagoon.png" 
+                            <img 
+                                src="assets/images/dining/RestaurantSunsetLagoon.webp" 
                             alt="Open-air beachfront restaurant and bar with ocean views, relaxed seating and sunset dining by the water"
                         >                       
                         <div class="dining-card-body">
@@ -142,8 +142,8 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-4 col-md-6 reveal-up">
                     <article class="dining-card venue-card h-100">
-                       <img 
-                            src="assets/images/dining/Cafe.png" 
+                           <img 
+                                src="assets/images/dining/Cafe.webp" 
                             alt="Bright and inviting café with artisan coffee, pastries, brunch dishes and relaxed daytime seating"
                         >
                         <div class="dining-card-body">

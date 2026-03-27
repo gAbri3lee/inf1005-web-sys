@@ -110,7 +110,7 @@ section {
     background:
         linear-gradient(rgba(9, 15, 24, 0.42), rgba(9, 15, 24, 0.52)),
         linear-gradient(rgba(190, 120, 75, 0.18), rgba(28, 22, 20, 0.24)),
-        url('../images/HotelHomePage.png') center center / cover no-repeat;
+        url('../images/HotelHomePage.webp') center center / cover no-repeat;
     overflow: hidden;
 }
 
@@ -131,7 +131,7 @@ section {
     background:
         linear-gradient(180deg, rgba(14, 17, 20, 0.18) 0%, rgba(14, 17, 20, 0.72) 100%),
         linear-gradient(120deg, rgba(156, 108, 72, 0.28) 0%, rgba(17, 24, 39, 0.2) 100%),
-        url('../images/AboutUs.png') center center / cover no-repeat;
+        url('../images/AboutUs.webp') center center / cover no-repeat;
     overflow: hidden;
 }
 
@@ -313,7 +313,7 @@ section {
     padding: 38px;
     background:
         linear-gradient(160deg, rgba(38, 27, 22, 0.94) 0%, rgba(87, 57, 42, 0.9) 100%),
-        url('../images/Sustainability.png') center center / cover no-repeat;
+        url('../images/Sustainability.webp') center center / cover no-repeat;
     box-shadow: var(--shadow-soft);
 }
 
@@ -491,7 +491,7 @@ section {
 .cta-section {
     background:
         linear-gradient(rgba(20, 18, 18, 0.55), rgba(20, 18, 18, 0.60)),
-        url('../images/DiscoverMore.png') center center / cover no-repeat;
+        url('../images/DiscoverMore.webp') center center / cover no-repeat;
     color: var(--white);
     border-radius: var(--radius-xl);
     padding: 80px 30px;

@@ -37,7 +37,7 @@ include __DIR__ . '/../app/includes/navbar.php';
             <article class="about-value-card reveal-up">
                 <div class="row g-0 align-items-stretch">
                     <div class="col-lg-6">
-                        <img src="assets/images/Hospitality.png" alt="Luxury hospitality at Horizon Sands Bali" class="about-value-image">
+                        <img src="assets/images/Hospitality.webp" alt="Luxury hospitality at Horizon Sands Bali" class="about-value-image">
                     </div>
                     <div class="col-lg-6">
                         <div class="about-value-body">
@@ -53,7 +53,7 @@ include __DIR__ . '/../app/includes/navbar.php';
             <article class="about-value-card reveal-up">
                 <div class="row g-0 align-items-stretch">
                     <div class="col-lg-6 order-lg-2">
-                        <img src="assets/images/Sustainability.png" alt="Sustainability and renewable energy at Horizon Sands Bali" class="about-value-image">
+                        <img src="assets/images/Sustainability.webp" alt="Sustainability and renewable energy at Horizon Sands Bali" class="about-value-image">
                     </div>
                     <div class="col-lg-6 order-lg-1">
                         <div class="about-value-body">
@@ -70,8 +70,8 @@ include __DIR__ . '/../app/includes/navbar.php';
                 <div class="row g-0 align-items-stretch">
                     <div class="col-lg-6">
                         <div class="about-experience-gallery">
-                            <img src="assets/images/Adventure.png" alt="Adventure sports experience at Horizon Sands Bali" class="about-value-image about-experience-image about-experience-image-primary">
-                            <img src="assets/images/AboutUsSpa.png" alt="Relaxing spa experience at Horizon Sands Bali" class="about-value-image about-experience-image about-experience-image-secondary">
+                            <img src="assets/images/Adventure.webp" alt="Adventure sports experience at Horizon Sands Bali" class="about-value-image about-experience-image about-experience-image-primary">
+                            <img src="assets/images/AboutUsSpa.webp" alt="Relaxing spa experience at Horizon Sands Bali" class="about-value-image about-experience-image about-experience-image-secondary">
                         </div>
                     </div>
                     <div class="col-lg-6">

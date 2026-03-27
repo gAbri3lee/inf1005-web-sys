@@ -19,7 +19,7 @@
     background:
         linear-gradient(rgba(9, 15, 24, 0.42), rgba(9, 15, 24, 0.52)),
         linear-gradient(rgba(190, 120, 75, 0.18), rgba(28, 22, 20, 0.24)),
-        url('../images/HotelHomePage.png') center center / cover no-repeat;
+        url('../images/HotelHomePage.webp') center center / cover no-repeat;
 }
 
 .amenities-hero::after {
