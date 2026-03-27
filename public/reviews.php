@@ -1,13 +1,19 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../app/includes/reviews_repository.php';
-
 $pageSize = 12;
 $errors = [];
 $successMessage = '';
+$databaseNotice = '';
+$pdo = null;
 
-$categoryOptions = [
+try {
+	require_once __DIR__ . '/../app/includes/db.php';
+} catch (Throwable $exception) {
+	$databaseNotice = 'Unable to connect to the reviews database right now. Check app/config/database.php and then run database/schema.sql in MySQL Workbench.';
+}
+
+const REVIEW_CATEGORY_OPTIONS = [
 	'food' => 'Food',
 	'room' => 'Room',
 	'views' => 'Views',
@@ -15,6 +21,8 @@ $categoryOptions = [
 	'amenities' => 'Amenities',
 	'cleanliness' => 'Cleanliness',
 ];
+
+$categoryOptions = REVIEW_CATEGORY_OPTIONS;
 
 if (!isset($_SESSION['reviews_form_token'])) {
 	$_SESSION['reviews_form_token'] = bin2hex(random_bytes(32));
@@ -88,6 +96,220 @@ function sanitize_categories(array $submitted, array $allowed): array
 	return $categories;
 }
 
+function normalize_review_record(array $review): array
+{
+	$userId = $review['user_id'] ?? null;
+	if ($userId !== null && $userId !== '') {
+		$userId = (int)$userId;
+	} else {
+		$userId = null;
+	}
+
+	$userName = trim((string)($review['user_name'] ?? ''));
+	if ($userName === '') {
+		$userName = 'Guest';
+	}
+
+	$title = trim((string)($review['title'] ?? ''));
+	if ($title === '') {
+		$title = 'Guest review';
+	}
+
+	$body = trim((string)($review['body'] ?? ''));
+	$imagePath = trim((string)($review['image_path'] ?? ''));
+
+	$createdAt = (int)($review['created_at'] ?? 0);
+	if ($createdAt <= 0) {
+		$createdAt = time();
+	}
+
+	$categories = sanitize_categories((array)($review['categories'] ?? []), REVIEW_CATEGORY_OPTIONS);
+
+	return [
+		'id' => (int)($review['id'] ?? 0),
+		'user_id' => $userId,
+		'user_name' => $userName,
+		'rating' => normalize_rating($review['rating'] ?? 5),
+		'title' => $title,
+		'body' => $body,
+		'categories' => $categories,
+		'image_path' => $imagePath,
+		'created_at' => $createdAt,
+	];
+}
+
+function fetch_review_categories(PDO $pdo, array $reviewIds): array
+{
+	if (!$reviewIds) {
+		return [];
+	}
+
+	$placeholders = implode(',', array_fill(0, count($reviewIds), '?'));
+	$stmt = $pdo->prepare(
+		"SELECT review_id, category_code
+		FROM review_categories
+		WHERE review_id IN ($placeholders)
+		ORDER BY sort_order ASC, category_code ASC"
+	);
+	$stmt->execute($reviewIds);
+
+	$categoriesByReview = [];
+	foreach ($stmt->fetchAll() as $row) {
+		$reviewId = (int)($row['review_id'] ?? 0);
+		$categoryKey = strtolower(trim((string)($row['category_code'] ?? '')));
+		if ($reviewId > 0 && $categoryKey !== '') {
+			$categoriesByReview[$reviewId][] = $categoryKey;
+		}
+	}
+
+	foreach ($categoriesByReview as $reviewId => $categories) {
+		$categoriesByReview[$reviewId] = sanitize_categories($categories, REVIEW_CATEGORY_OPTIONS);
+	}
+
+	return $categoriesByReview;
+}
+
+function reviews_db_list(PDO $pdo, array $options = []): array
+{
+	$pageSize = (int)($options['pageSize'] ?? 12);
+	if ($pageSize < 1) {
+		$pageSize = 12;
+	}
+	if ($pageSize > 50) {
+		$pageSize = 50;
+	}
+
+	$page = (int)($options['page'] ?? 1);
+	if ($page < 1) {
+		$page = 1;
+	}
+
+	$stats = $pdo->query('SELECT COUNT(*) AS total, AVG(rating) AS average_rating FROM reviews WHERE is_published = 1')->fetch();
+	$total = (int)($stats['total'] ?? 0);
+	$average = isset($stats['average_rating']) ? (float)$stats['average_rating'] : null;
+
+	$totalPages = max(1, (int)ceil($total / $pageSize));
+	if ($page > $totalPages) {
+		$page = $totalPages;
+	}
+
+	$items = [];
+	if ($total > 0) {
+		$offset = ($page - 1) * $pageSize;
+		$stmt = $pdo->prepare(
+			'SELECT id, user_id, user_name, rating, title, body, image_path, UNIX_TIMESTAMP(created_at) AS created_at
+			FROM reviews
+			WHERE is_published = 1
+			ORDER BY created_at DESC, id DESC
+			LIMIT :limit OFFSET :offset'
+		);
+		$stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
+		$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+		$stmt->execute();
+
+		$rows = $stmt->fetchAll();
+		$reviewIds = array_map(static fn(array $row): int => (int)$row['id'], $rows);
+		$categoriesByReview = fetch_review_categories($pdo, $reviewIds);
+
+		foreach ($rows as $row) {
+			$reviewId = (int)($row['id'] ?? 0);
+			$row['categories'] = $categoriesByReview[$reviewId] ?? [];
+			$items[] = normalize_review_record($row);
+		}
+	}
+
+	return [
+		'items' => $items,
+		'total' => $total,
+		'average' => $average,
+		'page' => $page,
+		'totalPages' => $totalPages,
+	];
+}
+
+function resolve_review_user_id(PDO $pdo, mixed $sessionUserId, string $sessionFullName): ?int
+{
+	$userId = (int)$sessionUserId;
+	if ($userId <= 0) {
+		return null;
+	}
+
+	$fullName = trim($sessionFullName);
+	if ($fullName === '') {
+		return null;
+	}
+
+	$stmt = $pdo->prepare('SELECT id FROM users WHERE id = ? AND full_name = ? LIMIT 1');
+	$stmt->execute([$userId, $fullName]);
+	$row = $stmt->fetch();
+
+	return $row ? $userId : null;
+}
+
+function reviews_db_add(PDO $pdo, array $review): int
+{
+	$normalized = normalize_review_record($review);
+
+	try {
+		$pdo->beginTransaction();
+
+		$stmt = $pdo->prepare(
+			'INSERT INTO reviews (user_id, user_name, rating, title, body, image_path, is_published, created_at)
+			VALUES (:user_id, :user_name, :rating, :title, :body, :image_path, 1, FROM_UNIXTIME(:created_at))'
+		);
+		$stmt->bindValue(':user_id', $normalized['user_id'], $normalized['user_id'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+		$stmt->bindValue(':user_name', $normalized['user_name'], PDO::PARAM_STR);
+		$stmt->bindValue(':rating', $normalized['rating'], PDO::PARAM_INT);
+		$stmt->bindValue(':title', $normalized['title'], PDO::PARAM_STR);
+		$stmt->bindValue(':body', $normalized['body'], PDO::PARAM_STR);
+		$stmt->bindValue(':image_path', $normalized['image_path'] === '' ? null : $normalized['image_path'], $normalized['image_path'] === '' ? PDO::PARAM_NULL : PDO::PARAM_STR);
+		$stmt->bindValue(':created_at', $normalized['created_at'], PDO::PARAM_INT);
+		$stmt->execute();
+
+		$reviewId = (int)$pdo->lastInsertId();
+
+		if ($normalized['categories']) {
+			$categoryStmt = $pdo->prepare(
+				'INSERT INTO review_categories (review_id, category_code, sort_order) VALUES (:review_id, :category_code, :sort_order)'
+			);
+			foreach ($normalized['categories'] as $sortOrder => $categoryKey) {
+				$categoryStmt->bindValue(':review_id', $reviewId, PDO::PARAM_INT);
+				$categoryStmt->bindValue(':category_code', $categoryKey, PDO::PARAM_STR);
+				$categoryStmt->bindValue(':sort_order', $sortOrder + 1, PDO::PARAM_INT);
+				$categoryStmt->execute();
+			}
+		}
+
+		$pdo->commit();
+		return $reviewId;
+	} catch (Throwable $exception) {
+		if ($pdo->inTransaction()) {
+			$pdo->rollBack();
+		}
+
+		throw $exception;
+	}
+}
+
+function cleanup_uploaded_review_image(?string $imagePath): void
+{
+	if ($imagePath === null) {
+		return;
+	}
+
+	$relativePath = trim($imagePath);
+	if ($relativePath === '') {
+		return;
+	}
+
+	$relativePath = ltrim($relativePath, './\\');
+	$absolutePath = __DIR__ . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath);
+
+	if (is_file($absolutePath)) {
+		@unlink($absolutePath);
+	}
+}
+
 function safe_uploaded_image(string $inputName, string $targetDir, array &$errors): ?string
 {
 	if (!isset($_FILES[$inputName]) || !is_array($_FILES[$inputName])) {
@@ -155,8 +377,6 @@ function safe_uploaded_image(string $inputName, string $targetDir, array &$error
 
 $isLoggedIn = isset($_SESSION['user_id']);
 
-reviews_repo_init();
-
 $activeCategory = strtolower(trim((string)($_GET['category'] ?? '')));
 if ($activeCategory !== '' && !array_key_exists($activeCategory, $categoryOptions)) {
 	$activeCategory = '';
@@ -201,38 +421,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$name = 'Guest';
 		}
 
-		reviews_repo_add([
-			'user_id' => (int)($_SESSION['user_id'] ?? 0),
-			'user_name' => $name,
-			'rating' => $rating,
-			'title' => $title === '' ? 'Guest review' : $title,
-			'body' => $body,
-			'categories' => $categories,
-			'image_path' => $imagePath,
-			'created_at' => time(),
-		]);
+		try {
+			reviews_db_add($pdo, [
+				'user_id' => resolve_review_user_id($pdo, $_SESSION['user_id'] ?? null, $name),
+				'user_name' => $name,
+				'rating' => $rating,
+				'title' => $title === '' ? 'Guest review' : $title,
+				'body' => $body,
+				'categories' => $categories,
+				'image_path' => $imagePath,
+				'created_at' => time(),
+			]);
 
-		$_SESSION['reviews_form_token'] = bin2hex(random_bytes(32));
-		header('Location: reviews.php?submitted=1');
-		exit();
+			$_SESSION['reviews_form_token'] = bin2hex(random_bytes(32));
+			header('Location: reviews.php?submitted=1');
+			exit();
+		} catch (Throwable $exception) {
+			cleanup_uploaded_review_image($imagePath);
+			if ($pdo instanceof PDO) {
+				$errors[] = 'Unable to save your review right now. Please make sure the reviews tables exist in MySQL and try again.';
+			} else {
+				$errors[] = 'Unable to save your review right now because the MySQL connection is not available.';
+			}
+		}
 	}
 }
 
 $requestedPage = (int)($_GET['page'] ?? 1);
-$list = reviews_repo_list([
-	'category' => '',
-	'page' => $requestedPage,
-	'pageSize' => $pageSize,
-]);
-
-$pagedReviews = $list['items'];
-$totalReviews = (int)$list['total'];
-$averageRating = $list['average'];
-$page = (int)$list['page'];
-$totalPages = (int)$list['totalPages'];
+try {
+	$list = reviews_db_list($pdo, [
+		'page' => $requestedPage,
+		'pageSize' => $pageSize,
+	]);
+	$pagedReviews = $list['items'];
+	$totalReviews = (int)$list['total'];
+	$averageRating = $list['average'];
+	$page = (int)$list['page'];
+	$totalPages = (int)$list['totalPages'];
+} catch (Throwable $exception) {
+	$pagedReviews = [];
+	$totalReviews = 0;
+	$averageRating = null;
+	$page = 1;
+	$totalPages = 1;
+	if ($databaseNotice === '') {
+		$databaseNotice = 'Reviews are now database-backed, but the reviews tables are not ready yet. Run the SQL in database/schema.sql from MySQL Workbench.';
+	}
+}
 
 if (isset($_GET['submitted']) && $_GET['submitted'] === '1') {
-	$successMessage = 'Thanks! Your review is saved for this session only. Publishing to the database will be available once it is set up.';
+	$successMessage = 'Thanks! Your review has been saved to the database.';
 }
 
 $pageStylesheets = ['assets/css/reviews.css'];
@@ -276,6 +514,12 @@ include __DIR__ . '/../app/includes/navbar.php';
 						<?php if ($successMessage): ?>
 							<div class="alert alert-success reveal-up" role="alert">
 								<?php echo htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'); ?>
+							</div>
+						<?php endif; ?>
+
+						<?php if ($databaseNotice): ?>
+							<div class="alert alert-warning reveal-up" role="alert">
+								<?php echo htmlspecialchars($databaseNotice, ENT_QUOTES, 'UTF-8'); ?>
 							</div>
 						<?php endif; ?>
 
