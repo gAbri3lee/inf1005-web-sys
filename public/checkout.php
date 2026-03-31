@@ -197,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errors) {
         unset($_SESSION['pending_booking']);
         csrf_refresh('checkout_form');
         auth_flash_set('dashboard_notice', 'Your room booking has been confirmed.');
-        auth_redirect('dashboard.php#room-bookings');
+        auth_redirect('room_bookings.php');
     }
 }
 

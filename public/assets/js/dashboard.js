@@ -255,7 +255,7 @@
       } else if (priceDifference < -0.009) {
         copy = `This change shortens your stay. A refund of ${formatCurrency(Math.abs(priceDifference))} will be returned to your card within 7 business days after confirmation.`;
       } else {
-        copy = 'This updates your stay dates without changing the total price.';
+        copy = 'This updates your booking details without changing the total price.';
       }
 
       pendingForm = form;
