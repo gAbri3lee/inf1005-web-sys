@@ -244,7 +244,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                             <div class="spa-booking-actions">
                                 <button type="submit" class="btn btn-gold">Reserve spa treatment</button>
-                                <a class="btn btn-outline-secondary" href="dashboard.php#spa-bookings">Back to dashboard</a>
+                                <a class="btn btn-back-dashboard" href="dashboard.php#spa-bookings">Back to dashboard</a>
                             </div>
                         </form>
                     </div>

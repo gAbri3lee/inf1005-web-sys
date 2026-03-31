@@ -402,7 +402,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <h2 class="dashboard-panel-title">Your room reservations</h2>
                         </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <a class="btn btn-outline-secondary btn-sm" href="dashboard.php">Back to dashboard</a>
+                            <a class="btn btn-back-dashboard btn-sm" href="dashboard.php">Back to dashboard</a>
                             <a class="btn btn-gold btn-sm" href="rooms_and_suites.php">Book a room</a>
                         </div>
                     </div>

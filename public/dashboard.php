@@ -238,7 +238,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <p class="dashboard-panel-label">Room bookings</p>
                             <h2 class="dashboard-panel-title">Recent stay activity</h2>
                         </div>
-                        <a class="btn btn-outline-secondary btn-sm" href="room_bookings.php">Manage room bookings</a>
+                        <a class="btn btn-gold btn-sm" href="room_bookings.php">Manage room bookings</a>
                     </div>
 
                     <?php if (!$recentRoomBookings): ?>
@@ -273,7 +273,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                         <?php if (count($roomBookings) > count($recentRoomBookings)): ?>
                             <div class="dashboard-entry-actions">
-                                <a class="btn btn-outline-secondary btn-sm" href="room_bookings.php">View all bookings</a>
+                                <a class="btn btn-gold btn-sm" href="room_bookings.php">View all bookings</a>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -285,7 +285,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <p class="dashboard-panel-label">Spa reservations</p>
                             <h2 class="dashboard-panel-title">Upcoming wellness sessions</h2>
                         </div>
-                        <a class="btn btn-outline-secondary btn-sm" href="spa_booking.php">Book a treatment</a>
+                        <a class="btn btn-gold btn-sm" href="spa_booking.php">Book a treatment</a>
                     </div>
 
                     <?php if (!$spaBookings): ?>
@@ -323,7 +323,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('dashboard_action_form'), ENT_QUOTES, 'UTF-8'); ?>">
                                                 <input type="hidden" name="action" value="cancel_spa_booking">
                                                 <input type="hidden" name="spa_booking_id" value="<?php echo (int)($spaBooking['id'] ?? 0); ?>">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Cancel this spa treatment?');">Cancel treatment</button>
+                                                <button type="submit" class="btn btn-gold btn-sm" onclick="return confirm('Cancel this spa treatment?');">Cancel treatment</button>
                                             </form>
                                         <?php else: ?>
                                             <p class="dashboard-status-note mb-0">Cancelled spa treatments remain here for your records.</p>
@@ -341,7 +341,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <p class="dashboard-panel-label">Review activity</p>
                             <h2 class="dashboard-panel-title">Your published reviews</h2>
                         </div>
-                        <a class="btn btn-outline-secondary btn-sm" href="reviews.php">Open reviews page</a>
+                        <a class="btn btn-gold btn-sm" href="reviews.php">Open reviews page</a>
                     </div>
 
                     <?php if (!$reviews): ?>
