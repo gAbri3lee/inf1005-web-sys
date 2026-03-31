@@ -1,6 +1,11 @@
 .amenities-page {
-    background: #ffffff;
+    background: #fffaf6;
     color: #1f2937;
+}
+
+.amenities-page + .site-footer {
+    margin-top: 0;
+    padding-top: 1.5rem;
 }
 
 .amenities-hero,
@@ -27,7 +32,7 @@
     position: absolute;
     inset: auto 0 0;
     height: 140px;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #ffffff 100%);
+    background: linear-gradient(to bottom, rgba(255, 250, 246, 0) 0%, #fffaf6 100%);
     pointer-events: none;
 }
 
@@ -92,7 +97,7 @@
 }
 
 .amenities-anchor-nav {
-    background: #ffffff;
+    background: #fffaf6;
     border-bottom: 1px solid #e5e7eb;
 }
 
@@ -115,6 +120,11 @@
 
 .amenities-section {
     padding: 72px 0;
+}
+
+.amenities-page .amenities-section:last-of-type {
+    padding-bottom: 40px;
+    background: #fffaf6;
 }
 
 .amenities-section-muted {

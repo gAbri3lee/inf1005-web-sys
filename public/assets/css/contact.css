@@ -11,6 +11,10 @@
     background-repeat: no-repeat;
 }
 
+.contact-page + .site-footer {
+    margin-top: 0;
+}
+
 .page-hero::before {
     content: "";
     position: absolute;

@@ -79,7 +79,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 ?>
 <link rel="stylesheet" href="assets/css/contact.css">
 
-<main>
+<main class="contact-page">
     <section class="page-hero page-hero-contact">
         <div class="container page-hero-content">
             <div class="row">

@@ -36,6 +36,7 @@ require_once __DIR__ . '/auth.php';
 
 $currentUser = auth_current_user();
 $authReturnPath = auth_current_relative_url();
+$currentPage = basename(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '');
 ?>
 <nav class="navbar navbar-dark site-navbar fixed-top navbar-expand-custom" aria-label="Main navigation">
     <div class="container-fluid navbar-shell">
@@ -58,15 +59,15 @@ $authReturnPath = auth_current_relative_url();
 
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav navbar-main-nav">
-                <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="about.php">About Us</a></li>
-                <li class="nav-item"><a class="nav-link" href="rooms_and_suites.php">Suites & Villas</a></li>
-                <li class="nav-item"><a class="nav-link" href="amenities.php">Amenities</a></li>
-                <li class="nav-item"><a class="nav-link" href="Dining.php">Dining</a></li>
-                <li class="nav-item"><a class="nav-link" href="reviews.php">Reviews</a></li>
-                <li class="nav-item"><a class="nav-link" href="FAQs.php">FAQs</a></li>
-                <li class="nav-item"><a class="nav-link" href="parking_and_transport.php">Parking & Transport</a></li>
-                <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'index.php' ? ' active' : ''; ?>" href="index.php">Home</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'about.php' ? ' active' : ''; ?>" href="about.php">About Us</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'rooms_and_suites.php' ? ' active nav-link-active-dark-gold' : ''; ?>" href="rooms_and_suites.php">Suites & Villas</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'amenities.php' ? ' active' : ''; ?>" href="amenities.php">Amenities</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'Dining.php' ? ' active' : ''; ?>" href="Dining.php">Dining</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'reviews.php' ? ' active nav-link-active-dark-gold' : ''; ?>" href="reviews.php">Reviews</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'FAQs.php' ? ' active' : ''; ?>" href="FAQs.php">FAQs</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'parking_and_transport.php' ? ' active nav-link-active-black' : ''; ?>" href="parking_and_transport.php">Parking & Transport</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'contact.php' ? ' active' : ''; ?>" href="contact.php">Contact</a></li>
             </ul>
 
             <div class="navbar-actions">

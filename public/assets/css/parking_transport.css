@@ -2,12 +2,28 @@ html,
 body,
 .transport-page,
 .transport-main-section {
-    background: #fffaf6;
+    background: #f6f1ea;
 }
 
 .transport-page {
-    background: #fffaf6;
+    background: #f6f1ea;
     color: #1f1f1f;
+}
+
+.transport-page + .site-footer {
+    margin-top: 0;
+}
+
+.transport-page .nav-link.active,
+.transport-page .nav-link.active:hover,
+.transport-page .nav-link.active:focus,
+.transport-page .site-navbar.scrolled .nav-link.active,
+.transport-page .site-navbar.scrolled .nav-link.active:hover,
+.transport-page .site-navbar.scrolled .nav-link.active:focus,
+.transport-page .navbar-expand-custom .nav-link.active,
+.transport-page .navbar-expand-custom .nav-link.active:hover,
+.transport-page .navbar-expand-custom .nav-link.active:focus {
+    color: #111111 !important;
 }
 
 /* ===== HERO SECTION ===== */

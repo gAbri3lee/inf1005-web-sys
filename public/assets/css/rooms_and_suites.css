@@ -39,13 +39,49 @@
 	color: #4f2f38 !important;
 }
 
+.navbar-brand-title {
+	color: #1f2937;
+	text-shadow: none;
+}
+
+.navbar-brand-subtitle {
+	color: rgba(31, 41, 55, 0.72);
+}
+
 .nav-link {
-	color: #5c3a44 !important;
+	color: #111111 !important;
 }
 
 .nav-link:hover,
-.nav-link.active {
-	color: #2f1a21 !important;
+.nav-link:focus {
+	color: #111111 !important;
+}
+
+.nav-link.active,
+.nav-link.nav-link-active-dark-gold,
+.nav-link.nav-link-active-dark-gold:hover,
+.nav-link.nav-link-active-dark-gold:focus {
+	color: #8b6a2f !important;
+}
+
+.site-navbar.scrolled .nav-link,
+.site-navbar.scrolled .nav-link:hover,
+.site-navbar.scrolled .nav-link:focus,
+.navbar-expand-custom .nav-link,
+.navbar-expand-custom .nav-link:hover,
+.navbar-expand-custom .nav-link:focus {
+	color: #111111 !important;
+}
+
+.site-navbar.scrolled .nav-link.active,
+.site-navbar.scrolled .nav-link.nav-link-active-dark-gold,
+.site-navbar.scrolled .nav-link.nav-link-active-dark-gold:hover,
+.site-navbar.scrolled .nav-link.nav-link-active-dark-gold:focus,
+.navbar-expand-custom .nav-link.active,
+.navbar-expand-custom .nav-link.nav-link-active-dark-gold,
+.navbar-expand-custom .nav-link.nav-link-active-dark-gold:hover,
+.navbar-expand-custom .nav-link.nav-link-active-dark-gold:focus {
+	color: #8b6a2f !important;
 }
 
 .btn-outline-light {
