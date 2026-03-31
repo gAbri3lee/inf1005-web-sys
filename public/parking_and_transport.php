@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../app/includes/auth.php';
+$pageStylesheets = ['assets/css/parking_transport.css'];
+$pageScripts = ['assets/js/parking_transport.js'];
 include __DIR__ . '/../app/includes/navbar.php';
 ?>
-
-<link rel="stylesheet" href="assets/css/parking_transport.css">
 
 <main class="transport-page">
     <section class="transport-hero">
@@ -296,27 +296,27 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="travel-time-grid">
                     <div class="travel-time-item">
-                        <h4>Airport</h4>
+                        <h3>Airport</h3>
                         <p>20–25 mins by car</p>
                     </div>
                     <div class="travel-time-item">
-                        <h4>Marina Bay</h4>
+                        <h3>Marina Bay</h3>
                         <p>10 mins by car</p>
                     </div>
                     <div class="travel-time-item">
-                        <h4>Orchard Road</h4>
+                        <h3>Orchard Road</h3>
                         <p>15–20 mins by MRT</p>
                     </div>
                     <div class="travel-time-item">
-                        <h4>Business District</h4>
+                        <h3>Business District</h3>
                         <p>10–15 mins by car</p>
                     </div>
                     <div class="travel-time-item">
-                        <h4>Nearby MRT</h4>
+                        <h3>Nearby MRT</h3>
                         <p>Short walk from hotel</p>
                     </div>
                     <div class="travel-time-item">
-                        <h4>Shopping Area</h4>
+                        <h3>Shopping Area</h3>
                         <p>15 mins by public transport</p>
                     </div>
                 </div>
@@ -332,7 +332,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                 Accessible parking and guest assistance
                             </button>
                         </h2>
-                        <div id="arrivalCollapseOne" class="accordion-collapse collapse" aria-labelledby="arrivalHeadingOne" data-bs-parent="#arrivalAccordion">
+                        <div id="arrivalCollapseOne" class="accordion-collapse collapse" role="region" aria-labelledby="arrivalHeadingOne" data-bs-parent="#arrivalAccordion">
                             <div class="accordion-body">
                                 Accessible parking spaces are positioned near primary access routes where available. Guests requiring additional arrival assistance are encouraged to contact the hotel before check-in.
                             </div>
@@ -345,7 +345,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                 Peak-hour arrival guidance
                             </button>
                         </h2>
-                        <div id="arrivalCollapseTwo" class="accordion-collapse collapse" aria-labelledby="arrivalHeadingTwo" data-bs-parent="#arrivalAccordion">
+                        <div id="arrivalCollapseTwo" class="accordion-collapse collapse" role="region" aria-labelledby="arrivalHeadingTwo" data-bs-parent="#arrivalAccordion">
                             <div class="accordion-body">
                                 During peak periods, guests may wish to allow additional time for traffic flow, parking access, and lobby arrivals, especially on weekends and public holidays.
                             </div>
@@ -358,7 +358,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                 Special requests before arrival
                             </button>
                         </h2>
-                        <div id="arrivalCollapseThree" class="accordion-collapse collapse" aria-labelledby="arrivalHeadingThree" data-bs-parent="#arrivalAccordion">
+                        <div id="arrivalCollapseThree" class="accordion-collapse collapse" role="region" aria-labelledby="arrivalHeadingThree" data-bs-parent="#arrivalAccordion">
                             <div class="accordion-body">
                                 For mobility support, larger vehicle access, luggage assistance, or transfer coordination, guests should contact the hotel ahead of time for smoother arrangements.
                             </div>
@@ -385,7 +385,5 @@ include __DIR__ . '/../app/includes/navbar.php';
         </div>
     </section>
 </main>
-
-<script src="assets/js/parking_transport.js"></script>
 
 <?php include __DIR__ . '/../app/includes/footer.php'; ?>

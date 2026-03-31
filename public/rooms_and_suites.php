@@ -122,7 +122,7 @@ include __DIR__ . '/../app/includes/navbar.php';
         </div>
     </section>
 
-    <div class="modal fade room-details-modal" id="roomDetailsModal" tabindex="-1" aria-labelledby="roomDetailsTitle" aria-hidden="true">
+    <div class="modal fade room-details-modal" id="roomDetailsModal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="roomDetailsTitle" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -130,7 +130,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <div id="roomCarousel" class="carousel slide" data-bs-ride="false" aria-label="Room images">
+                    <div id="roomCarousel" class="carousel slide" data-bs-ride="false" role="region" aria-label="Room images">
                         <div class="carousel-indicators js-room-carousel-indicators"></div>
                         <div class="carousel-inner js-room-carousel-inner"></div>
                         <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">

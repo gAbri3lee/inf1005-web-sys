@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../app/includes/auth.php';
+$pageStylesheets = ['assets/css/contact.css'];
 
 if (!isset($_SESSION['contact_form_token'])) {
     $_SESSION['contact_form_token'] = bin2hex(random_bytes(32));
@@ -77,7 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 include __DIR__ . '/../app/includes/navbar.php';
 ?>
-<link rel="stylesheet" href="assets/css/contact.css">
 
 <main class="contact-page">
     <section class="page-hero page-hero-contact">
@@ -132,10 +132,12 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                         <div class="contact-quick-notes">
                             <article>
+                                <h3 class="visually-hidden">Dining reservation note</h3>
                                 <span class="badge-soft">Dining reservations</span>
                                 <p class="mb-0">For barbecue, fine dining or private celebrations, include your preferred date, time and group size.</p>
                             </article>
                             <article>
+                                <h3 class="visually-hidden">Transport support note</h3>
                                 <span class="badge-soft">Transport support</span>
                                 <p class="mb-0">Airport transfer and parking enquiries can be submitted through the contact form below.</p>
                             </article>
@@ -226,6 +228,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
     <section class="section-padding section-soft">
         <div class="container">
+            <h2 class="visually-hidden">How our team can help</h2>
             <div class="row g-4 align-items-stretch">
                 <div class="col-lg-4 reveal-up">
                     <article class="moment-card h-100">

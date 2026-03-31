@@ -64,12 +64,12 @@ $currentPage = basename(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?
                 <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'rooms_and_suites.php' ? ' active nav-link-active-dark-gold' : ''; ?>" href="rooms_and_suites.php">Suites & Villas</a></li>
                 <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'amenities.php' ? ' active' : ''; ?>" href="amenities.php">Amenities</a></li>
                 <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'Dining.php' ? ' active' : ''; ?>" href="Dining.php">Dining</a></li>
-                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'reviews.php' ? ' active nav-link-active-dark-gold' : ''; ?>" href="reviews.php">Reviews</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'reviews.php' ? ' active' : ''; ?>" href="reviews.php">Reviews</a></li>
                 <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'FAQs.php' ? ' active' : ''; ?>" href="FAQs.php">FAQs</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'whats_happening.php' ? ' active' : ''; ?>" href="whats_happening.php">What's Happening</a></li>
                 <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'parking_and_transport.php' ? ' active nav-link-active-black' : ''; ?>" href="parking_and_transport.php">Parking & Transport</a></li>
                 <li class="nav-item"><a class="nav-link<?php echo $currentPage === 'contact.php' ? ' active' : ''; ?>" href="contact.php">Contact</a></li>
             </ul>
-
             <div class="navbar-actions">
                 <?php if ($currentUser): ?>
                     <a class="btn btn-outline-light btn-nav-action" href="dashboard.php">Dashboard</a>

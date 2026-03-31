@@ -14,7 +14,7 @@
                         woven into every page — where every moment feels like the horizon.
                     </p>
                     <!-- Social icons -->
-                    <div class="footer-socials" aria-label="Social media links">
+                    <nav class="footer-socials" aria-label="Social media links">
                         <a href="#" aria-label="Instagram" class="footer-social-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                         </a>
@@ -24,7 +24,7 @@
                         <a href="#" aria-label="TripAdvisor" class="footer-social-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                         </a>
-                    </div>
+                    </nav>
                 </div>
 
                 <!-- Explore links -->
@@ -36,6 +36,7 @@
                         <li><a href="rooms_and_suites.php">Suites &amp; Villas</a></li>
                         <li><a href="amenities.php">Amenities</a></li>
                         <li><a href="Dining.php">Dining</a></li>
+                        <li><a href="whats_happening.php">What's Happening</a></li>
                     </ul>
                 </div>
 

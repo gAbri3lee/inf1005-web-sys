@@ -1,15 +1,14 @@
 <?php
 require_once __DIR__ . '/../app/includes/auth.php';
+$pageStylesheets = ['assets/css/dining.css'];
 include __DIR__ . '/../app/includes/navbar.php';
 ?>
-<link rel="stylesheet" href="assets/css/dining.css">
 
 <main>
     <section class="page-hero page-hero-dining">
         <div class="container page-hero-content">
             <div class="row">
                 <div class="col-lg-8 col-xl-7 reveal-up">
-                    <span class="hero-tag">Dining at Horizon Sands Bali</span>
                     <h1 class="page-hero-title">Three distinct venues, each shaped by the coast.</h1>
                     <p class="page-hero-text">
                         From open-fire grilling indoors under dramatic vaulted ceilings, to beachfront dining
@@ -169,6 +168,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
     <section class="section-padding page-main-offset">
         <div class="container">
+            <h2 class="visually-hidden">Dining moments at Horizon Sands Bali</h2>
             <div class="row g-4">
                 <div class="col-lg-4 reveal-up">
                     <article class="moment-card h-100">

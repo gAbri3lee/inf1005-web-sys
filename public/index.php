@@ -18,12 +18,12 @@ include __DIR__ . '/../app/includes/navbar.php';
                         <a href="Dining.php" class="btn btn-outline-light hero-dining-btn">Discover Dining</a>
                     </div>
 
-                    <div class="hero-quick-links" aria-label="Quick access links">
+                    <nav class="hero-quick-links" aria-label="Quick access links">
                         <a class="hero-quick-link" href="about.php">About Us</a>
                         <a class="hero-quick-link" href="amenities.php">Amenities</a>
                         <a class="hero-quick-link" href="reviews.php">Guest Reviews</a>
                         <a class="hero-quick-link" href="contact.php">Contact Us</a>
-                    </div>
+                    </nav>
                 </div>
             </div>
         </div>

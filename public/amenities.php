@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../app/includes/auth.php';
+$pageStylesheets = ['assets/css/amenities.css'];
+$pageScripts = ['assets/js/amenities.js'];
 include __DIR__ . '/../app/includes/navbar.php';
 
 function e(string $value): string
@@ -125,8 +127,6 @@ $serviceGroups = [
 ];
 ?>
 
-<link rel="stylesheet" href="assets/css/amenities.css">
-
 <main class="amenities-page">
     <section class="amenities-hero">
         <div class="container">
@@ -139,20 +139,20 @@ $serviceGroups = [
                     from comfort to recreational activities, all designed to enhance your experience at Horizon Sands Bali
                 </p>
             </div>
-                <div class="amenities-hero-meta" aria-label="Amenities summary">
-                    <div class="amenities-meta-item">
+                <ul class="amenities-hero-meta" aria-label="Amenities summary">
+                    <li class="amenities-meta-item">
                         <strong>4</strong>
                         <span>featured amenities</span>
-                    </div>
-                    <div class="amenities-meta-item">
+                    </li>
+                    <li class="amenities-meta-item">
                         <strong>24/7</strong>
                         <span>guest support</span>
-                    </div>
-                    <div class="amenities-meta-item">
+                    </li>
+                    <li class="amenities-meta-item">
                         <strong>On-site</strong>
                         <span>parking and leisure facilities</span>
-                    </div>
-                </div>
+                    </li>
+                </ul>
         </div>
     </section>
 
@@ -366,7 +366,5 @@ $serviceGroups = [
         </div>
     </section>
 </main>
-
-<script src="assets/js/amenities.js"></script>
 
 <?php include __DIR__ . '/../app/includes/footer.php'; ?>

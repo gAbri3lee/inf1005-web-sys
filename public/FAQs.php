@@ -220,6 +220,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 								<div
 									id="faqCollapse<?php echo $itemNumber; ?>"
 									class="accordion-collapse collapse"
+									role="region"
 									aria-labelledby="faqHeading<?php echo $itemNumber; ?>"
 									data-bs-parent="#faqAccordion"
 								>
