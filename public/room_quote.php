@@ -1,45 +1,54 @@
 <?php
-session_start();
+require_once __DIR__ . '/../app/includes/auth.php';
 
-require_once __DIR__ . '/../app/includes/rooms_repository.php';
+auth_require_login(
+    auth_current_relative_url(),
+    'Please sign in or create an account to continue with your room booking.'
+);
+
+require_once __DIR__ . '/rooms_catalog.php';
 
 $pageStylesheets = ['assets/css/rooms_and_suites.css'];
-
 $errors = [];
 
 $roomId = (int)($_GET['room_id'] ?? 0);
 $checkIn = trim((string)($_GET['check_in'] ?? ''));
 $checkOut = trim((string)($_GET['check_out'] ?? ''));
+$room = $roomId > 0 ? rooms_catalog_find($roomId) : null;
 
-$room = $roomId > 0 ? rooms_repo_find($roomId) : null;
 if (!$room) {
 	$errors[] = 'Please select a valid room.';
 }
 
-function parse_date(string $value): ?DateTimeImmutable
+function room_quote_parse_date(string $value): ?DateTimeImmutable
 {
-	if ($value === '') return null;
-	$dt = DateTimeImmutable::createFromFormat('Y-m-d', $value);
-	if (!$dt) return null;
-	// Ensure exact match (avoid partial parses)
-	if ($dt->format('Y-m-d') !== $value) return null;
-	return $dt;
+	if ($value === '') {
+		return null;
+	}
+
+	$date = DateTimeImmutable::createFromFormat('Y-m-d', $value);
+	if (!$date) {
+		return null;
+	}
+
+	return $date->format('Y-m-d') === $value ? $date : null;
 }
 
-$dtIn = parse_date($checkIn);
-$dtOut = parse_date($checkOut);
+$dtIn = room_quote_parse_date($checkIn);
+$dtOut = room_quote_parse_date($checkOut);
+
 if (!$dtIn || !$dtOut) {
 	$errors[] = 'Please select a valid check-in and check-out date.';
 }
 
 $nights = 0;
 $total = 0.0;
+
 if (!$errors) {
 	if ($dtOut <= $dtIn) {
 		$errors[] = 'Check-out date must be after check-in date.';
 	} else {
-		$interval = $dtIn->diff($dtOut);
-		$nights = max(0, (int)$interval->days);
+		$nights = max(0, (int)$dtIn->diff($dtOut)->days);
 		$rate = (float)($room['price_per_night'] ?? 0);
 		$total = $rate * $nights;
 
@@ -69,8 +78,8 @@ include __DIR__ . '/../app/includes/navbar.php';
 				<?php if ($errors): ?>
 					<div class="alert alert-danger" role="alert">
 						<ul class="mb-0">
-							<?php foreach ($errors as $msg): ?>
-								<li><?php echo htmlspecialchars($msg, ENT_QUOTES, 'UTF-8'); ?></li>
+							<?php foreach ($errors as $message): ?>
+								<li><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></li>
 							<?php endforeach; ?>
 						</ul>
 					</div>
@@ -82,7 +91,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 						<div class="col-lg-7">
 							<article class="content-card room-card h-100">
 								<div class="room-media">
-									<?php $cover = (string)($room['images'][0] ?? 'assets/images/HotelHomePage.webp'); ?>
+									<?php $cover = rooms_catalog_primary_image($room); ?>
 									<img class="room-image" src="<?php echo htmlspecialchars($cover, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string)($room['name'] ?? 'Room'), ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
 								</div>
 								<div class="room-body">
@@ -121,7 +130,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 									</div>
 									<div class="d-flex justify-content-between">
 										<span class="fw-bold">Total</span>
-										<span class="fw-bold">$<?php echo number_format((float)$total, 2); ?></span>
+										<span class="fw-bold">$<?php echo number_format($total, 2); ?></span>
 									</div>
 								</div>
 

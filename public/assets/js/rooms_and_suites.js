@@ -2,333 +2,418 @@
 	'use strict';
 
 	const FALLBACK_IMAGE_SRC = 'assets/images/HotelHomePage.webp';
+	const FILTER_LEAVE_MS = 220;
+	const FILTER_ENTER_MS = 420;
+	const MODAL_SPRING_MS = 700;
 
-	function attachImageFallback(img) {
-		if (!img) return;
-		img.addEventListener('error', function () {
-			if (img.getAttribute('src') === FALLBACK_IMAGE_SRC) return;
-			img.setAttribute('src', FALLBACK_IMAGE_SRC);
+	const qs = (selector, root = document) => root.querySelector(selector);
+	const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+	function attachImageFallback(image) {
+		if (!image) {
+			return;
+		}
+
+		image.addEventListener('error', () => {
+			if (image.getAttribute('src') === FALLBACK_IMAGE_SRC) {
+				return;
+			}
+
+			image.setAttribute('src', FALLBACK_IMAGE_SRC);
 		});
 	}
 
-	const qs = (sel, root = document) => root.querySelector(sel);
-	const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+	function readRoomCatalog() {
+		const source = qs('#rooms-catalog-data');
+		if (!source) {
+			return [];
+		}
+
+		try {
+			const rooms = JSON.parse(source.textContent || '[]');
+			return Array.isArray(rooms) ? rooms : [];
+		} catch (_) {
+			return [];
+		}
+	}
+
+	function formatMoney(amount) {
+		try {
+			return amount.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
+		} catch (_) {
+			return `$${Number(amount).toFixed(2)}`;
+		}
+	}
+
+	function nightsBetween(checkIn, checkOut) {
+		const start = new Date(checkIn);
+		const end = new Date(checkOut);
+
+		if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+			return 0;
+		}
+
+		return Math.max(0, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+	}
+
+	function setList(listEl, items) {
+		if (!listEl) {
+			return;
+		}
+
+		listEl.innerHTML = '';
+		(items || []).forEach((item) => {
+			const value = String(item || '').trim();
+			if (value === '') {
+				return;
+			}
+
+			const li = document.createElement('li');
+			li.textContent = value;
+			listEl.appendChild(li);
+		});
+	}
+
+	const rooms = readRoomCatalog();
+	const roomsById = new Map(rooms.map((room) => [String(room.id || ''), room]));
 
 	qsa('img.room-image').forEach(attachImageFallback);
 
 	const modalEl = qs('#roomDetailsModal');
-	let bsModal = null;
-	const canUseBootstrapModal = Boolean(modalEl && window.bootstrap && window.bootstrap.Modal);
-	if (canUseBootstrapModal) {
-		try {
-			bsModal = new window.bootstrap.Modal(modalEl);
-		} catch (_) {
-			bsModal = null;
-		}
-	}
-
 	const modalContent = modalEl ? qs('.modal-content', modalEl) : null;
-	let springTimeout = null;
-	if (modalEl && modalContent) {
-		modalEl.addEventListener('show.bs.modal', () => {
-			modalContent.classList.remove('is-springing');
-			void modalContent.offsetWidth;
-			modalContent.classList.add('is-springing');
-			if (springTimeout) {
-				clearTimeout(springTimeout);
-			}
-			springTimeout = setTimeout(() => {
-				modalContent.classList.remove('is-springing');
-				springTimeout = null;
-			}, 700);
-		});
-	}
-
-	const cards = qsa('.js-room-card');
-	const groups = qsa('.js-room-group');
-	const emptyEl = qs('.js-empty');
-	const countEl = qs('.js-room-count');
-
-	const occChecks = qsa('.js-filter-occupancy');
-	const viewChecks = qsa('.js-filter-view');
-	const accessibleCheck = qs('.js-filter-accessible');
-	const clearBtn = qs('.js-clear-filters');
-
+	const carouselIndicators = modalEl ? qs('.js-room-carousel-indicators', modalEl) : null;
+	const carouselInner = modalEl ? qs('.js-room-carousel-inner', modalEl) : null;
 	const modalName = modalEl ? qs('.js-room-name', modalEl) : null;
 	const modalShort = modalEl ? qs('.js-room-short', modalEl) : null;
 	const modalPrice = modalEl ? qs('.js-room-price', modalEl) : null;
 	const modalRoomId = modalEl ? qs('.js-room-id', modalEl) : null;
-	const carouselIndicators = modalEl ? qs('.js-room-carousel-indicators', modalEl) : null;
-	const carouselInner = modalEl ? qs('.js-room-carousel-inner', modalEl) : null;
-
 	const listOverview = modalEl ? qs('.js-room-overview', modalEl) : null;
 	const listBenefits = modalEl ? qs('.js-room-benefits', modalEl) : null;
 	const listBedding = modalEl ? qs('.js-room-bedding', modalEl) : null;
 	const listFeatures = modalEl ? qs('.js-room-features', modalEl) : null;
 	const listBath = modalEl ? qs('.js-room-bath', modalEl) : null;
 	const listFurnish = modalEl ? qs('.js-room-furnish', modalEl) : null;
-
 	const checkInEl = modalEl ? qs('.js-check-in', modalEl) : null;
 	const checkOutEl = modalEl ? qs('.js-check-out', modalEl) : null;
 	const estTotalEl = modalEl ? qs('.js-est-total', modalEl) : null;
 	const viewTotalBtn = modalEl ? qs('.js-view-total', modalEl) : null;
+	const cards = qsa('.js-room-card');
+	const groups = qsa('.js-room-group');
+	const emptyEl = qs('.js-empty');
+	const countEl = qs('.js-room-count');
+	const occChecks = qsa('.js-filter-occupancy');
+	const viewChecks = qsa('.js-filter-view');
+	const accessibleCheck = qs('.js-filter-accessible');
+	const clearBtn = qs('.js-clear-filters');
 
 	let activeRoom = null;
+	let modalSpringTimeout = null;
+	let groupVisibilityTimeout = null;
+	const cardTimeouts = new WeakMap();
 
-	function money(n) {
+	let bootstrapModal = null;
+	if (modalEl && window.bootstrap && window.bootstrap.Modal) {
 		try {
-			return n.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
-		} catch {
-			return `$${Number(n).toFixed(2)}`;
+			bootstrapModal = new window.bootstrap.Modal(modalEl);
+		} catch (_) {
+			bootstrapModal = null;
 		}
 	}
 
-	function parseRoom(cardEl) {
-		const raw = cardEl.getAttribute('data-room') || '';
-		try {
-			return JSON.parse(raw);
-		} catch {
-			return null;
-		}
-	}
+	if (modalEl && modalContent) {
+		modalEl.addEventListener('show.bs.modal', () => {
+			modalContent.classList.remove('is-springing');
+			void modalContent.offsetWidth;
+			modalContent.classList.add('is-springing');
 
-	function setList(ul, items) {
-		if (!ul) return;
-		ul.innerHTML = '';
-		(items || []).forEach((text) => {
-			const li = document.createElement('li');
-			li.textContent = String(text);
-			ul.appendChild(li);
+			if (modalSpringTimeout) {
+				clearTimeout(modalSpringTimeout);
+			}
+
+			modalSpringTimeout = setTimeout(() => {
+				modalContent.classList.remove('is-springing');
+				modalSpringTimeout = null;
+			}, MODAL_SPRING_MS);
 		});
 	}
 
-	function buildCarousel(images) {
-		if (!carouselIndicators || !carouselInner) return;
+	function buildCarousel(room) {
+		if (!carouselIndicators || !carouselInner) {
+			return;
+		}
+
 		carouselIndicators.innerHTML = '';
 		carouselInner.innerHTML = '';
 
-		const list = Array.isArray(images) ? images : [];
-		const safeList = list.length ? list : [FALLBACK_IMAGE_SRC];
-
-		safeList.forEach((src, idx) => {
-			const btn = document.createElement('button');
-			btn.type = 'button';
-			btn.setAttribute('data-bs-target', '#roomCarousel');
-			btn.setAttribute('data-bs-slide-to', String(idx));
-			btn.setAttribute('aria-label', `Slide ${idx + 1}`);
-			if (idx === 0) {
-				btn.classList.add('active');
-				btn.setAttribute('aria-current', 'true');
+		const images = Array.isArray(room?.images) && room.images.length ? room.images : [FALLBACK_IMAGE_SRC];
+		images.forEach((src, index) => {
+			const indicator = document.createElement('button');
+			indicator.type = 'button';
+			indicator.setAttribute('data-bs-target', '#roomCarousel');
+			indicator.setAttribute('data-bs-slide-to', String(index));
+			indicator.setAttribute('aria-label', `Slide ${index + 1}`);
+			if (index === 0) {
+				indicator.classList.add('active');
+				indicator.setAttribute('aria-current', 'true');
 			}
-			carouselIndicators.appendChild(btn);
+			carouselIndicators.appendChild(indicator);
 
 			const item = document.createElement('div');
-			item.className = 'carousel-item' + (idx === 0 ? ' active' : '');
+			item.className = `carousel-item${index === 0 ? ' active' : ''}`;
 
-			const img = document.createElement('img');
-			img.className = 'd-block w-100';
-			img.loading = 'lazy';
-			img.src = String(src);
-			attachImageFallback(img);
-			img.alt = activeRoom?.name ? `${activeRoom.name} image ${idx + 1}` : `Room image ${idx + 1}`;
+			const image = document.createElement('img');
+			image.className = 'd-block w-100';
+			image.loading = 'lazy';
+			image.src = String(src);
+			image.alt = room?.name ? `${room.name} image ${index + 1}` : `Room image ${index + 1}`;
+			attachImageFallback(image);
 
-			item.appendChild(img);
+			item.appendChild(image);
 			carouselInner.appendChild(item);
 		});
 	}
 
-	function daysBetweenInclusive(checkIn, checkOut) {
-		const a = new Date(checkIn);
-		const b = new Date(checkOut);
-		if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return 0;
-		const diff = b.getTime() - a.getTime();
-		const nights = Math.ceil(diff / (1000 * 60 * 60 * 24));
-		return Math.max(0, nights);
-	}
-
 	function updateEstimate() {
-		if (!estTotalEl || !viewTotalBtn) return;
+		if (!estTotalEl || !viewTotalBtn) {
+			return;
+		}
 
-		if (!activeRoom) {
+		if (!activeRoom || !checkInEl || !checkOutEl) {
 			estTotalEl.textContent = 'Select dates';
 			viewTotalBtn.disabled = true;
 			return;
 		}
 
-		if (!checkInEl || !checkOutEl) return;
-		const checkIn = checkInEl.value;
-		const checkOut = checkOutEl.value;
-		const nights = daysBetweenInclusive(checkIn, checkOut);
-		if (!checkIn || !checkOut || nights <= 0) {
+		const nights = nightsBetween(checkInEl.value, checkOutEl.value);
+		if (!checkInEl.value || !checkOutEl.value || nights <= 0) {
 			estTotalEl.textContent = 'Select dates';
 			viewTotalBtn.disabled = true;
 			return;
 		}
 
 		const total = Number(activeRoom.price_per_night || 0) * nights;
-		estTotalEl.textContent = `${money(total)} (${nights} night${nights === 1 ? '' : 's'})`;
+		estTotalEl.textContent = `${formatMoney(total)} (${nights} night${nights === 1 ? '' : 's'})`;
 		viewTotalBtn.disabled = false;
 	}
 
-	function setDateMins() {
-		if (!checkInEl || !checkOutEl) return;
+	function setDateMinimums() {
+		if (!checkInEl || !checkOutEl) {
+			return;
+		}
+
 		const today = new Date();
-		const yyyy = today.getFullYear();
-		const mm = String(today.getMonth() + 1).padStart(2, '0');
-		const dd = String(today.getDate()).padStart(2, '0');
-		const min = `${yyyy}-${mm}-${dd}`;
-		checkInEl.min = min;
-		checkOutEl.min = min;
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, '0');
+		const day = String(today.getDate()).padStart(2, '0');
+		const minDate = `${year}-${month}-${day}`;
+
+		checkInEl.min = minDate;
+		checkOutEl.min = checkInEl.value || minDate;
 	}
 
-	function openRoom(room) {
-		if (!modalEl || !bsModal) return;
+	function openRoom(roomId) {
+		if (!bootstrapModal) {
+			return;
+		}
+
+		const room = roomsById.get(String(roomId || ''));
+		if (!room) {
+			return;
+		}
+
 		activeRoom = room;
-		if (modalName) modalName.textContent = room?.name || 'Room';
-		if (modalShort) modalShort.textContent = room?.description || '';
-		if (modalPrice) modalPrice.textContent = `${money(Number(room?.price_per_night || 0))} / night`;
-		if (modalRoomId) modalRoomId.value = String(room?.id || '');
+
+		if (modalName) {
+			modalName.textContent = room.name || 'Room';
+		}
+		if (modalShort) {
+			modalShort.textContent = room.description || '';
+		}
+		if (modalPrice) {
+			modalPrice.textContent = `${formatMoney(Number(room.price_per_night || 0))} / night`;
+		}
+		if (modalRoomId) {
+			modalRoomId.value = String(room.id || '');
+		}
 
 		setList(listOverview, [
-			`${room?.view || '—'} view`,
-			`${room?.occupancy || '—'} guest occupancy`,
-			room?.accessible ? 'Wheelchair friendly' : 'Not wheelchair friendly',
-			room?.size ? `Size: ${room.size}` : null,
-		].filter(Boolean));
-
-		setList(listBenefits, room?.benefits || []);
+			room.view ? `${room.view} view` : 'View not listed',
+			room.occupancy ? `${room.occupancy} guest occupancy` : 'Occupancy not listed',
+			room.accessible ? 'Wheelchair friendly' : 'Not wheelchair friendly',
+			room.size ? `Size: ${room.size}` : '',
+		]);
+		setList(listBenefits, room.benefits || []);
 		setList(listBedding, [
-			room?.bed ? room.bed : null,
-			room?.occupancy ? `Maximum occupancy: ${room.occupancy}` : null,
-		].filter(Boolean));
-		setList(listFeatures, room?.features || []);
-		setList(listBath, room?.bathroom || []);
-		setList(listFurnish, room?.furnishings || []);
+			room.bed || '',
+			room.occupancy ? `Maximum occupancy: ${room.occupancy}` : '',
+		]);
+		setList(listFeatures, room.features || []);
+		setList(listBath, room.bathroom || []);
+		setList(listFurnish, room.furnishings || []);
+		buildCarousel(room);
 
-		buildCarousel(room?.images || []);
+		if (checkInEl) {
+			checkInEl.value = '';
+		}
+		if (checkOutEl) {
+			checkOutEl.value = '';
+		}
 
-		if (checkInEl) checkInEl.value = '';
-		if (checkOutEl) checkOutEl.value = '';
-		setDateMins();
+		setDateMinimums();
 		updateEstimate();
-
-		bsModal.show();
+		bootstrapModal.show();
 	}
 
-	function selectedValues(checks) {
-		return checks.filter((c) => c.checked).map((c) => c.value);
+	function selectedValues(inputs) {
+		return inputs.filter((input) => input.checked).map((input) => input.value);
 	}
 
 	function matchesFilters(cardEl) {
-		const occSelected = selectedValues(occChecks);
-		const viewSelected = selectedValues(viewChecks);
-		const mustBeAccessible = Boolean(accessibleCheck && accessibleCheck.checked);
-
-		const occ = cardEl.getAttribute('data-occupancy') || '';
+		const selectedOccupancies = selectedValues(occChecks);
+		const selectedViews = selectedValues(viewChecks);
+		const accessibleOnly = Boolean(accessibleCheck?.checked);
+		const occupancy = cardEl.getAttribute('data-occupancy') || '';
 		const view = cardEl.getAttribute('data-view') || '';
 		const accessible = cardEl.getAttribute('data-accessible') === '1';
 
-		if (occSelected.length && !occSelected.includes(occ)) return false;
-		if (viewSelected.length && !viewSelected.includes(view)) return false;
-		if (mustBeAccessible && !accessible) return false;
+		if (selectedOccupancies.length && !selectedOccupancies.includes(occupancy)) {
+			return false;
+		}
+		if (selectedViews.length && !selectedViews.includes(view)) {
+			return false;
+		}
+		if (accessibleOnly && !accessible) {
+			return false;
+		}
+
 		return true;
 	}
 
-	function applyFilters() {
-		let shown = 0;
-		const leaveMs = 220;
-		const enterMs = 420;
-		const timeouts = applyFilters._timeouts || (applyFilters._timeouts = new WeakMap());
-		let groupUpdateTimeout = applyFilters._groupUpdateTimeout || null;
-
-		function clearTimer(el) {
-			const t = timeouts.get(el);
-			if (t) {
-				clearTimeout(t);
-				timeouts.delete(el);
-			}
+	function clearCardTimer(cardEl) {
+		const timer = cardTimeouts.get(cardEl);
+		if (!timer) {
+			return;
 		}
 
+		clearTimeout(timer);
+		cardTimeouts.delete(cardEl);
+	}
+
+	function showCard(cardEl) {
+		clearCardTimer(cardEl);
+		cardEl.classList.remove('filter-leave');
+
+		if (!cardEl.classList.contains('d-none')) {
+			return;
+		}
+
+		cardEl.classList.remove('d-none');
+		void cardEl.offsetWidth;
+		cardEl.classList.add('filter-enter');
+
+		const timer = setTimeout(() => {
+			cardEl.classList.remove('filter-enter');
+			cardTimeouts.delete(cardEl);
+		}, FILTER_ENTER_MS + 30);
+		cardTimeouts.set(cardEl, timer);
+	}
+
+	function hideCard(cardEl) {
+		clearCardTimer(cardEl);
+		cardEl.classList.remove('filter-enter');
+
+		if (cardEl.classList.contains('d-none')) {
+			cardEl.classList.remove('filter-leave');
+			return;
+		}
+
+		cardEl.classList.add('filter-leave');
+		const timer = setTimeout(() => {
+			cardEl.classList.add('d-none');
+			cardEl.classList.remove('filter-leave');
+			cardTimeouts.delete(cardEl);
+		}, FILTER_LEAVE_MS);
+		cardTimeouts.set(cardEl, timer);
+	}
+
+	function updateGroupVisibility() {
+		groups.forEach((groupEl) => {
+			const visibleCards = qsa('.js-room-card', groupEl).filter((cardEl) => !cardEl.classList.contains('d-none'));
+			groupEl.classList.toggle('d-none', visibleCards.length === 0);
+		});
+	}
+
+	function applyFilters() {
+		let shownCount = 0;
+
 		cards.forEach((cardEl) => {
-			const ok = matchesFilters(cardEl);
-			const isHidden = cardEl.classList.contains('d-none');
-
-			clearTimer(cardEl);
-			cardEl.classList.remove('filter-enter', 'filter-leave');
-
-			if (ok) {
-				shown += 1;
-				if (isHidden) {
-					cardEl.classList.remove('d-none');
-					void cardEl.offsetWidth;
-					cardEl.classList.add('filter-enter');
-					const tid = setTimeout(() => {
-						cardEl.classList.remove('filter-enter');
-						timeouts.delete(cardEl);
-					}, enterMs + 30);
-					timeouts.set(cardEl, tid);
-				}
+			if (matchesFilters(cardEl)) {
+				shownCount += 1;
+				showCard(cardEl);
 			} else {
-				if (!isHidden) {
-					const tid = setTimeout(() => {
-						cardEl.classList.add('d-none');
-						cardEl.classList.remove('filter-leave');
-						timeouts.delete(cardEl);
-					}, leaveMs);
-					timeouts.set(cardEl, tid);
-				}
+				hideCard(cardEl);
 			}
 		});
 
-		function updateGroupVisibility() {
-			groups.forEach((groupEl) => {
-				const visibleCards = qsa('.js-room-card', groupEl).filter((c) => !c.classList.contains('d-none'));
-				groupEl.classList.toggle('d-none', visibleCards.length === 0);
-			});
-		}
-
 		updateGroupVisibility();
-		if (groupUpdateTimeout) {
-			clearTimeout(groupUpdateTimeout);
+		if (groupVisibilityTimeout) {
+			clearTimeout(groupVisibilityTimeout);
 		}
-		groupUpdateTimeout = setTimeout(updateGroupVisibility, leaveMs + 50);
-		applyFilters._groupUpdateTimeout = groupUpdateTimeout;
+		groupVisibilityTimeout = setTimeout(updateGroupVisibility, FILTER_LEAVE_MS + 40);
 
-		if (countEl) countEl.textContent = String(shown);
-		if (emptyEl) emptyEl.classList.toggle('d-none', shown !== 0);
+		if (countEl) {
+			countEl.textContent = String(shownCount);
+		}
+		if (emptyEl) {
+			emptyEl.classList.toggle('d-none', shownCount !== 0);
+		}
 	}
 
 	cards.forEach((cardEl) => {
-		const btn = qs('.js-open-room', cardEl);
-		if (!btn) return;
-		btn.addEventListener('click', () => {
-			if (!modalEl || !bsModal) return;
-			const room = parseRoom(cardEl);
-			if (room) openRoom(room);
+		const trigger = qs('.js-open-room', cardEl);
+		if (!trigger) {
+			return;
+		}
+
+		trigger.addEventListener('click', () => {
+			openRoom(cardEl.getAttribute('data-room-id'));
 		});
 	});
 
-	[...occChecks, ...viewChecks].forEach((el) => el.addEventListener('change', applyFilters));
-	if (accessibleCheck) accessibleCheck.addEventListener('change', applyFilters);
+	[...occChecks, ...viewChecks].forEach((input) => {
+		input.addEventListener('change', applyFilters);
+	});
+
+	if (accessibleCheck) {
+		accessibleCheck.addEventListener('change', applyFilters);
+	}
+
 	if (clearBtn) {
 		clearBtn.addEventListener('click', () => {
-			[...occChecks, ...viewChecks].forEach((el) => (el.checked = false));
-			if (accessibleCheck) accessibleCheck.checked = false;
+			[...occChecks, ...viewChecks].forEach((input) => {
+				input.checked = false;
+			});
+			if (accessibleCheck) {
+				accessibleCheck.checked = false;
+			}
 			applyFilters();
 		});
 	}
 
-	if (checkInEl) checkInEl.addEventListener('change', () => {
-		// Keep check-out >= check-in
-		if (checkInEl.value) {
-			checkOutEl.min = checkInEl.value;
-			if (checkOutEl.value && checkOutEl.value < checkInEl.value) {
-				checkOutEl.value = '';
+	if (checkInEl && checkOutEl) {
+		checkInEl.addEventListener('change', () => {
+			if (checkInEl.value) {
+				checkOutEl.min = checkInEl.value;
+				if (checkOutEl.value && checkOutEl.value < checkInEl.value) {
+					checkOutEl.value = '';
+				}
 			}
-		}
-		updateEstimate();
-	});
-	if (checkOutEl) checkOutEl.addEventListener('change', updateEstimate);
+			updateEstimate();
+		});
 
+		checkOutEl.addEventListener('change', updateEstimate);
+	}
+
+	setDateMinimums();
 	applyFilters();
 })();

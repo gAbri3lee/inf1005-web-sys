@@ -107,6 +107,11 @@
     flex-shrink: 0;
 }
 
+.navbar-logout-form {
+    display: flex;
+    margin: 0;
+}
+
 .navbar-actions .btn {
     white-space: nowrap;
     padding: 0.5rem 1rem;
@@ -184,6 +189,14 @@
     width: 100%;
 }
 
+.navbar-expand-custom .navbar-logout-form {
+    width: 100%;
+}
+
+.navbar-expand-custom .navbar-logout-form .btn {
+    width: 100%;
+}
+
 /* Only expand when there is enough real space */
 @media (min-width: 1200px) {
     .navbar-expand-custom {
@@ -242,6 +255,10 @@
     }
 
     .navbar-expand-custom .navbar-actions .btn {
+        width: auto;
+    }
+
+    .navbar-expand-custom .navbar-logout-form {
         width: auto;
     }
 }

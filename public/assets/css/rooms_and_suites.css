@@ -60,8 +60,6 @@
 	border-color: rgba(92, 58, 68, 0.35);
 }
 
-
-
 .rooms-shell {
 	padding: 170px 0 110px;
 	background:
@@ -106,6 +104,7 @@
 	border-radius: 18px;
 	padding: 14px 14px 12px;
 	background: rgba(255, 255, 255, 0.70);
+	height: 100%;
 }
 
 .filter-title {
@@ -115,6 +114,20 @@
 	text-transform: uppercase;
 	font-size: 0.85rem;
 	margin-bottom: 8px;
+}
+
+.filter-block-accessibility {
+	display: flex;
+	flex-direction: column;
+}
+
+.filter-block-accessibility .filter-title {
+	text-align: center;
+}
+
+.filter-block-accessibility .form-check-single {
+	display: flex;
+	margin-top: auto;
 }
 
 .filter-chips {
@@ -155,6 +168,18 @@
 		border-color 160ms ease,
 		color 160ms ease,
 		transform 160ms ease;
+}
+
+.filter-block-accessibility .form-check-label {
+	width: 100%;
+	min-height: 54px;
+	padding-inline: 12px;
+	justify-content: center;
+	text-align: center;
+	line-height: 1.15;
+	white-space: normal;
+	word-break: keep-all;
+	overflow-wrap: anywhere;
 }
 
 .rooms-filters .form-check-label:hover {
@@ -332,10 +357,6 @@
 	transition: none;
 }
 
-.room-details-modal .modal-content {
-}
-
-
 @keyframes roomsModalSpringIn {
 	0% {
 		opacity: 0;
@@ -435,5 +456,12 @@
 	.filters-actions {
 		flex-direction: column;
 		align-items: flex-start;
+	}
+}
+
+@media (max-width: 1199.98px) {
+	.filter-block-accessibility .form-check-label {
+		max-width: 280px;
+		margin-inline: auto;
 	}
 }

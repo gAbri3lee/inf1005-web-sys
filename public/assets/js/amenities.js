@@ -8,13 +8,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const target = document.querySelector(hash);
-
     if (!target) {
       return;
     }
 
     const heading = target.querySelector('h2, h3, h4') || target;
-
     if (!heading.hasAttribute('tabindex')) {
       heading.setAttribute('tabindex', '-1');
     }
@@ -31,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       const target = document.querySelector(href);
-
       if (!target) {
         return;
       }
@@ -40,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       target.scrollIntoView({
         behavior: prefersReducedMotion ? 'auto' : 'smooth',
-        block: 'start'
+        block: 'start',
       });
 
       if (window.history && typeof window.history.replaceState === 'function') {
@@ -57,24 +54,3 @@ document.addEventListener('DOMContentLoaded', function () {
     focusSectionFromHash(window.location.hash);
   }
 });
-  // ── Spa Buttons ──────────────────────────────────────────
-  const spaBookBtn = document.querySelector('#spa-section .btn-dark');
-  const spaLearnBtn = document.querySelector('#spa-section .btn-outline-dark');
-
-  if (spaBookBtn) {
-    spaBookBtn.addEventListener('click', function () {
-      window.location.href = 'contact.php';
-    });
-  }
-
-  if (spaLearnBtn) {
-    spaLearnBtn.addEventListener('click', function () {
-      const spaSection = document.querySelector('#spa-section');
-      if (spaSection) {
-        spaSection.scrollIntoView({
-          behavior: prefersReducedMotion ? 'auto' : 'smooth',
-          block: 'start'
-        });
-      }
-    });
-  }

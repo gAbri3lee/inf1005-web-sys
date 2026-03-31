@@ -1,0 +1,409 @@
+.dashboard-page {
+    padding-top: 0;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(214, 173, 96, 0.16), transparent 38%),
+        radial-gradient(circle at 85% 0%, rgba(209, 139, 115, 0.18), transparent 36%),
+        linear-gradient(180deg, #fffaf6 0%, #f6eee5 100%);
+    min-height: 100vh;
+}
+
+.dashboard-hero {
+    padding: 150px 0 34px;
+}
+
+.dashboard-hero-card {
+    padding: 2.5rem;
+    border-radius: var(--radius-xl);
+    background:
+        linear-gradient(135deg, rgba(18, 25, 36, 0.86), rgba(58, 36, 45, 0.82)),
+        url('../images/HotelHomePage.webp') center center / cover no-repeat;
+    box-shadow: var(--shadow-soft);
+    color: #fff7ef;
+}
+
+.dashboard-title {
+    font-size: clamp(2.5rem, 5.2vw, 4.2rem);
+    line-height: 0.98;
+    margin-bottom: 12px;
+}
+
+.dashboard-subtitle {
+    color: rgba(255, 247, 235, 0.84);
+    max-width: 700px;
+}
+
+.dashboard-user-meta {
+    padding: 1.2rem 1.35rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.dashboard-meta-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(255, 247, 235, 0.72);
+    margin-bottom: 6px;
+}
+
+.dashboard-meta-value {
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.dashboard-stat-card {
+    padding: 1.4rem 1.5rem;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(17, 24, 39, 0.06);
+    box-shadow: var(--shadow-card);
+}
+
+.dashboard-stat-label {
+    display: block;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+    margin-bottom: 8px;
+}
+
+.dashboard-stat-value {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    line-height: 1;
+    color: #3f2530;
+}
+
+.dashboard-section {
+    padding: 0 0 100px;
+}
+
+.dashboard-grid {
+    display: grid;
+    gap: 24px;
+}
+
+.dashboard-panel {
+    padding: 2rem;
+}
+
+.dashboard-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-panel-label {
+    margin: 0 0 6px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--sunset-rose);
+    font-weight: 700;
+}
+
+.dashboard-panel-title {
+    margin: 0;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+}
+
+.dashboard-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
+}
+
+.dashboard-action-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    min-height: 100%;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255, 250, 246, 0.96), rgba(246, 237, 228, 0.96));
+    border: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.dashboard-action-card h3,
+.dashboard-entry h3,
+.dashboard-review-card h3 {
+    font-size: 1.35rem;
+    margin-bottom: 10px;
+}
+
+.dashboard-action-card p,
+.dashboard-entry-meta,
+.dashboard-review-body,
+.dashboard-empty {
+    color: var(--text-soft);
+}
+
+.dashboard-action-card p {
+    flex: 1 1 auto;
+}
+
+.dashboard-action-card .btn {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+.dashboard-list,
+.dashboard-review-list {
+    display: grid;
+    gap: 16px;
+}
+
+.dashboard-entry,
+.dashboard-review-card {
+    padding: 1.35rem 1.4rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.dashboard-entry-top,
+.dashboard-review-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.dashboard-entry-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.dashboard-entry-grid strong {
+    display: block;
+    color: #35202a;
+}
+
+.dashboard-entry-label {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-soft);
+    margin-bottom: 6px;
+}
+
+.dashboard-entry-notes {
+    grid-column: 1 / -1;
+}
+
+.dashboard-entry-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 1.25rem;
+}
+
+.dashboard-inline-form {
+    margin: 0;
+}
+
+.dashboard-adjust-panel {
+    width: auto;
+    padding: 0;
+    background: transparent;
+    border: 0;
+}
+
+.dashboard-adjust-panel[open] {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 18px;
+    background: rgba(246, 237, 228, 0.55);
+    border: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.dashboard-summary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(92, 58, 68, 0.26);
+    background: rgba(255, 255, 255, 0.88);
+    color: #5c3a44;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    transition: var(--transition);
+}
+
+.dashboard-summary-button::-webkit-details-marker {
+    display: none;
+}
+
+.dashboard-adjust-panel[open] .dashboard-summary-button {
+    margin-bottom: 0.9rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    border-radius: 0;
+    justify-content: flex-start;
+}
+
+.dashboard-summary-button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(92, 58, 68, 0.38);
+}
+
+.dashboard-adjust-form .form-control {
+    border-radius: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(31, 41, 55, 0.12);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.dashboard-adjust-form .form-control:focus {
+    border-color: rgba(184, 134, 69, 0.62);
+    box-shadow: 0 0 0 0.25rem rgba(214, 173, 96, 0.18);
+}
+
+.dashboard-status-note {
+    color: var(--text-soft);
+}
+
+.dashboard-modal {
+    border: 1px solid rgba(17, 24, 39, 0.06);
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(255, 250, 246, 0.98), rgba(246, 237, 228, 0.98));
+    box-shadow: var(--shadow-soft);
+}
+
+.dashboard-modal-copy {
+    color: var(--text-soft);
+}
+
+.dashboard-modal-summary {
+    padding: 1rem 1.1rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.dashboard-modal-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.dashboard-modal-summary-grid strong {
+    display: block;
+    color: #35202a;
+}
+
+.dashboard-modal-payment {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.dashboard-modal-payment-note {
+    margin-bottom: 0.9rem;
+    color: var(--text-soft);
+}
+
+.dashboard-modal .form-control {
+    border-radius: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(31, 41, 55, 0.12);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.dashboard-modal .form-control:focus {
+    border-color: rgba(184, 134, 69, 0.62);
+    box-shadow: 0 0 0 0.25rem rgba(214, 173, 96, 0.18);
+}
+
+body.dashboard-modal-open {
+    overflow: hidden;
+}
+
+.dashboard-modal-fallback-visible {
+    display: block;
+    padding: 1rem;
+    background: rgba(28, 21, 26, 0.48);
+    z-index: 1080;
+}
+
+.dashboard-modal-fallback-visible .modal-dialog {
+    margin: min(8vh, 4rem) auto;
+}
+
+.dashboard-review-stars {
+    font-size: 1.05rem;
+    letter-spacing: 0.08em;
+    color: #c58f35;
+}
+
+.dashboard-empty {
+    padding: 1.2rem 1.3rem;
+    border-radius: 18px;
+    background: rgba(246, 237, 228, 0.7);
+    border: 1px dashed rgba(143, 93, 71, 0.28);
+}
+
+@media (max-width: 991.98px) {
+    .dashboard-stats,
+    .dashboard-actions-grid,
+    .dashboard-entry-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .dashboard-hero {
+        padding: 130px 0 28px;
+    }
+
+    .dashboard-hero-card,
+    .dashboard-panel {
+        padding: 1.5rem;
+    }
+
+    .dashboard-stats,
+    .dashboard-actions-grid,
+    .dashboard-entry-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-panel-head,
+    .dashboard-entry-top,
+    .dashboard-review-head {
+        flex-direction: column;
+    }
+
+    .dashboard-panel-head .btn {
+        width: 100%;
+    }
+
+    .dashboard-entry-actions {
+        flex-direction: column;
+    }
+
+    .dashboard-entry-actions .btn,
+    .dashboard-inline-form,
+    .dashboard-adjust-panel,
+    .dashboard-adjust-panel[open] {
+        width: 100%;
+    }
+
+    .dashboard-modal-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}

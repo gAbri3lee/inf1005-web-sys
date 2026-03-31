@@ -1,12 +1,12 @@
 <?php
-session_start();
+require_once __DIR__ . '/../app/includes/auth.php';
 
-require_once __DIR__ . '/../app/includes/rooms_repository.php';
+require_once __DIR__ . '/rooms_catalog.php';
 
-$rooms = rooms_repo_all();
-
-$viewOptions = ['Garden', 'Ocean', 'City', 'Lagoon'];
-$occupancyOptions = [2, 3, 4];
+$rooms = rooms_catalog_all();
+$roomGroups = rooms_catalog_group_by_occupancy($rooms);
+$viewOptions = rooms_catalog_view_options($rooms);
+$occupancyOptions = rooms_catalog_occupancy_options($rooms);
 $pageStylesheets = ['assets/css/rooms_and_suites.css'];
 $pageScripts = ['assets/js/rooms_and_suites.js'];
 
@@ -19,26 +19,26 @@ include __DIR__ . '/../app/includes/navbar.php';
             <div class="content-card rooms-card">
                 <header class="rooms-header text-center">
                     <h1 class="rooms-title">Rooms &amp; Suites</h1>
-                    <p class="rooms-subtitle mb-0">Browse by occupancy, view, and accessibility — then pick your dates to see the total.</p>
+                    <p class="rooms-subtitle mb-0">Browse by occupancy, view, and accessibility, then pick your dates to see the total.</p>
                 </header>
 
                 <section class="rooms-filters" aria-label="Room filters">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-12 col-lg-5">
+                    <div class="row g-3 align-items-stretch">
+                        <div class="col-12 col-md-6 col-xl-5">
                             <div class="filter-block">
                                 <div class="filter-title">Guests</div>
                                 <div class="filter-chips" role="group" aria-label="Filter by guests">
-                                    <?php foreach ($occupancyOptions as $occ): ?>
+                                    <?php foreach ($occupancyOptions as $occupancy): ?>
                                         <div class="form-check form-check-inline m-0">
-                                            <input class="form-check-input js-filter-occupancy" type="checkbox" id="occ_<?php echo (int)$occ; ?>" value="<?php echo (int)$occ; ?>">
-                                            <label class="form-check-label" for="occ_<?php echo (int)$occ; ?>"><?php echo (int)$occ; ?> pax</label>
+                                            <input class="form-check-input js-filter-occupancy" type="checkbox" id="occ_<?php echo (int)$occupancy; ?>" value="<?php echo (int)$occupancy; ?>">
+                                            <label class="form-check-label" for="occ_<?php echo (int)$occupancy; ?>"><?php echo (int)$occupancy; ?> pax</label>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-12 col-lg-5">
+                        <div class="col-12 col-md-6 col-xl-5">
                             <div class="filter-block">
                                 <div class="filter-title">View</div>
                                 <div class="filter-chips" role="group" aria-label="Filter by view">
@@ -53,10 +53,10 @@ include __DIR__ . '/../app/includes/navbar.php';
                             </div>
                         </div>
 
-                        <div class="col-12 col-lg-2">
-                            <div class="filter-block">
+                        <div class="col-12 col-md-6 col-xl-2">
+                            <div class="filter-block filter-block-accessibility">
                                 <div class="filter-title">Accessibility</div>
-                                <div class="form-check m-0">
+                                <div class="form-check form-check-single m-0">
                                     <input class="form-check-input js-filter-accessible" type="checkbox" id="filter_accessible" value="1">
                                     <label class="form-check-label" for="filter_accessible">Wheelchair friendly</label>
                                 </div>
@@ -70,25 +70,25 @@ include __DIR__ . '/../app/includes/navbar.php';
                 </section>
 
                 <div class="rooms-groups">
-                    <?php foreach ($occupancyOptions as $occ): ?>
-                        <section class="rooms-group js-room-group" data-group-occupancy="<?php echo (int)$occ; ?>" aria-label="Rooms for <?php echo (int)$occ; ?> guests">
-                            <h2 class="rooms-group-title"><?php echo (int)$occ; ?> Guest<?php echo $occ === 1 ? '' : 's'; ?> Rooms</h2>
+                    <?php foreach ($roomGroups as $occupancy => $groupRooms): ?>
+                        <section class="rooms-group js-room-group" data-group-occupancy="<?php echo (int)$occupancy; ?>" aria-label="Rooms for <?php echo (int)$occupancy; ?> guests">
+                            <h2 class="rooms-group-title"><?php echo (int)$occupancy; ?> Guest<?php echo (int)$occupancy === 1 ? '' : 's'; ?> Rooms</h2>
                             <div class="row g-4">
-                                <?php foreach ($rooms as $room): ?>
-                                    <?php if ((int)($room['occupancy'] ?? 0) !== (int)$occ) continue; ?>
+                                <?php foreach ($groupRooms as $room): ?>
                                     <?php
-                                        $roomJson = htmlspecialchars(json_encode($room, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
-                                        $cover = (string)($room['images'][0] ?? 'assets/images/HotelHomePage.webp');
                                         $accessible = !empty($room['accessible']);
+                                        $cover = rooms_catalog_primary_image($room);
                                     ?>
-                                    <div class="col-12 col-md-6 col-xl-4 js-room-card"
+                                    <div
+                                        class="col-12 col-md-6 col-xl-4 js-room-card"
+                                        data-room-id="<?php echo (int)($room['id'] ?? 0); ?>"
                                         data-occupancy="<?php echo (int)($room['occupancy'] ?? 0); ?>"
                                         data-view="<?php echo htmlspecialchars((string)($room['view'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
                                         data-accessible="<?php echo $accessible ? '1' : '0'; ?>"
-                                        data-room="<?php echo $roomJson; ?>">
+                                    >
                                         <article class="content-card room-card h-100">
                                             <div class="room-media">
-                                                    <img class="room-image" src="<?php echo htmlspecialchars($cover, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string)($room['name'] ?? 'Room'), ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
+                                                <img class="room-image" src="<?php echo htmlspecialchars($cover, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string)($room['name'] ?? 'Room'), ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
                                             </div>
                                             <div class="room-body">
                                                 <div class="room-top">
@@ -122,7 +122,6 @@ include __DIR__ . '/../app/includes/navbar.php';
         </div>
     </section>
 
-    <!-- Room details modal (Bootstrap) -->
     <div class="modal fade room-details-modal" id="roomDetailsModal" tabindex="-1" aria-labelledby="roomDetailsTitle" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -218,6 +217,8 @@ include __DIR__ . '/../app/includes/navbar.php';
             </div>
         </div>
     </div>
+
+    <script id="rooms-catalog-data" type="application/json"><?php echo rooms_catalog_json($rooms); ?></script>
 </main>
 
 <?php include __DIR__ . '/../app/includes/footer.php'; ?>

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../app/includes/auth.php';
 include __DIR__ . '/../app/includes/navbar.php';
 
 function e(string $value): string
@@ -45,7 +45,7 @@ $featuredAmenities = [
         'hours' => 'Daily, 10:00 AM - 9:00 PM',
         'image' => 'assets/images/amenities/spa.webp',
         'alt' => 'Spa treatment room with twin massage beds, soft lighting, and a garden-facing window',
-        'href_primary' => 'contact.php',
+        'href_primary' => 'spa_booking.php',
         'href_secondary' => '#spa-section',
         'cta_primary' => 'Book Now',
         'cta_secondary' => 'Learn More',
@@ -337,7 +337,7 @@ $serviceGroups = [
                             <li>Accessibility support available on request</li>
                         </ul>
                     </div>
-                    <a href="contact.php" class="detail-link">Reserve a spa treatment</a>
+                    <a href="spa_booking.php" class="detail-link">Reserve a spa treatment</a>
                 </section>
 
                 <section id="services-section" class="detail-block reveal-up">
