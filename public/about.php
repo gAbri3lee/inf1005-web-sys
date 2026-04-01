@@ -20,7 +20,7 @@ include __DIR__ . '/../app/includes/navbar.php';
             <div class="about-intro-card about-intro-card-wide reveal-up">
                 <span class="section-eyebrow">Our Vision</span>
                 <h2 class="section-title">A modern luxury hotel with heart.</h2>
-                <p class="section-text">Horizon Sands Bali was imagined as a refined coastal retreat where elegant design meets genuine care. We want every guest to feel instantly welcomed, fully restored, and deeply connected to the destination.</p>
+                <p class="section-text">Horizon Sands Bali was imagined as a refined coastal resort where elegant design meets genuine service. We want every guest to feel instantly welcomed, fully restored, and deeply connected to the destination.</p>
                 <p class="section-text">That vision guides how we host, how we build, and how we curate each stay. From attentive service and thoughtful spaces to renewable energy choices and adventure-led experiences, our values shape every detail across the hotel.</p>
             </div>
         </div>
