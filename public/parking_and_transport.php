@@ -346,7 +346,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                         </h2>
                         <div id="arrivalCollapseTwo" class="accordion-collapse collapse" role="region" aria-labelledby="arrivalHeadingTwo" data-bs-parent="#arrivalAccordion">
                             <div class="accordion-body">
-                                During peak periods, allow additional time for airport pickups, sunset journeys, and harbour departures, especially on weekends and public holidays.
+                                During peak periods, allow additional time for airport pickups, sunset journeys, and harbour departures, especially on weekends and public holidays. For local day-trip inspiration, check out the latest happenings <a href="whats_happening.php">here</a> or let our concierge help plan the perfect outing for you!
                             </div>
                         </div>
                     </div>
