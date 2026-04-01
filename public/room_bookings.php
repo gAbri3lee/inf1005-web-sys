@@ -100,6 +100,14 @@ try {
     $databaseNotice = 'Your room bookings are unavailable right now.';
 }
 
+if (isset($pdo)) {
+    try {
+        require_once __DIR__ . '/../app/includes/loyalty.php';
+    } catch (Throwable $exception) {
+        // Loyalty is optional.
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = trim((string)($_POST['action'] ?? ''));
     $redirectTarget = 'room_bookings.php';
@@ -131,6 +139,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $updateStmt = $pdo->prepare('UPDATE bookings SET status = ? WHERE id = ? AND user_id = ?');
                     $updateStmt->execute(['Cancelled', $bookingId, $userId]);
+
+                    if (function_exists('loyalty_refresh_user')) {
+                        try {
+                            loyalty_refresh_user($pdo, $userId);
+                        } catch (Throwable $exception) {
+                        }
+                    }
+
                     auth_flash_set('dashboard_notice', 'Your room booking has been cancelled.');
                 }
                 break;
@@ -274,6 +290,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':booking_id' => $bookingId,
                     ':user_id' => $userId,
                 ]);
+
+                if (function_exists('loyalty_refresh_user')) {
+                    try {
+                        loyalty_refresh_user($pdo, $userId);
+                    } catch (Throwable $exception) {
+                    }
+                }
 
                 if ($priceDifference > 0.009) {
                     auth_flash_set(

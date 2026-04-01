@@ -11,6 +11,7 @@ $databaseNotice = '';
 $roomBookings = [];
 $spaBookings = [];
 $reviews = [];
+$loyaltySnapshot = null;
 $summary = [
     'room_bookings' => 0,
     'spa_bookings' => 0,
@@ -98,6 +99,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (isset($pdo)) {
     try {
         $userId = auth_user_id();
+
+        try {
+            require_once __DIR__ . '/../app/includes/loyalty.php';
+            if ($userId !== null) {
+                $loyaltySnapshot = loyalty_get_user_snapshot($pdo, (int)$userId);
+            }
+        } catch (Throwable $exception) {
+            $loyaltySnapshot = null;
+        }
 
         $bookingStmt = $pdo->prepare(
             'SELECT id, room_name, check_in, check_out, nights, room_rate, total_price, status, created_at
@@ -200,6 +210,45 @@ include __DIR__ . '/../app/includes/navbar.php';
             <?php endif; ?>
 
             <div class="dashboard-grid">
+                <section class="content-card dashboard-panel reveal-up">
+                    <div class="dashboard-panel-head">
+                        <div>
+                            <p class="dashboard-panel-label">Loyalty program</p>
+                            <h2 class="dashboard-panel-title">Your loyalty status</h2>
+                        </div>
+                        <a class="btn btn-gold btn-sm" href="loyalty.php">View details</a>
+                    </div>
+
+                    <?php if (!$loyaltySnapshot): ?>
+                        <div class="dashboard-empty">
+                            Loyalty details are unavailable right now. Please ensure the loyalty tables exist in your schema.
+                        </div>
+                    <?php else: ?>
+                        <div class="dashboard-entry-grid">
+                            <div>
+                                <span class="dashboard-entry-label">Current tier</span>
+                                <strong><?php echo htmlspecialchars((string)$loyaltySnapshot['tier_name'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                            </div>
+                            <div>
+                                <span class="dashboard-entry-label">Discount</span>
+                                <strong><?php echo htmlspecialchars((string)$loyaltySnapshot['discount_label'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                            </div>
+                            <div>
+                                <span class="dashboard-entry-label">Total spent</span>
+                                <strong>$<?php echo number_format((float)$loyaltySnapshot['total_spent'], 2); ?></strong>
+                            </div>
+                            <?php if (!empty($loyaltySnapshot['next_tier'])): ?>
+                                <div>
+                                    <span class="dashboard-entry-label">Left for next tier</span>
+                                    <strong>$<?php echo number_format((float)$loyaltySnapshot['remaining_to_next'], 2); ?></strong>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <p class="mt-3 mb-0"><?php echo htmlspecialchars((string)$loyaltySnapshot['message'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endif; ?>
+                </section>
+
                 <section class="content-card dashboard-panel reveal-up">
                     <div class="dashboard-panel-head">
                         <div>
