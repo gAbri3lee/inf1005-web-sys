@@ -4,6 +4,9 @@ COLLATE utf8mb4_unicode_ci;
 
 USE azure_horizon;
 
+DROP TABLE IF EXISTS loyalty_history;
+DROP TABLE IF EXISTS user_loyalty;
+
 CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL AUTO_INCREMENT,
     full_name VARCHAR(100) NOT NULL,

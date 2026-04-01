@@ -85,7 +85,10 @@ function loyalty_find_next_tier(PDO $pdo, float $totalSpent): ?array
 }
 
 /**
- * Refreshes the cached row in user_loyalty and writes to loyalty_history when tier changes.
+ * Refreshes loyalty data for the user.
+ *
+ * Current implementation calculates totals from bookings + loyalty_tiers
+ * and optionally mirrors summary fields into the users table.
  */
 function loyalty_refresh_user(PDO $pdo, int $userId): array
 {
