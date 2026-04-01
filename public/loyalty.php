@@ -137,4 +137,5 @@ include __DIR__ . '/../app/includes/navbar.php';
     </section>
 </main>
 
+
 <?php include __DIR__ . '/../app/includes/footer.php'; ?>
