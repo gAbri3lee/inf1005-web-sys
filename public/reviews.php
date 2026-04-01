@@ -511,12 +511,10 @@ include __DIR__ . '/../app/includes/navbar.php';
 									</div>
 								</div>
 
-								<div class="row g-4">
+								<div class="reviews-masonry">
 									<?php if (!$pagedReviews): ?>
-										<div class="col-12">
-											<div class="alert alert-info mb-0 reveal-up" role="alert">
-												No reviews yet. Be the first to leave one.
-											</div>
+										<div class="alert alert-info mb-0 reveal-up" role="alert">
+											No reviews yet. Be the first to leave one.
 										</div>
 									<?php else: ?>
 										<?php foreach ($pagedReviews as $review): ?>
@@ -526,7 +524,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 												$cats = sanitize_categories($cats, $categoryOptions);
 												$dataCats = htmlspecialchars(implode(',', $cats), ENT_QUOTES, 'UTF-8');
 											?>
-											<div class="col-12 col-md-6 js-review-item" data-categories="<?php echo $dataCats; ?>">
+											<div class="js-review-item reviews-masonry-item" data-categories="<?php echo $dataCats; ?>">
 												<article class="content-card review-card reveal-up">
 													<div class="review-head">
 														<div>
@@ -563,7 +561,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 														</div>
 													<?php endif; ?>
 										</article>
-											</div>
+									</div>
 										<?php endforeach; ?>
 									<?php endif; ?>
 								</div>

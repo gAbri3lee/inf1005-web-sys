@@ -385,3 +385,31 @@
     });
   }
 })();
+
+(() => {
+  'use strict';
+
+  const phoneInput = document.getElementById('account_phone');
+  if (!phoneInput) {
+    return;
+  }
+
+  function setPhoneValidityMessage() {
+    const value = String(phoneInput.value || '').trim();
+
+    if (value === '' || /^\d+$/.test(value)) {
+      phoneInput.setCustomValidity('');
+      return;
+    }
+
+    phoneInput.setCustomValidity('Numbers only');
+  }
+
+  phoneInput.addEventListener('input', () => {
+    setPhoneValidityMessage();
+  });
+
+  phoneInput.addEventListener('invalid', () => {
+    setPhoneValidityMessage();
+  });
+})();

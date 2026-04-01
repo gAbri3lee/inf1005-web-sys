@@ -11,8 +11,36 @@ function app_is_https_request(): bool
         return true;
     }
 
-    $forwardedProto = strtolower(trim((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')));
-    return $forwardedProto === 'https';
+    $host = strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '')));
+    $host = preg_replace('/:\d+$/', '', $host) ?? $host;
+
+    $isLocalHost = $host === 'localhost' || $host === '127.0.0.1' || $host === '::1';
+    if ($isLocalHost) {
+        return false;
+    }
+
+    $trustProxy = strtolower(trim((string)(getenv('APP_TRUST_PROXY') ?: ($_SERVER['APP_TRUST_PROXY'] ?? ''))));
+    $trustProxy = in_array($trustProxy, ['1', 'true', 'yes', 'on'], true);
+
+    if ($trustProxy) {
+        $forwardedProto = strtolower(trim((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')));
+        return $forwardedProto === 'https';
+    }
+
+    return false;
+}
+
+function app_session_name(): string
+{
+    $projectRoot = dirname(__DIR__, 2);
+    $projectSlug = preg_replace('/[^A-Za-z0-9_]+/', '_', (string)basename($projectRoot)) ?? 'app';
+    $projectSlug = trim($projectSlug, '_');
+
+    if ($projectSlug === '') {
+        $projectSlug = 'app';
+    }
+
+    return 'azure_horizon_session_' . $projectSlug;
 }
 
 function app_start_session(): void
@@ -21,12 +49,19 @@ function app_start_session(): void
         return;
     }
 
-    if (!headers_sent()) {
-        ini_set('session.use_only_cookies', '1');
-        ini_set('session.use_strict_mode', '1');
-        ini_set('session.cookie_httponly', '1');
+    // Always set the session name before starting the session.
+    // If this is skipped, PHP may fall back to PHPSESSID and create a separate session,
+    // which can look like "login needs two tries".
+    $desiredSessionName = app_session_name();
+    if (session_name() !== $desiredSessionName) {
+        session_name($desiredSessionName);
+    }
 
-        session_name('azure_horizon_session');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.cookie_httponly', '1');
+
+    if (!headers_sent()) {
         session_set_cookie_params([
             'lifetime' => 0,
             'path' => '/',
@@ -41,7 +76,7 @@ function app_start_session(): void
 
     $now = time();
     if (!isset($_SESSION['_session_started_at'])) {
-        session_regenerate_id(true);
+        session_regenerate_id(false);
         $_SESSION['_session_started_at'] = $now;
         $_SESSION['_session_rotated_at'] = $now;
         return;
@@ -49,7 +84,7 @@ function app_start_session(): void
 
     $rotatedAt = (int)($_SESSION['_session_rotated_at'] ?? 0);
     if ($rotatedAt <= 0 || ($now - $rotatedAt) >= 900) {
-        session_regenerate_id(true);
+        session_regenerate_id(false);
         $_SESSION['_session_rotated_at'] = $now;
     }
 }

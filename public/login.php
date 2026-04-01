@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($honeypot !== '') {
-        $errors[] = 'Unable to submit your login request. Please try again.';
+        $errors[] = 'Unable to sign in. Please try again.';
     }
 
     if (!filter_var($formData['email'], FILTER_VALIDATE_EMAIL)) {
@@ -57,7 +57,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $stmt->fetch();
         }
 
-        if (!$user || !password_verify($password, (string)($user['password'] ?? ''))) {
+        $storedPassword = (string)($user['password'] ?? '');
+        $passwordOk = $user && $storedPassword !== '' && password_verify($password, $storedPassword);
+
+        if (!$passwordOk && $user && $storedPassword !== '') {
+            $info = password_get_info($storedPassword);
+            if ((int)($info['algo'] ?? 0) === 0) {
+                // Legacy/plaintext passwords: allow once, then upgrade to a hash.
+                $passwordOk = hash_equals($storedPassword, $password);
+
+                if ($passwordOk) {
+                    try {
+                        $newHash = password_hash($password, PASSWORD_DEFAULT);
+                        $upgradeStmt = $pdo->prepare('UPDATE users SET password = ? WHERE id = ? AND password = ?');
+                        $upgradeStmt->execute([$newHash, (int)($user['id'] ?? 0), $storedPassword]);
+                        $user['password'] = $newHash;
+                    } catch (Throwable $exception) {
+                        // Best-effort upgrade; login still succeeds.
+                    }
+                }
+            }
+        }
+
+        if (!$user || !$passwordOk) {
             $errors[] = 'Invalid email or password.';
         } else {
             auth_login_user($user);

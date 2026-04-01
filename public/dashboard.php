@@ -7,6 +7,7 @@ auth_require_login(
 );
 
 $pageStylesheets = ['assets/css/dashboard.css'];
+$pageScripts = ['assets/js/dashboard.js'];
 $databaseNotice = '';
 $roomBookings = [];
 $spaBookings = [];
@@ -17,6 +18,7 @@ $adminUsers = [];
 $adminBookingsByUser = [];
 $adminSpaBookingsByUser = [];
 $adminReviewsByUser = [];
+$accountRecord = null;
 $summary = [
     'room_bookings' => 0,
     'spa_bookings' => 0,
@@ -43,6 +45,28 @@ function dashboard_status_badge_class(string $status): string
     };
 }
 
+function dashboard_validate_password_strength(string $password, array &$errors): bool
+{
+    $minLen = 8;
+
+    if ($password === '' || app_string_length($password) < $minLen) {
+        $errors[] = 'Password must be at least 8 characters.';
+        return false;
+    }
+
+    $hasLower = (bool)preg_match('/[a-z]/', $password);
+    $hasUpper = (bool)preg_match('/[A-Z]/', $password);
+    $hasDigit = (bool)preg_match('/\d/', $password);
+    $hasSymbol = (bool)preg_match('/[^A-Za-z\d]/', $password);
+
+    if (!$hasLower || !$hasUpper || !$hasDigit || !$hasSymbol) {
+        $errors[] = 'Password must include uppercase, lowercase, a number, and a symbol.';
+        return false;
+    }
+
+    return true;
+}
+
 $dashboardNotice = auth_flash_get('dashboard_notice');
 $dashboardError = auth_flash_get('dashboard_error');
 
@@ -56,6 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = trim((string)($_POST['action'] ?? ''));
     $redirectTarget = match ($action) {
         'cancel_spa_booking' => 'dashboard.php#spa-bookings',
+        'update_account_details' => 'dashboard.php#account-details',
+        'change_password' => 'dashboard.php#account-details',
         'admin_update_user_phone' => 'dashboard.php#admin-users',
         'admin_delete_user' => 'dashboard.php#admin-users',
         'admin_update_booking' => 'dashboard.php#admin-users',
@@ -76,7 +102,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($databaseNotice !== '' || !isset($pdo)) {
-        auth_flash_set('dashboard_error', 'Unable to update your booking right now because the database is unavailable.');
+        $fallbackMessage = match ($action) {
+            'change_password' => 'Unable to update your password right now because the database is unavailable.',
+            'update_account_details' => 'Unable to update your account right now because the database is unavailable.',
+            default => 'Unable to update your dashboard right now because the database is unavailable.',
+        };
+        auth_flash_set('dashboard_error', $fallbackMessage);
         auth_redirect($redirectTarget);
     }
 
@@ -89,6 +120,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         switch ($action) {
+            case 'update_account_details':
+                if (auth_is_admin()) {
+                    auth_flash_set('dashboard_error', 'Account updates are unavailable for admin accounts.');
+                    break;
+                }
+
+                $fullName = trim((string)($_POST['full_name'] ?? ''));
+                $phone = trim((string)($_POST['phone'] ?? ''));
+                $phone = $phone === '' ? null : $phone;
+
+                if ($userId <= 0) {
+                    auth_flash_set('dashboard_error', 'Unable to update your account right now.');
+                    break;
+                }
+
+                if ($fullName === '') {
+                    auth_flash_set('dashboard_error', 'Please enter your name.');
+                    break;
+                }
+
+                if (app_string_length($fullName) > 100) {
+                    auth_flash_set('dashboard_error', 'Name must be 100 characters or fewer.');
+                    break;
+                }
+
+                if ($phone !== null && app_string_length($phone) > 50) {
+                    auth_flash_set('dashboard_error', 'Phone number must be 50 characters or fewer.');
+                    break;
+                }
+
+                if ($phone !== null && $phone !== '' && !preg_match('/^\d+$/', $phone)) {
+                    auth_flash_set('dashboard_error', 'Numbers only');
+                    break;
+                }
+
+                $updateStmt = $pdo->prepare('UPDATE users SET full_name = ?, phone = ? WHERE id = ?');
+                $updateStmt->execute([$fullName, $phone, $userId]);
+
+                $_SESSION['auth_user']['display_name'] = $fullName;
+                $_SESSION['full_name'] = $fullName;
+
+                auth_flash_set('dashboard_notice', 'Account details updated.');
+                break;
+
+            case 'change_password':
+                if (auth_is_admin()) {
+                    auth_flash_set('dashboard_error', 'Password updates are unavailable for admin accounts.');
+                    break;
+                }
+
+                $currentPassword = (string)($_POST['current_password'] ?? '');
+                $newPassword = (string)($_POST['new_password'] ?? '');
+                $confirmPassword = (string)($_POST['confirm_password'] ?? '');
+
+                if ($userId <= 0) {
+                    auth_flash_set('dashboard_error', 'Unable to update your password right now.');
+                    break;
+                }
+
+                $pwErrors = [];
+
+                if ($currentPassword === '') {
+                    $pwErrors[] = 'Please enter your current password.';
+                }
+
+                if ($newPassword !== $confirmPassword) {
+                    $pwErrors[] = 'New password and confirmation do not match.';
+                }
+
+                dashboard_validate_password_strength($newPassword, $pwErrors);
+
+                if ($pwErrors) {
+                    auth_flash_set('dashboard_error', implode(' ', $pwErrors));
+                    break;
+                }
+
+                $stmt = $pdo->prepare('SELECT password FROM users WHERE id = ? LIMIT 1');
+                $stmt->execute([$userId]);
+                $record = $stmt->fetch();
+                $storedPassword = (string)($record['password'] ?? '');
+
+                if ($storedPassword === '') {
+                    auth_flash_set('dashboard_error', 'Unable to verify your current password. Please contact support.');
+                    break;
+                }
+
+                $info = password_get_info($storedPassword);
+                $isHashed = (int)($info['algo'] ?? 0) !== 0;
+
+                $currentOk = $isHashed
+                    ? password_verify($currentPassword, $storedPassword)
+                    : hash_equals($storedPassword, $currentPassword);
+
+                if (!$currentOk) {
+                    auth_flash_set('dashboard_error', 'Current password is incorrect.');
+                    break;
+                }
+
+                if ($newPassword === $currentPassword || ($isHashed && password_verify($newPassword, $storedPassword))) {
+                    auth_flash_set('dashboard_error', 'New password must be different from your current password.');
+                    break;
+                }
+
+                $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+                $updateStmt = $pdo->prepare('UPDATE users SET password = ? WHERE id = ? AND password = ?');
+                $updateStmt->execute([$newHash, $userId, $storedPassword]);
+
+                if ($updateStmt->rowCount() !== 1) {
+                    auth_flash_set('dashboard_error', 'Password was not updated. Please try again.');
+                    break;
+                }
+
+                auth_flash_set('dashboard_notice', 'Password updated.');
+                break;
+
             case 'admin_update_user_phone':
                 if (!auth_is_admin()) {
                     auth_flash_set('dashboard_error', 'Admin access required to update user details.');
@@ -106,6 +252,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($phone !== null && app_string_length($phone) > 50) {
                     auth_flash_set('dashboard_error', 'Phone number must be 50 characters or fewer.');
+                    break;
+                }
+
+                if ($phone !== null && $phone !== '' && !preg_match('/^\d+$/', $phone)) {
+                    auth_flash_set('dashboard_error', 'Numbers only');
                     break;
                 }
 
@@ -145,8 +296,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     break;
                 }
 
-                $deleteStmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
-                $deleteStmt->execute([$targetUserId]);
+                $pdo->beginTransaction();
+                try {
+                    $deleteBookingsStmt = $pdo->prepare('DELETE FROM bookings WHERE user_id = ?');
+                    $deleteBookingsStmt->execute([$targetUserId]);
+
+                    $deleteStmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
+                    $deleteStmt->execute([$targetUserId]);
+
+                    $pdo->commit();
+                } catch (Throwable $exception) {
+                    if ($pdo->inTransaction()) {
+                        $pdo->rollBack();
+                    }
+                    throw $exception;
+                }
                 auth_flash_set('dashboard_notice', 'User account deleted.');
                 break;
 
@@ -256,7 +420,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
         }
     } catch (Throwable $exception) {
-        auth_flash_set('dashboard_error', 'Unable to update your booking right now. Please try again.');
+        $fallbackMessage = match ($action) {
+            'change_password' => 'Unable to update your password right now. Please try again.',
+            'update_account_details' => 'Unable to update your account details right now. Please try again.',
+            default => 'Unable to update your dashboard right now. Please try again.',
+        };
+        auth_flash_set('dashboard_error', $fallbackMessage);
     }
 
     auth_redirect($redirectTarget);
@@ -293,9 +462,11 @@ if (isset($pdo)) {
 
             try {
                 $bookingsStmt = $pdo->query(
-                    'SELECT id, user_id, room_name, guest_name, guest_email, guest_phone, check_in, check_out, nights, room_rate, total_price, status, created_at
-                     FROM bookings
-                     ORDER BY created_at DESC, id DESC'
+                    'SELECT b.id, b.user_id, b.room_name, b.guest_name, b.guest_email, b.guest_phone, b.check_in, b.check_out, b.nights, b.room_rate, b.total_price, b.status, b.created_at
+                     FROM bookings b
+                     INNER JOIN users u ON u.id = b.user_id
+                     WHERE COALESCE(u.is_admin, 0) = 0
+                     ORDER BY b.created_at DESC, b.id DESC'
                 );
                 $allBookings = $bookingsStmt->fetchAll();
                 foreach ($allBookings as $booking) {
@@ -351,6 +522,14 @@ if (isset($pdo)) {
                 'reviews' => array_sum(array_map('count', $adminReviewsByUser)),
             ];
         } else {
+            try {
+                $accountStmt = $pdo->prepare('SELECT id, full_name, email, phone, created_at FROM users WHERE id = ? LIMIT 1');
+                $accountStmt->execute([$userId]);
+                $accountRecord = $accountStmt->fetch() ?: null;
+            } catch (Throwable $exception) {
+                $accountRecord = null;
+            }
+
             try {
                 require_once __DIR__ . '/../app/includes/loyalty.php';
                 if ($userId !== null) {
@@ -543,6 +722,95 @@ include __DIR__ . '/../app/includes/navbar.php';
                         <?php endif; ?>
                     </section>
                 <?php else: ?>
+                <section id="account-details" class="content-card dashboard-panel reveal-up">
+                    <div class="dashboard-panel-head">
+                        <div>
+                            <p class="dashboard-panel-label">Account</p>
+                            <h2 class="dashboard-panel-title">Your details</h2>
+                        </div>
+                    </div>
+
+                    <?php if (!$accountRecord): ?>
+                        <div class="dashboard-empty">
+                            Account details are unavailable right now. Please ensure the users table exists in your schema.
+                        </div>
+                    <?php else: ?>
+                        <?php
+                            $accountName = (string)($accountRecord['full_name'] ?? '');
+                            $accountEmail = (string)($accountRecord['email'] ?? '');
+                            $accountPhone = (string)($accountRecord['phone'] ?? '');
+                            $accountCreated = (string)($accountRecord['created_at'] ?? '');
+                        ?>
+
+                        <div class="dashboard-entry-grid mb-3">
+                            <div><span class="dashboard-entry-label">Email</span><strong><?php echo htmlspecialchars($accountEmail, ENT_QUOTES, 'UTF-8'); ?></strong></div>
+                            <div><span class="dashboard-entry-label">Phone</span><strong><?php echo htmlspecialchars($accountPhone !== '' ? $accountPhone : '—', ENT_QUOTES, 'UTF-8'); ?></strong></div>
+                            <div><span class="dashboard-entry-label">Created</span><strong><?php echo htmlspecialchars($accountCreated, ENT_QUOTES, 'UTF-8'); ?></strong></div>
+                        </div>
+
+                        <form action="dashboard.php#account-details" method="POST" class="mb-4" style="max-width: 560px;">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('dashboard_action_form'), ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="action" value="update_account_details">
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label" for="account_full_name">Full name</label>
+                                    <input
+                                        class="form-control"
+                                        id="account_full_name"
+                                        type="text"
+                                        name="full_name"
+                                        value="<?php echo htmlspecialchars($accountName, ENT_QUOTES, 'UTF-8'); ?>"
+                                        maxlength="100"
+                                        required
+                                    >
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="account_phone">Phone (optional)</label>
+                                    <input
+                                        class="form-control"
+                                        id="account_phone"
+                                        type="text"
+                                        name="phone"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
+                                        value="<?php echo htmlspecialchars($accountPhone, ENT_QUOTES, 'UTF-8'); ?>"
+                                        maxlength="50"
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-gold btn-sm">Save details</button>
+                            </div>
+                        </form>
+
+                        <form action="dashboard.php#account-details" method="POST" style="max-width: 560px;">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('dashboard_action_form'), ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="action" value="change_password">
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label" for="current_password">Current password</label>
+                                    <input class="form-control" id="current_password" type="password" name="current_password" autocomplete="current-password" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="new_password">New password</label>
+                                    <input class="form-control" id="new_password" type="password" name="new_password" minlength="8" autocomplete="new-password" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="confirm_password">Confirm new password</label>
+                                    <input class="form-control" id="confirm_password" type="password" name="confirm_password" minlength="8" autocomplete="new-password" required>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-gold btn-sm">Update password</button>
+                            </div>
+                        </form>
+                    <?php endif; ?>
+                </section>
+
                 <section class="content-card dashboard-panel reveal-up">
                     <div class="dashboard-panel-head">
                         <div>
