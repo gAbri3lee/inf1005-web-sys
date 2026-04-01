@@ -82,6 +82,37 @@
     white-space: nowrap;
 }
 
+/* Admin action buttons (e.g. delete user/booking) */
+.dashboard-page .btn-outline-secondary.btn-sm,
+.dashboard-page .btn-outline-secondary,
+.dashboard-page .btn-outline-danger.btn-sm,
+.dashboard-page .btn-outline-danger {
+    border-radius: 999px;
+    padding: 0.55rem 1.05rem;
+    font-weight: 600;
+    border: 1px solid rgba(209, 139, 115, 0.55);
+    color: #5c3a44;
+    background: rgba(255, 255, 255, 0.78);
+    transition: var(--transition);
+}
+
+.dashboard-page .btn-outline-secondary.btn-sm:hover,
+.dashboard-page .btn-outline-secondary:hover,
+.dashboard-page .btn-outline-danger.btn-sm:hover,
+.dashboard-page .btn-outline-danger:hover {
+    transform: translateY(-1px);
+    border-color: rgba(209, 139, 115, 0.8);
+    background: rgba(209, 139, 115, 0.12);
+    color: #2f1a21;
+}
+
+.dashboard-page .btn-outline-secondary.btn-sm:focus,
+.dashboard-page .btn-outline-secondary:focus,
+.dashboard-page .btn-outline-danger.btn-sm:focus,
+.dashboard-page .btn-outline-danger:focus {
+    box-shadow: 0 0 0 0.25rem rgba(209, 139, 115, 0.18);
+}
+
 .dashboard-hero {
     padding: 150px 0 34px;
 }

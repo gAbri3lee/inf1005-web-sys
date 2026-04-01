@@ -157,6 +157,7 @@ function auth_login_user(array $user): void
     $userId = (int)($user['id'] ?? 0);
     $email = strtolower(trim((string)($user['email'] ?? '')));
     $displayName = trim((string)($user['full_name'] ?? $user['display_name'] ?? ''));
+    $isAdmin = (int)($user['is_admin'] ?? 0) === 1;
 
     if ($userId <= 0 || $email === '') {
         throw new InvalidArgumentException('Invalid user record supplied for login.');
@@ -172,11 +173,13 @@ function auth_login_user(array $user): void
         'id' => $userId,
         'email' => $email,
         'display_name' => $displayName,
+        'is_admin' => $isAdmin,
         'logged_in_at' => time(),
     ];
     $_SESSION['user_id'] = $userId;
     $_SESSION['user_email'] = $email;
     $_SESSION['full_name'] = $displayName;
+    $_SESSION['is_admin'] = $isAdmin;
 }
 
 function auth_current_user(): ?array
@@ -217,6 +220,24 @@ function auth_user_display_name(): string
 {
     $user = auth_current_user();
     return $user ? (string)$user['display_name'] : '';
+}
+
+function auth_is_admin(): bool
+{
+    $user = auth_current_user();
+    return $user ? (bool)($user['is_admin'] ?? false) : false;
+}
+
+function auth_require_admin(?string $next = null, ?string $message = null): void
+{
+    auth_require_login($next, $message);
+
+    if (auth_is_admin()) {
+        return;
+    }
+
+    auth_flash_set('auth_notice', $message ?: 'You do not have permission to access that area.');
+    auth_redirect('dashboard.php');
 }
 
 function auth_logout_user(): void

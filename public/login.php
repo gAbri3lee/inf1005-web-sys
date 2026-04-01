@@ -47,9 +47,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$errors && isset($pdo)) {
-        $stmt = $pdo->prepare('SELECT id, email, password, full_name FROM users WHERE email = ? LIMIT 1');
-        $stmt->execute([$formData['email']]);
-        $user = $stmt->fetch();
+        try {
+            $stmt = $pdo->prepare('SELECT id, email, password, full_name, phone, is_admin FROM users WHERE email = ? LIMIT 1');
+            $stmt->execute([$formData['email']]);
+            $user = $stmt->fetch();
+        } catch (Throwable $exception) {
+            $stmt = $pdo->prepare('SELECT id, email, password, full_name FROM users WHERE email = ? LIMIT 1');
+            $stmt->execute([$formData['email']]);
+            $user = $stmt->fetch();
+        }
 
         if (!$user || !password_verify($password, (string)($user['password'] ?? ''))) {
             $errors[] = 'Invalid email or password.';

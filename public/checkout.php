@@ -195,6 +195,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errors) {
         ]);
 
         try {
+            $userId = auth_user_id() ?? 0;
+            $phone = trim((string)($formData['phone'] ?? ''));
+
+            if ($userId > 0 && $phone !== '') {
+                $updatePhoneStmt = $pdo->prepare(
+                    "UPDATE users
+                     SET phone = CASE WHEN phone IS NULL OR phone = '' THEN ? ELSE phone END
+                     WHERE id = ?"
+                );
+                $updatePhoneStmt->execute([$phone, $userId]);
+            }
+        } catch (Throwable $exception) {
+            // Best-effort: user phone may not exist in older schemas.
+        }
+
+        try {
             require_once __DIR__ . '/../app/includes/loyalty.php';
             $userId = auth_user_id() ?? 0;
             if ($userId > 0) {

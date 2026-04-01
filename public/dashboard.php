@@ -12,6 +12,11 @@ $roomBookings = [];
 $spaBookings = [];
 $reviews = [];
 $loyaltySnapshot = null;
+$isAdmin = auth_is_admin();
+$adminUsers = [];
+$adminBookingsByUser = [];
+$adminSpaBookingsByUser = [];
+$adminReviewsByUser = [];
 $summary = [
     'room_bookings' => 0,
     'spa_bookings' => 0,
@@ -51,8 +56,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = trim((string)($_POST['action'] ?? ''));
     $redirectTarget = match ($action) {
         'cancel_spa_booking' => 'dashboard.php#spa-bookings',
+        'admin_update_user_phone' => 'dashboard.php#admin-users',
+        'admin_delete_user' => 'dashboard.php#admin-users',
+        'admin_update_booking' => 'dashboard.php#admin-users',
+        'admin_delete_booking' => 'dashboard.php#admin-users',
         default => 'dashboard.php',
     };
+
+    // Allow admin booking actions to return to a specific user section.
+    if (in_array($action, ['admin_update_booking', 'admin_delete_booking'], true)) {
+        $returnTo = trim((string)($_POST['return_to'] ?? ''));
+        $openUserId = (int)($_POST['open_user'] ?? 0);
+
+        if ($returnTo !== '' && preg_match('/^[A-Za-z0-9_-]+$/', $returnTo)) {
+            $redirectTarget = 'dashboard.php'
+                . ($openUserId > 0 ? ('?open_user=' . $openUserId) : '')
+                . '#' . $returnTo;
+        }
+    }
 
     if ($databaseNotice !== '' || !isset($pdo)) {
         auth_flash_set('dashboard_error', 'Unable to update your booking right now because the database is unavailable.');
@@ -68,6 +89,151 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         switch ($action) {
+            case 'admin_update_user_phone':
+                if (!auth_is_admin()) {
+                    auth_flash_set('dashboard_error', 'Admin access required to update user details.');
+                    break;
+                }
+
+                $targetUserId = (int)($_POST['user_id'] ?? 0);
+                $phone = trim((string)($_POST['phone'] ?? ''));
+                $phone = $phone === '' ? null : $phone;
+
+                if ($targetUserId <= 0) {
+                    auth_flash_set('dashboard_error', 'Invalid user selected.');
+                    break;
+                }
+
+                if ($phone !== null && app_string_length($phone) > 50) {
+                    auth_flash_set('dashboard_error', 'Phone number must be 50 characters or fewer.');
+                    break;
+                }
+
+                $stmt = $pdo->prepare('UPDATE users SET phone = ? WHERE id = ?');
+                $stmt->execute([$phone, $targetUserId]);
+                auth_flash_set('dashboard_notice', 'User phone number updated.');
+                break;
+
+            case 'admin_delete_user':
+                if (!auth_is_admin()) {
+                    auth_flash_set('dashboard_error', 'Admin access required to delete users.');
+                    break;
+                }
+
+                $targetUserId = (int)($_POST['user_id'] ?? 0);
+                if ($targetUserId <= 0) {
+                    auth_flash_set('dashboard_error', 'Invalid user selected.');
+                    break;
+                }
+
+                if ($targetUserId === $userId) {
+                    auth_flash_set('dashboard_error', 'You cannot delete your own admin account.');
+                    break;
+                }
+
+                $checkStmt = $pdo->prepare('SELECT id, COALESCE(is_admin, 0) AS is_admin FROM users WHERE id = ? LIMIT 1');
+                $checkStmt->execute([$targetUserId]);
+                $target = $checkStmt->fetch();
+
+                if (!$target) {
+                    auth_flash_set('dashboard_error', 'That user could not be found.');
+                    break;
+                }
+
+                if ((int)($target['is_admin'] ?? 0) === 1) {
+                    auth_flash_set('dashboard_error', 'Admin accounts cannot be deleted from this dashboard.');
+                    break;
+                }
+
+                $deleteStmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
+                $deleteStmt->execute([$targetUserId]);
+                auth_flash_set('dashboard_notice', 'User account deleted.');
+                break;
+
+            case 'admin_delete_booking':
+                if (!auth_is_admin()) {
+                    auth_flash_set('dashboard_error', 'Admin access required to delete bookings.');
+                    break;
+                }
+
+                $bookingId = (int)($_POST['booking_id'] ?? 0);
+                if ($bookingId <= 0) {
+                    auth_flash_set('dashboard_error', 'Invalid booking selected.');
+                    break;
+                }
+
+                $deleteStmt = $pdo->prepare('DELETE FROM bookings WHERE id = ?');
+                $deleteStmt->execute([$bookingId]);
+                auth_flash_set('dashboard_notice', 'Booking deleted.');
+                break;
+
+            case 'admin_update_booking':
+                if (!auth_is_admin()) {
+                    auth_flash_set('dashboard_error', 'Admin access required to update bookings.');
+                    break;
+                }
+
+                $bookingId = (int)($_POST['booking_id'] ?? 0);
+                $guestName = trim((string)($_POST['guest_name'] ?? ''));
+                $guestEmail = strtolower(trim((string)($_POST['guest_email'] ?? '')));
+                $guestPhone = trim((string)($_POST['guest_phone'] ?? ''));
+                $checkIn = trim((string)($_POST['check_in'] ?? ''));
+                $checkOut = trim((string)($_POST['check_out'] ?? ''));
+                $status = trim((string)($_POST['status'] ?? ''));
+
+                if ($bookingId <= 0) {
+                    auth_flash_set('dashboard_error', 'Invalid booking selected.');
+                    break;
+                }
+
+                $allowedStatuses = ['Confirmed', 'Pending', 'Cancelled'];
+                if (!in_array($status, $allowedStatuses, true)) {
+                    $status = 'Confirmed';
+                }
+
+                if ($guestEmail !== '' && !filter_var($guestEmail, FILTER_VALIDATE_EMAIL)) {
+                    auth_flash_set('dashboard_error', 'Please enter a valid guest email address.');
+                    break;
+                }
+
+                $stmt = $pdo->prepare('SELECT id, nights FROM bookings WHERE id = ? LIMIT 1');
+                $stmt->execute([$bookingId]);
+                $existing = $stmt->fetch();
+                if (!$existing) {
+                    auth_flash_set('dashboard_error', 'That booking could not be found.');
+                    break;
+                }
+
+                $nights = (int)($existing['nights'] ?? 1);
+                $checkInDate = DateTimeImmutable::createFromFormat('Y-m-d', $checkIn);
+                $checkOutDate = DateTimeImmutable::createFromFormat('Y-m-d', $checkOut);
+
+                if ($checkInDate && $checkOutDate && $checkInDate->format('Y-m-d') === $checkIn && $checkOutDate->format('Y-m-d') === $checkOut) {
+                    if ($checkOutDate > $checkInDate) {
+                        $diffDays = (int)$checkInDate->diff($checkOutDate)->days;
+                        $nights = max(1, $diffDays);
+                    }
+                }
+
+                $updateStmt = $pdo->prepare(
+                    'UPDATE bookings
+                     SET guest_name = ?, guest_email = ?, guest_phone = ?, check_in = ?, check_out = ?, status = ?, nights = ?
+                     WHERE id = ?'
+                );
+                $updateStmt->execute([
+                    $guestName === '' ? null : $guestName,
+                    $guestEmail === '' ? null : $guestEmail,
+                    $guestPhone === '' ? null : $guestPhone,
+                    $checkIn === '' ? null : $checkIn,
+                    $checkOut === '' ? null : $checkOut,
+                    $status,
+                    $nights,
+                    $bookingId,
+                ]);
+
+                auth_flash_set('dashboard_notice', 'Booking updated.');
+                break;
+
             case 'cancel_spa_booking':
                 $spaBookingId = (int)($_POST['spa_booking_id'] ?? 0);
                 $stmt = $pdo->prepare('SELECT id, status FROM spa_bookings WHERE id = ? AND user_id = ? LIMIT 1');
@@ -100,47 +266,133 @@ if (isset($pdo)) {
     try {
         $userId = auth_user_id();
 
-        try {
-            require_once __DIR__ . '/../app/includes/loyalty.php';
-            if ($userId !== null) {
-                $loyaltySnapshot = loyalty_get_user_snapshot($pdo, (int)$userId);
+        if (auth_is_admin()) {
+            try {
+                $usersStmt = $pdo->query(
+                    'SELECT id, full_name, email, phone, COALESCE(is_admin, 0) AS is_admin, created_at
+                     FROM users
+                     WHERE COALESCE(is_admin, 0) = 0
+                     ORDER BY created_at DESC, id DESC'
+                );
+                $adminUsers = $usersStmt->fetchAll();
+            } catch (Throwable $exception) {
+                // Fallback for older schemas: still hide the seeded admin account by email.
+                try {
+                    $usersStmt = $pdo->prepare(
+                        'SELECT id, full_name, email, phone, created_at
+                         FROM users
+                         WHERE email <> ?
+                         ORDER BY created_at DESC, id DESC'
+                    );
+                    $usersStmt->execute(['admin@horizonsands.test']);
+                    $adminUsers = $usersStmt->fetchAll();
+                } catch (Throwable $exception) {
+                    $adminUsers = [];
+                }
             }
-        } catch (Throwable $exception) {
-            $loyaltySnapshot = null;
+
+            try {
+                $bookingsStmt = $pdo->query(
+                    'SELECT id, user_id, room_name, guest_name, guest_email, guest_phone, check_in, check_out, nights, room_rate, total_price, status, created_at
+                     FROM bookings
+                     ORDER BY created_at DESC, id DESC'
+                );
+                $allBookings = $bookingsStmt->fetchAll();
+                foreach ($allBookings as $booking) {
+                    $bookingUserId = (int)($booking['user_id'] ?? 0);
+                    if (!isset($adminBookingsByUser[$bookingUserId])) {
+                        $adminBookingsByUser[$bookingUserId] = [];
+                    }
+                    $adminBookingsByUser[$bookingUserId][] = $booking;
+                }
+            } catch (Throwable $exception) {
+                $adminBookingsByUser = [];
+            }
+
+            try {
+                $spaBookingsStmt = $pdo->query(
+                    'SELECT id, user_id, treatment_name, treatment_date, treatment_time, guests, status, notes, created_at
+                     FROM spa_bookings
+                     ORDER BY treatment_date DESC, treatment_time DESC, id DESC'
+                );
+                $allSpaBookings = $spaBookingsStmt->fetchAll();
+                foreach ($allSpaBookings as $spaBooking) {
+                    $spaBookingUserId = (int)($spaBooking['user_id'] ?? 0);
+                    if (!isset($adminSpaBookingsByUser[$spaBookingUserId])) {
+                        $adminSpaBookingsByUser[$spaBookingUserId] = [];
+                    }
+                    $adminSpaBookingsByUser[$spaBookingUserId][] = $spaBooking;
+                }
+            } catch (Throwable $exception) {
+                $adminSpaBookingsByUser = [];
+            }
+
+            try {
+                $reviewsStmt = $pdo->query(
+                    'SELECT id, user_id, user_name, rating, title, body, created_at
+                     FROM reviews
+                     ORDER BY created_at DESC, id DESC'
+                );
+                $allReviews = $reviewsStmt->fetchAll();
+                foreach ($allReviews as $review) {
+                    $reviewUserId = (int)($review['user_id'] ?? 0);
+                    if (!isset($adminReviewsByUser[$reviewUserId])) {
+                        $adminReviewsByUser[$reviewUserId] = [];
+                    }
+                    $adminReviewsByUser[$reviewUserId][] = $review;
+                }
+            } catch (Throwable $exception) {
+                $adminReviewsByUser = [];
+            }
+
+            $summary = [
+                'room_bookings' => array_sum(array_map('count', $adminBookingsByUser)),
+                'spa_bookings' => array_sum(array_map('count', $adminSpaBookingsByUser)),
+                'reviews' => array_sum(array_map('count', $adminReviewsByUser)),
+            ];
+        } else {
+            try {
+                require_once __DIR__ . '/../app/includes/loyalty.php';
+                if ($userId !== null) {
+                    $loyaltySnapshot = loyalty_get_user_snapshot($pdo, (int)$userId);
+                }
+            } catch (Throwable $exception) {
+                $loyaltySnapshot = null;
+            }
+
+            $bookingStmt = $pdo->prepare(
+                'SELECT id, room_name, check_in, check_out, nights, room_rate, total_price, status, created_at
+                 FROM bookings
+                 WHERE user_id = ?
+                 ORDER BY created_at DESC, id DESC'
+            );
+            $bookingStmt->execute([$userId]);
+            $roomBookings = $bookingStmt->fetchAll();
+
+            $spaStmt = $pdo->prepare(
+                'SELECT id, treatment_name, treatment_date, treatment_time, guests, status, notes, created_at
+                 FROM spa_bookings
+                 WHERE user_id = ?
+                 ORDER BY treatment_date DESC, treatment_time DESC, id DESC'
+            );
+            $spaStmt->execute([$userId]);
+            $spaBookings = $spaStmt->fetchAll();
+
+            $reviewStmt = $pdo->prepare(
+                'SELECT id, rating, title, body, created_at
+                 FROM reviews
+                 WHERE user_id = ?
+                 ORDER BY created_at DESC, id DESC'
+            );
+            $reviewStmt->execute([$userId]);
+            $reviews = $reviewStmt->fetchAll();
+
+            $summary = [
+                'room_bookings' => count($roomBookings),
+                'spa_bookings' => count($spaBookings),
+                'reviews' => count($reviews),
+            ];
         }
-
-        $bookingStmt = $pdo->prepare(
-            'SELECT id, room_name, check_in, check_out, nights, room_rate, total_price, status, created_at
-             FROM bookings
-             WHERE user_id = ?
-             ORDER BY created_at DESC, id DESC'
-        );
-        $bookingStmt->execute([$userId]);
-        $roomBookings = $bookingStmt->fetchAll();
-
-        $spaStmt = $pdo->prepare(
-            'SELECT id, treatment_name, treatment_date, treatment_time, guests, status, notes, created_at
-             FROM spa_bookings
-             WHERE user_id = ?
-             ORDER BY treatment_date DESC, treatment_time DESC, id DESC'
-        );
-        $spaStmt->execute([$userId]);
-        $spaBookings = $spaStmt->fetchAll();
-
-        $reviewStmt = $pdo->prepare(
-            'SELECT id, rating, title, body, created_at
-             FROM reviews
-             WHERE user_id = ?
-             ORDER BY created_at DESC, id DESC'
-        );
-        $reviewStmt->execute([$userId]);
-        $reviews = $reviewStmt->fetchAll();
-
-        $summary = [
-            'room_bookings' => count($roomBookings),
-            'spa_bookings' => count($spaBookings),
-            'reviews' => count($reviews),
-        ];
     } catch (Throwable $exception) {
         $databaseNotice = 'Your account is active, but the dashboard database tables are not available right now. Please check the schema and your MySQL connection.';
     }
@@ -159,9 +411,13 @@ include __DIR__ . '/../app/includes/navbar.php';
             <div class="dashboard-hero-card reveal-up">
                 <div class="row g-4 align-items-end">
                     <div class="col-lg-8">
-                        <span class="section-eyebrow text-white">User dashboard</span>
+                        <span class="section-eyebrow text-white"><?php echo $isAdmin ? 'Admin dashboard' : 'User dashboard'; ?></span>
                         <h1 class="dashboard-title">Welcome back, <?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></h1>
-                        <p class="dashboard-subtitle mb-0">Manage your room stays, spa reservations, and review activity from one place.</p>
+                        <p class="dashboard-subtitle mb-0">
+                            <?php echo $isAdmin
+                                ? 'Manage guest accounts and room bookings from one place.'
+                                : 'Manage your room stays, spa reservations, and review activity from one place.'; ?>
+                        </p>
                     </div>
                     <div class="col-lg-4">
                         <div class="dashboard-user-meta">
@@ -210,6 +466,83 @@ include __DIR__ . '/../app/includes/navbar.php';
             <?php endif; ?>
 
             <div class="dashboard-grid">
+                <?php if ($isAdmin): ?>
+                    <section id="admin-users" class="content-card dashboard-panel reveal-up">
+                        <div class="dashboard-panel-head">
+                            <div>
+                                <p class="dashboard-panel-label">Administration</p>
+                                <h2 class="dashboard-panel-title">User accounts & bookings</h2>
+                            </div>
+                        </div>
+
+                        <?php if (!$adminUsers): ?>
+                            <div class="dashboard-empty">
+                                No users found, or admin tables are unavailable.
+                            </div>
+                        <?php else: ?>
+                            <div class="dashboard-list">
+                                <?php foreach ($adminUsers as $user): ?>
+                                    <?php
+                                        $uId = (int)($user['id'] ?? 0);
+                                        $uName = (string)($user['full_name'] ?? '');
+                                        $uEmail = (string)($user['email'] ?? '');
+                                        $uPhone = (string)($user['phone'] ?? '');
+                                        $uIsAdmin = (int)($user['is_admin'] ?? 0) === 1;
+                                        $userBookings = $adminBookingsByUser[$uId] ?? [];
+                                        $userSpaBookings = $adminSpaBookingsByUser[$uId] ?? [];
+                                        $userReviews = $adminReviewsByUser[$uId] ?? [];
+                                        $totalBookings = count($userBookings) + count($userSpaBookings);
+                                    ?>
+
+                                    <article id="admin-user-<?php echo $uId; ?>" class="dashboard-entry">
+                                        <div class="dashboard-entry-top">
+                                            <div>
+                                                <h3><?php echo htmlspecialchars($uName !== '' ? $uName : $uEmail, ENT_QUOTES, 'UTF-8'); ?></h3>
+                                                <p class="dashboard-entry-meta mb-0"><?php echo htmlspecialchars($uEmail, ENT_QUOTES, 'UTF-8'); ?></p>
+                                            </div>
+                                            <?php if ($uIsAdmin): ?>
+                                                <span class="badge rounded-pill text-bg-dark">Admin</span>
+                                            <?php else: ?>
+                                                <span class="badge rounded-pill text-bg-secondary">User</span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <div class="dashboard-entry-grid">
+                                            <div><span class="dashboard-entry-label">User ID</span><strong><?php echo $uId; ?></strong></div>
+                                            <div><span class="dashboard-entry-label">Phone</span><strong><?php echo htmlspecialchars($uPhone !== '' ? $uPhone : '—', ENT_QUOTES, 'UTF-8'); ?></strong></div>
+                                            <div><span class="dashboard-entry-label">Bookings</span><strong><?php echo $totalBookings; ?></strong></div>
+                                            <div><span class="dashboard-entry-label">Created</span><strong><?php echo htmlspecialchars((string)($user['created_at'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong></div>
+                                        </div>
+
+                                        <div class="dashboard-entry-actions">
+                                            <form action="dashboard.php#admin-users" method="POST" class="dashboard-inline-form">
+                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('dashboard_action_form'), ENT_QUOTES, 'UTF-8'); ?>">
+                                                <input type="hidden" name="action" value="admin_update_user_phone">
+                                                <input type="hidden" name="user_id" value="<?php echo $uId; ?>">
+                                                <div class="input-group" style="max-width: 420px;">
+                                                    <input class="form-control" type="text" name="phone" placeholder="Phone" value="<?php echo htmlspecialchars($uPhone, ENT_QUOTES, 'UTF-8'); ?>">
+                                                    <button type="submit" class="btn btn-gold btn-sm">Update phone</button>
+                                                </div>
+                                            </form>
+
+                                            <a class="btn btn-gold btn-sm" href="admin_user_details.php?user_id=<?php echo $uId; ?>">View more details</a>
+
+                                            <?php if (!$uIsAdmin): ?>
+                                                <form action="dashboard.php#admin-users" method="POST" class="dashboard-inline-form">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('dashboard_action_form'), ENT_QUOTES, 'UTF-8'); ?>">
+                                                    <input type="hidden" name="action" value="admin_delete_user">
+                                                    <input type="hidden" name="user_id" value="<?php echo $uId; ?>">
+                                                    <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm('Delete this user account? This will also remove spa bookings and may detach room bookings.');">Delete user</button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
+
+                                    </article>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </section>
+                <?php else: ?>
                 <section class="content-card dashboard-panel reveal-up">
                     <div class="dashboard-panel-head">
                         <div>
@@ -449,6 +782,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                         </div>
                     <?php endif; ?>
                 </section>
+                <?php endif; ?>
             </div>
         </div>
     </section>

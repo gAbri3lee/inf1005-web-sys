@@ -12,10 +12,36 @@ CREATE TABLE IF NOT EXISTS users (
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
+  phone VARCHAR(50) DEFAULT NULL,
+  is_admin TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET @users_phone_exists := (
+  SELECT COUNT(*)
+  FROM information_schema.columns
+  WHERE table_schema = DATABASE()
+    AND table_name = 'users'
+    AND column_name = 'phone'
+);
+SET @users_phone_sql := IF(@users_phone_exists = 0, 'ALTER TABLE users ADD COLUMN phone VARCHAR(50) DEFAULT NULL AFTER password', 'SELECT 1');
+PREPARE users_phone_stmt FROM @users_phone_sql;
+EXECUTE users_phone_stmt;
+DEALLOCATE PREPARE users_phone_stmt;
+
+SET @users_is_admin_exists := (
+  SELECT COUNT(*)
+  FROM information_schema.columns
+  WHERE table_schema = DATABASE()
+    AND table_name = 'users'
+    AND column_name = 'is_admin'
+);
+SET @users_is_admin_sql := IF(@users_is_admin_exists = 0, 'ALTER TABLE users ADD COLUMN is_admin TINYINT(1) NOT NULL DEFAULT 0 AFTER phone', 'SELECT 1');
+PREPARE users_is_admin_stmt FROM @users_is_admin_sql;
+EXECUTE users_is_admin_stmt;
+DEALLOCATE PREPARE users_is_admin_stmt;
 
 DROP TABLE IF EXISTS room_images;
 DROP TABLE IF EXISTS room_features;
