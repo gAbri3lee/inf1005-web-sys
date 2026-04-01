@@ -43,6 +43,10 @@ if (!$dtIn || !$dtOut) {
 
 $nights = 0;
 $total = 0.0;
+$discountRate = 0.0;
+$discountAmount = 0.0;
+$discountedTotal = 0.0;
+$tierLabel = '';
 
 if (!$errors) {
 	if ($dtOut <= $dtIn) {
@@ -51,6 +55,24 @@ if (!$errors) {
 		$nights = max(0, (int)$dtIn->diff($dtOut)->days);
 		$rate = (float)($room['price_per_night'] ?? 0);
 		$total = $rate * $nights;
+		$discountedTotal = $total;
+
+		try {
+			require_once __DIR__ . '/../app/includes/db.php';
+			require_once __DIR__ . '/../app/includes/loyalty.php';
+			$snapshot = loyalty_get_user_snapshot($pdo, auth_user_id() ?? 0);
+			$discountRate = (float)($snapshot['discount_rate'] ?? 0);
+			$tierLabel = (string)($snapshot['tier_name'] ?? '');
+			if ($discountRate > 0.000001) {
+				$discountAmount = $total * $discountRate;
+				$discountedTotal = max(0.0, $total - $discountAmount);
+			}
+		} catch (Throwable $exception) {
+			$discountRate = 0.0;
+			$discountAmount = 0.0;
+			$discountedTotal = $total;
+			$tierLabel = '';
+		}
 
 		$_SESSION['pending_booking'] = [
 			'room_id' => (int)($room['id'] ?? 0),
@@ -59,6 +81,10 @@ if (!$errors) {
 			'nights' => $nights,
 			'rate' => $rate,
 			'total' => $total,
+			'discount_rate' => $discountRate,
+			'discount_amount' => $discountAmount,
+			'discounted_total' => $discountedTotal,
+			'tier_name' => $tierLabel,
 		];
 	}
 }
@@ -128,10 +154,21 @@ include __DIR__ . '/../app/includes/navbar.php';
 										<span class="text-muted">Rate / night</span>
 										<span>$<?php echo number_format((float)($room['price_per_night'] ?? 0), 2); ?></span>
 									</div>
-									<div class="d-flex justify-content-between">
-										<span class="fw-bold">Total</span>
-										<span class="fw-bold">$<?php echo number_format($total, 2); ?></span>
-									</div>
+									<?php if ($discountRate > 0.000001): ?>
+										<div class="d-flex justify-content-between">
+											<span class="text-muted">Loyalty discount<?php echo $tierLabel !== '' ? ' (' . htmlspecialchars($tierLabel, ENT_QUOTES, 'UTF-8') . ')' : ''; ?></span>
+											<span>-$<?php echo number_format($discountAmount, 2); ?></span>
+										</div>
+										<div class="d-flex justify-content-between">
+											<span class="fw-bold">Total</span>
+											<span class="fw-bold">$<?php echo number_format($discountedTotal, 2); ?></span>
+										</div>
+									<?php else: ?>
+										<div class="d-flex justify-content-between">
+											<span class="fw-bold">Total</span>
+											<span class="fw-bold">$<?php echo number_format($total, 2); ?></span>
+										</div>
+									<?php endif; ?>
 								</div>
 
 								<div class="d-grid gap-2 mt-4">

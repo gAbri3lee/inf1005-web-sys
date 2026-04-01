@@ -84,6 +84,7 @@ section {
 
 .btn-nav-action,
 .btn-gold,
+.btn-back-dashboard,
 .btn-outline-light,
 .hero-quick-link,
 .cta-button {
@@ -91,6 +92,23 @@ section {
     padding: 12px 22px;
     font-weight: 600;
     transition: var(--transition);
+}
+
+.btn-back-dashboard {
+    background: transparent;
+    color: var(--text-dark);
+    border: 1px solid var(--sunset-gold);
+}
+
+.btn-back-dashboard:hover {
+    transform: translateY(-2px);
+    background: var(--sunset-gold);
+    color: var(--text-dark);
+    box-shadow: 0 10px 22px rgba(184, 134, 69, 0.18);
+}
+
+.btn-back-dashboard.btn-sm {
+    padding: 0.55rem 1.05rem;
 }
 
 .btn-gold {

@@ -35,6 +35,13 @@
 	background: rgba(31, 41, 55, 0.12);
 }
 
+.site-navbar {
+	background: rgba(244, 214, 220, 0.55);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	box-shadow: 0 10px 30px rgba(120, 90, 100, 0.12);
+}
+
 .navbar-brand {
 	color: #4f2f38 !important;
 }

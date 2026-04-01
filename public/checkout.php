@@ -190,9 +190,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errors) {
             ':check_out' => (string)($pending['check_out'] ?? ''),
             ':nights' => (int)($pending['nights'] ?? 1),
             ':room_rate' => (float)($pending['rate'] ?? 0),
-            ':total_price' => (float)($pending['total'] ?? 0),
+            ':total_price' => (float)($pending['discounted_total'] ?? ($pending['total'] ?? 0)),
             ':status' => 'Confirmed',
         ]);
+
+        try {
+            require_once __DIR__ . '/../app/includes/loyalty.php';
+            $userId = auth_user_id() ?? 0;
+            if ($userId > 0) {
+                loyalty_refresh_user($pdo, $userId);
+            }
+        } catch (Throwable $exception) {
+            // Loyalty refresh is best-effort.
+        }
 
         unset($_SESSION['pending_booking']);
         csrf_refresh('checkout_form');
@@ -239,6 +249,10 @@ include __DIR__ . '/../app/includes/navbar.php';
                         $nights = (int)($pending['nights'] ?? 0);
                         $rate = (float)($pending['rate'] ?? 0);
                         $total = (float)($pending['total'] ?? 0);
+                        $discountRate = (float)($pending['discount_rate'] ?? 0);
+                        $discountAmount = (float)($pending['discount_amount'] ?? 0);
+                        $discountedTotal = (float)($pending['discounted_total'] ?? $total);
+                        $tierName = trim((string)($pending['tier_name'] ?? ''));
                     ?>
 
                     <div class="row g-4">
@@ -253,7 +267,13 @@ include __DIR__ . '/../app/includes/navbar.php';
                                     <div class="d-flex justify-content-between"><span class="text-muted">Nights</span><span><?php echo $nights; ?></span></div>
                                     <hr class="my-2">
                                     <div class="d-flex justify-content-between"><span class="text-muted">Rate / night</span><span>$<?php echo number_format($rate, 2); ?></span></div>
-                                    <div class="d-flex justify-content-between"><span class="fw-bold">Total</span><span class="fw-bold">$<?php echo number_format($total, 2); ?></span></div>
+                                    <?php if ($discountRate > 0.000001 && $discountAmount > 0.009): ?>
+                                        <div class="d-flex justify-content-between"><span class="text-muted">Subtotal</span><span>$<?php echo number_format($total, 2); ?></span></div>
+                                        <div class="d-flex justify-content-between"><span class="text-muted">Loyalty discount<?php echo $tierName !== '' ? ' (' . htmlspecialchars($tierName, ENT_QUOTES, 'UTF-8') . ')' : ''; ?></span><span>-$<?php echo number_format($discountAmount, 2); ?></span></div>
+                                        <div class="d-flex justify-content-between"><span class="fw-bold">Total</span><span class="fw-bold">$<?php echo number_format($discountedTotal, 2); ?></span></div>
+                                    <?php else: ?>
+                                        <div class="d-flex justify-content-between"><span class="fw-bold">Total</span><span class="fw-bold">$<?php echo number_format($total, 2); ?></span></div>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div class="d-grid gap-2 mt-4">

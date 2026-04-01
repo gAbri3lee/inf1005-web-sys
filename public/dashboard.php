@@ -11,6 +11,7 @@ $databaseNotice = '';
 $roomBookings = [];
 $spaBookings = [];
 $reviews = [];
+$loyaltySnapshot = null;
 $summary = [
     'room_bookings' => 0,
     'spa_bookings' => 0,
@@ -98,6 +99,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (isset($pdo)) {
     try {
         $userId = auth_user_id();
+
+        try {
+            require_once __DIR__ . '/../app/includes/loyalty.php';
+            if ($userId !== null) {
+                $loyaltySnapshot = loyalty_get_user_snapshot($pdo, (int)$userId);
+            }
+        } catch (Throwable $exception) {
+            $loyaltySnapshot = null;
+        }
 
         $bookingStmt = $pdo->prepare(
             'SELECT id, room_name, check_in, check_out, nights, room_rate, total_price, status, created_at
@@ -203,6 +213,78 @@ include __DIR__ . '/../app/includes/navbar.php';
                 <section class="content-card dashboard-panel reveal-up">
                     <div class="dashboard-panel-head">
                         <div>
+                            <p class="dashboard-panel-label">Loyalty program</p>
+                            <h2 class="dashboard-panel-title">Your loyalty status</h2>
+                        </div>
+                        <a class="btn btn-gold btn-sm" href="loyalty.php">View details</a>
+                    </div>
+
+                    <?php if (!$loyaltySnapshot): ?>
+                        <div class="dashboard-empty">
+                            Loyalty details are unavailable right now. Please ensure the loyalty tables exist in your schema.
+                        </div>
+                    <?php else: ?>
+                        <?php
+                        $totalSpent = (float)($loyaltySnapshot['total_spent'] ?? 0);
+                        $remainingToNext = (float)($loyaltySnapshot['remaining_to_next'] ?? 0);
+                        $tierName = (string)($loyaltySnapshot['tier_name'] ?? '');
+                        $discountLabel = (string)($loyaltySnapshot['discount_label'] ?? '');
+                        $nextTier = is_array($loyaltySnapshot['next_tier'] ?? null) ? $loyaltySnapshot['next_tier'] : null;
+                        $nextTierName = $nextTier ? (string)($nextTier['tier_name'] ?? '') : '';
+                        $nextTierMin = $nextTier ? (float)($nextTier['min_spending'] ?? 0) : 0.0;
+                        $progressPercent = $nextTierMin > 0 ? min(100.0, max(0.0, ($totalSpent / $nextTierMin) * 100.0)) : 100.0;
+                        ?>
+
+                        <div class="dashboard-loyalty">
+                            <div class="dashboard-loyalty-top">
+                                <div class="dashboard-loyalty-tier">
+                                    <span class="dashboard-entry-label">Current tier</span>
+                                    <div class="dashboard-loyalty-tier-row">
+                                        <strong class="dashboard-loyalty-tier-name"><?php echo htmlspecialchars($tierName, ENT_QUOTES, 'UTF-8'); ?></strong>
+                                        <?php if ($discountLabel !== ''): ?>
+                                            <span class="dashboard-loyalty-pill" aria-label="Current discount">
+                                                <?php echo htmlspecialchars($discountLabel, ENT_QUOTES, 'UTF-8'); ?> discount
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-loyalty-highlights" aria-label="Loyalty summary">
+                                    <div class="dashboard-loyalty-highlight">
+                                        <span class="dashboard-entry-label">Total spent</span>
+                                        <strong>$<?php echo number_format($totalSpent, 2); ?></strong>
+                                    </div>
+                                    <div class="dashboard-loyalty-highlight">
+                                        <span class="dashboard-entry-label">Left for next tier</span>
+                                        <strong><?php echo $nextTier ? ('$' . number_format($remainingToNext, 2)) : '—'; ?></strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <?php if ($nextTier): ?>
+                                <div class="dashboard-loyalty-progress" aria-label="Progress to next tier">
+                                    <div class="dashboard-loyalty-progress-head">
+                                        <span class="dashboard-loyalty-progress-label">
+                                            Progress to <?php echo htmlspecialchars($nextTierName, ENT_QUOTES, 'UTF-8'); ?> tier
+                                        </span>
+                                        <span class="dashboard-loyalty-progress-meta">
+                                            $<?php echo number_format($totalSpent, 2); ?> / $<?php echo number_format($nextTierMin, 2); ?>
+                                        </span>
+                                    </div>
+                                    <div class="dashboard-loyalty-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?php echo (int)round($progressPercent); ?>">
+                                        <span class="dashboard-loyalty-progress-fill" style="width: <?php echo (float)$progressPercent; ?>%;"></span>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <p class="dashboard-loyalty-message"><?php echo htmlspecialchars((string)$loyaltySnapshot['message'], ENT_QUOTES, 'UTF-8'); ?></p>
+                        </div>
+                    <?php endif; ?>
+                </section>
+
+                <section class="content-card dashboard-panel reveal-up">
+                    <div class="dashboard-panel-head">
+                        <div>
                             <p class="dashboard-panel-label">Quick actions</p>
                             <h2 class="dashboard-panel-title">Plan your next experience</h2>
                         </div>
@@ -238,7 +320,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <p class="dashboard-panel-label">Room bookings</p>
                             <h2 class="dashboard-panel-title">Recent stay activity</h2>
                         </div>
-                        <a class="btn btn-outline-secondary btn-sm" href="room_bookings.php">Manage room bookings</a>
+                        <a class="btn btn-gold btn-sm" href="room_bookings.php">Manage room bookings</a>
                     </div>
 
                     <?php if (!$recentRoomBookings): ?>
@@ -273,7 +355,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                         <?php if (count($roomBookings) > count($recentRoomBookings)): ?>
                             <div class="dashboard-entry-actions">
-                                <a class="btn btn-outline-secondary btn-sm" href="room_bookings.php">View all bookings</a>
+                                <a class="btn btn-gold btn-sm" href="room_bookings.php">View all bookings</a>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -285,7 +367,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <p class="dashboard-panel-label">Spa reservations</p>
                             <h2 class="dashboard-panel-title">Upcoming wellness sessions</h2>
                         </div>
-                        <a class="btn btn-outline-secondary btn-sm" href="spa_booking.php">Book a treatment</a>
+                        <a class="btn btn-gold btn-sm" href="spa_booking.php">Book a treatment</a>
                     </div>
 
                     <?php if (!$spaBookings): ?>
@@ -323,7 +405,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('dashboard_action_form'), ENT_QUOTES, 'UTF-8'); ?>">
                                                 <input type="hidden" name="action" value="cancel_spa_booking">
                                                 <input type="hidden" name="spa_booking_id" value="<?php echo (int)($spaBooking['id'] ?? 0); ?>">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Cancel this spa treatment?');">Cancel treatment</button>
+                                                <button type="submit" class="btn btn-gold btn-sm" onclick="return confirm('Cancel this spa treatment?');">Cancel treatment</button>
                                             </form>
                                         <?php else: ?>
                                             <p class="dashboard-status-note mb-0">Cancelled spa treatments remain here for your records.</p>
@@ -341,7 +423,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <p class="dashboard-panel-label">Review activity</p>
                             <h2 class="dashboard-panel-title">Your published reviews</h2>
                         </div>
-                        <a class="btn btn-outline-secondary btn-sm" href="reviews.php">Open reviews page</a>
+                        <a class="btn btn-gold btn-sm" href="reviews.php">Open reviews page</a>
                     </div>
 
                     <?php if (!$reviews): ?>
