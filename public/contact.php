@@ -84,7 +84,6 @@ include __DIR__ . '/../app/includes/navbar.php';
         <div class="container page-hero-content">
             <div class="row">
                 <div class="col-lg-8 col-xl-7 reveal-up">
-                    <span class="hero-tag">Contact Horizon Sands Bali</span>
                     <h1 class="page-hero-title">We are here to help before, during and after your stay.</h1>
                     <p class="page-hero-text">
                         Whether you are planning a reservation, arranging a special celebration or simply have a
