@@ -75,7 +75,7 @@ $hotelDetails = [
     ['label' => 'Accessibility', 'value' => 'Wheelchair access available, assistance on request'],
     ['label' => 'Hotel Type', 'value' => 'Luxury resort stay'],
     ['label' => 'Guest Convenience', 'value' => 'Concierge, luggage support, housekeeping'],
-    ['label' => 'Attractions', 'value' => 'Rental services available'],
+    ['label' => 'Attractions', 'href' => 'whats_happening.php', 'link_text' => 'View Latest Happenings Here!'],
 ];
 
 $fitnessDetails = [
@@ -243,7 +243,13 @@ $serviceGroups = [
                         <?php foreach ($hotelDetails as $detail): ?>
                             <div class="detail-item">
                                 <dt><?php echo e($detail['label']); ?></dt>
-                                <dd><?php echo e($detail['value']); ?></dd>
+                                <dd>
+                                    <?php if (isset($detail['href'], $detail['link_text'])): ?>
+                                        <a href="<?php echo e($detail['href']); ?>" class="detail-link"><?php echo e($detail['link_text']); ?></a>
+                                    <?php else: ?>
+                                        <?php echo e($detail['value']); ?>
+                                    <?php endif; ?>
+                                </dd>
                             </div>
                         <?php endforeach; ?>
                     </dl>
