@@ -864,3 +864,110 @@ section {
         padding: 60px 22px;
     }
 }
+
+.voice-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.voice-nav-toast,
+.voice-nav-button {
+    pointer-events: auto;
+}
+
+.voice-nav-toast {
+    max-width: min(320px, calc(100vw - 32px));
+    padding: 12px 16px;
+    border-radius: 18px;
+    background: rgba(20, 17, 15, 0.92);
+    color: #fff7ef;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+.voice-nav-button {
+    width: 58px;
+    height: 58px;
+    border: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #d8b56a, #b88645);
+    color: #1a1714;
+    box-shadow: 0 18px 38px rgba(112, 76, 32, 0.28);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.voice-nav-button:hover,
+.voice-nav-button:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 42px rgba(112, 76, 32, 0.34);
+}
+
+.voice-nav-button:focus-visible {
+    outline: 3px solid rgba(255, 240, 210, 0.9);
+    outline-offset: 3px;
+}
+
+.voice-nav-button.is-listening {
+    background: linear-gradient(135deg, #f29d7a, #d56b5d);
+    color: #fffaf4;
+    animation: voice-nav-pulse 1.4s ease-in-out infinite;
+}
+
+.voice-nav-button.is-busy {
+    background: linear-gradient(135deg, #c8b7a1, #8f7d6b);
+    color: #fffaf4;
+}
+
+.voice-nav-button.is-unsupported {
+    background: linear-gradient(135deg, #c7c1b8, #a79e93);
+    color: #433a33;
+    opacity: 0.92;
+}
+
+.voice-nav-icon {
+    width: 24px;
+    height: 24px;
+}
+
+@keyframes voice-nav-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 18px 38px rgba(213, 107, 93, 0.30);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 22px 44px rgba(213, 107, 93, 0.42);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .voice-nav {
+        right: 16px;
+        bottom: 16px;
+    }
+
+    .voice-nav-button {
+        width: 54px;
+        height: 54px;
+    }
+
+    .voice-nav-toast {
+        max-width: min(280px, calc(100vw - 24px));
+        font-size: 0.92rem;
+    }
+}

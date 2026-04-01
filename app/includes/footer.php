@@ -94,6 +94,22 @@
     </div>
 </footer>
 
+<div class="voice-nav" aria-live="polite" aria-atomic="true">
+    <div id="voiceNavToast" class="voice-nav-toast" role="status" hidden></div>
+    <button
+        type="button"
+        id="voiceNavButton"
+        class="voice-nav-button"
+        aria-label="Open voice navigation"
+        title="Voice navigation"
+    >
+        <svg class="voice-nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 1 0 6 0V6a3 3 0 0 0-3-3Z" fill="currentColor"/>
+            <path d="M18 11a1 1 0 1 1 2 0 8 8 0 0 1-7 7.94V21h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-2.06A8 8 0 0 1 4 11a1 1 0 1 1 2 0 6 6 0 0 0 12 0Z" fill="currentColor"/>
+        </svg>
+    </button>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="assets/js/main.js"></script>
 

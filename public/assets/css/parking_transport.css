@@ -370,11 +370,14 @@ body,
 .info-label {
     color: #7a6148;
     font-weight: 600;
+    line-height: 1.45;
 }
 
 .info-value {
     color: #2f261f;
     text-align: right;
+    line-height: 1.55;
+    text-wrap: pretty;
 }
 
 .mini-alert {
@@ -605,7 +608,7 @@ body,
 
     .info-row {
         flex-direction: column;
-        align-items: flex-start;
+        gap: 6px;
     }
 
     .info-value {
