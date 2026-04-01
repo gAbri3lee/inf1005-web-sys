@@ -10,11 +10,10 @@ include __DIR__ . '/../app/includes/navbar.php';
         <div class="container">
             <div class="row g-4 align-items-center">
                 <div class="col-lg-7">
-                    <span class="transport-eyebrow">Arrival Guide</span>
                     <h1 class="transport-title">Parking &amp; Transport</h1>
                     <p class="transport-subtitle mb-0">
                         Everything guests need for a smooth arrival — parking options, airport transfers,
-                        public transport access, and nearby travel times.
+                        local travel notes, and nearby travel times.
                     </p>
                 </div>
 
@@ -43,13 +42,13 @@ include __DIR__ . '/../app/includes/navbar.php';
     <section class="transport-main-section">
         <div class="container">
 
-            <div class="transport-info-card">
+            <div id="getting-to-horizon" class="transport-info-card">
                 <div class="row g-4 align-items-center">
                     <div class="col-lg-6">
                         <h2 class="section-title mb-2">Getting to Horizon Sands Bali</h2>
                         <p class="section-text mb-0">
-                            Choose the most convenient option based on how you are arriving. Use the tabs below
-                            to view key details for parking, airport transfers, and public transport.
+                            Choose the most convenient option based on how you are arriving. Check out the
+                            information below to view details for parking, airport transfers, and local travel.
                         </p>
                     </div>
                     <div class="col-lg-6">
@@ -57,7 +56,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <span class="address-label">Hotel Address</span>
                             <div class="address-line-wrap">
                                 <p id="hotelAddress" class="hotel-address mb-0">
-                                    Horizon Sands Bali, 123 Marina View, Singapore 018960
+                                    Horizon Sands Bali, Sunset Bay Drive, Azure Coast, Bali 80361
                                 </p>
                                 <button type="button" id="copyAddressBtn" class="btn btn-outline-dark rounded-pill btn-sm">
                                     Copy Address
@@ -102,15 +101,15 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="col-lg-4">
                     <div class="feature-card h-100">
-                        <div class="feature-icon">🚆</div>
-                        <h3>Public Transport</h3>
+                        <div class="feature-icon">🚕</div>
+                        <h3>Local Travel</h3>
                         <p>
-                            The hotel is well-connected to nearby MRT stations and bus routes, making city travel simple and efficient.
+                            Bali is easiest to explore by ride-hailing, private driver, or arranged harbour transfer depending on your plans.
                         </p>
                         <ul class="feature-list">
-                            <li>Nearby MRT access</li>
-                            <li>Bus connectivity</li>
-                            <li>Quick city links</li>
+                            <li>Ride-hailing friendly</li>
+                            <li>Private driver options</li>
+                            <li>Harbour and ferry links</li>
                         </ul>
                     </div>
                 </div>
@@ -120,7 +119,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                 <div class="transport-tab-buttons" id="transportTabButtons">
                     <button type="button" class="transport-tab-btn active" data-target="parkingPanel">Parking</button>
                     <button type="button" class="transport-tab-btn" data-target="airportPanel">Airport Transfer</button>
-                    <button type="button" class="transport-tab-btn" data-target="publicPanel">Public Transport</button>
+                    <button type="button" class="transport-tab-btn" data-target="publicPanel">Local Travel</button>
                 </div>
 
                 <div class="transport-tab-content">
@@ -166,7 +165,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         <li>Use the main hotel driveway for arrival</li>
                                         <li>Lobby access is clearly signposted</li>
                                         <li>Parking availability may vary during peak periods</li>
-                                        <li>Contact the hotel in advance for special assistance</li>
+                                        <li>Contact the hotel in advance for accessible or oversized-vehicle support</li>
                                     </ul>
                                 </div>
                             </div>
@@ -186,19 +185,19 @@ include __DIR__ . '/../app/includes/navbar.php';
                                     <div class="info-grid">
                                         <div class="info-row">
                                             <span class="info-label">Booking</span>
-                                            <span class="info-value">Arranged through concierge or front desk</span>
+                                            <span class="info-value">Arranged through concierge or front desk before arrival</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Suitable For</span>
-                                            <span class="info-value">Late-night arrivals, families, premium transfers</span>
+                                            <span class="info-value">Airport arrivals, families, evening flights, premium transfers</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Recommendation</span>
-                                            <span class="info-value">Reserve before arrival for smoother pickup coordination</span>
+                                            <span class="info-value">Reserve before arrival for smoother Ngurah Rai pickup coordination</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Support</span>
-                                            <span class="info-value">24/7 front desk assistance available</span>
+                                            <span class="info-value">24/7 front desk assistance and arrival guidance</span>
                                         </div>
                                     </div>
                                 </div>
@@ -210,15 +209,15 @@ include __DIR__ . '/../app/includes/navbar.php';
                                     <ul class="detail-list">
                                         <li>Share your flight details in advance</li>
                                         <li>Confirm expected arrival timing</li>
-                                        <li>Check luggage requirements if needed</li>
-                                        <li>Contact the hotel for urgent coordination</li>
+                                        <li>Check luggage and child-seat requirements if needed</li>
+                                        <li>Allow extra road time during late afternoon and evening traffic</li>
                                     </ul>
                                     <button type="button" class="btn btn-dark rounded-pill px-4 mt-2 toggle-extra-btn" data-extra="airportExtra">
                                         Show More
                                     </button>
                                     <div class="extra-content" id="airportExtra">
                                         <p class="mb-0 mt-3">
-                                            Transfers are ideal for guests who want a more direct and stress-free journey from the airport to the hotel.
+                                            Transfers are ideal for guests who want a direct and stress-free journey from Ngurah Rai International Airport to the hotel.
                                         </p>
                                     </div>
                                 </div>
@@ -230,29 +229,29 @@ include __DIR__ . '/../app/includes/navbar.php';
                         <div class="row g-4">
                             <div class="col-lg-7">
                                 <div class="detail-card h-100">
-                                    <h3>Public Transport Access</h3>
+                                    <h3>Local Travel &amp; Transfers</h3>
                                     <div class="status-badges">
-                                        <span class="status-badge">MRT Nearby</span>
-                                        <span class="status-badge">Bus Connectivity</span>
-                                        <span class="status-badge">City-Friendly Location</span>
+                                        <span class="status-badge">Ride-Hailing Friendly</span>
+                                        <span class="status-badge">Driver Ready</span>
+                                        <span class="status-badge">Harbour Connections</span>
                                     </div>
 
                                     <div class="info-grid">
                                         <div class="info-row">
-                                            <span class="info-label">Nearest MRT</span>
-                                            <span class="info-value">Within short walking distance</span>
+                                            <span class="info-label">Best Modes</span>
+                                            <span class="info-value">Ride-hailing, taxi, private driver, or arranged transfer</span>
                                         </div>
                                         <div class="info-row">
-                                            <span class="info-label">Bus Access</span>
-                                            <span class="info-value">Multiple nearby bus stops available</span>
+                                            <span class="info-label">Harbour Access</span>
+                                            <span class="info-value">Useful for Sanur and other ferry departure points</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Best For</span>
-                                            <span class="info-value">Solo travellers, light luggage, city exploration</span>
+                                            <span class="info-value">Beach outings, sunset plans, day trips, island transfers</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Convenience</span>
-                                            <span class="info-value">Fast access to major shopping and downtown areas</span>
+                                            <span class="info-value">Easy hotel pickup and flexible local routing</span>
                                         </div>
                                     </div>
                                 </div>
@@ -260,19 +259,19 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                             <div class="col-lg-5">
                                 <div class="detail-card h-100">
-                                    <h3>Public Transport Tips</h3>
+                                    <h3>Local Travel Tips</h3>
                                     <ul class="detail-list">
-                                        <li>Travel lighter for smoother station access</li>
-                                        <li>Check train timings during late-night travel</li>
-                                        <li>Use ride-hailing for the final leg if needed</li>
-                                        <li>Ask the front desk for local route guidance</li>
+                                        <li>Use ride-hailing for short coastal and dining trips</li>
+                                        <li>Choose a private driver for longer outings like Ubud or Uluwatu</li>
+                                        <li>Leave earlier for ferry departures and sunset destinations</li>
+                                        <li>Ask the front desk for route guidance and pickup help</li>
                                     </ul>
                                     <button type="button" class="btn btn-dark rounded-pill px-4 mt-2 toggle-extra-btn" data-extra="publicExtra">
                                         Show More
                                     </button>
                                     <div class="extra-content" id="publicExtra">
                                         <p class="mb-0 mt-3">
-                                            Public transport is one of the most practical ways to move around the city if you are travelling without bulky luggage.
+                                            Local transfers are often the most practical option in Bali, especially if you are planning day trips or travelling with bags.
                                         </p>
                                     </div>
                                 </div>
@@ -296,28 +295,28 @@ include __DIR__ . '/../app/includes/navbar.php';
 
                 <div class="travel-time-grid">
                     <div class="travel-time-item">
-                        <h3>Airport</h3>
-                        <p>20–25 mins by car</p>
+                        <h3>Ngurah Rai Airport</h3>
+                        <p>30–45 mins by car</p>
                     </div>
                     <div class="travel-time-item">
-                        <h3>Marina Bay</h3>
-                        <p>10 mins by car</p>
+                        <h3>Seminyak Beach</h3>
+                        <p>20–30 mins by car</p>
                     </div>
                     <div class="travel-time-item">
-                        <h3>Orchard Road</h3>
-                        <p>15–20 mins by MRT</p>
+                        <h3>Sanur Harbour</h3>
+                        <p>30–45 mins by car</p>
                     </div>
                     <div class="travel-time-item">
-                        <h3>Business District</h3>
-                        <p>10–15 mins by car</p>
+                        <h3>Uluwatu Area</h3>
+                        <p>40–50 mins by car</p>
                     </div>
                     <div class="travel-time-item">
-                        <h3>Nearby MRT</h3>
-                        <p>Short walk from hotel</p>
+                        <h3>Ubud Centre</h3>
+                        <p>70–90 mins by car</p>
                     </div>
                     <div class="travel-time-item">
-                        <h3>Shopping Area</h3>
-                        <p>15 mins by public transport</p>
+                        <h3>Beach Clubs &amp; Dining</h3>
+                        <p>15–25 mins by car</p>
                     </div>
                 </div>
             </div>
@@ -342,12 +341,12 @@ include __DIR__ . '/../app/includes/navbar.php';
                     <div class="accordion-item custom-accordion-item">
                         <h2 class="accordion-header" id="arrivalHeadingTwo">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#arrivalCollapseTwo" aria-expanded="false" aria-controls="arrivalCollapseTwo">
-                                Peak-hour arrival guidance
+                                Peak-hour and day-trip guidance
                             </button>
                         </h2>
                         <div id="arrivalCollapseTwo" class="accordion-collapse collapse" role="region" aria-labelledby="arrivalHeadingTwo" data-bs-parent="#arrivalAccordion">
                             <div class="accordion-body">
-                                During peak periods, guests may wish to allow additional time for traffic flow, parking access, and lobby arrivals, especially on weekends and public holidays.
+                                During peak periods, allow additional time for airport pickups, sunset journeys, and harbour departures, especially on weekends and public holidays. For local day-trip inspiration, check out the latest happenings <a href="whats_happening.php">here</a> or let our concierge help plan the perfect outing for you!
                             </div>
                         </div>
                     </div>
@@ -368,16 +367,18 @@ include __DIR__ . '/../app/includes/navbar.php';
             </div>
 
             <div class="contact-cta-card mt-4">
-                <div class="row g-3 align-items-center">
-                    <div class="col-lg-8">
+                <div class="row g-3">
+                    <div class="col-12">
                         <h3 class="mb-2">Need arrival help?</h3>
                         <p class="mb-0">
-                            Our team can assist with transport planning, special access requests, and pre-arrival support.
+                            Our team can assist with transport planning, hotel directions, special access requests, and pre-arrival support.
                         </p>
                     </div>
-                    <div class="col-lg-4 text-lg-end">
-                        <a href="FAQs.php" class="btn btn-outline-dark rounded-pill px-4 me-2 mb-2 mb-lg-0">View FAQ</a>
-                        <a href="contact.php" class="btn btn-dark rounded-pill px-4">Contact Us</a>
+                    <div class="col-12">
+                        <div class="transport-cta-actions">
+                            <a href="FAQs.php" class="btn btn-outline-dark rounded-pill px-4 transport-cta-btn">View FAQ</a>
+                            <a href="contact.php" class="btn btn-dark rounded-pill px-4 transport-cta-btn">Contact Us</a>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -91,6 +91,63 @@
     background: rgba(255, 255, 255, 0.96);
 }
 
+.spa-booking-form {
+    display: grid;
+    gap: 1.35rem;
+}
+
+.spa-form-spotlight {
+    padding: 1.35rem 1.4rem;
+    border-radius: 22px;
+    background:
+        linear-gradient(135deg, rgba(184, 134, 69, 0.12), rgba(255, 250, 246, 0.96)),
+        rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(184, 134, 69, 0.24);
+    box-shadow: 0 18px 34px rgba(92, 58, 68, 0.08);
+}
+
+.spa-form-spotlight-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.spa-form-spotlight-tag,
+.spa-form-spotlight-note {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.spa-form-spotlight-tag {
+    background: rgba(79, 47, 56, 0.92);
+    color: #fff7f3;
+}
+
+.spa-form-spotlight-note {
+    background: rgba(255, 255, 255, 0.78);
+    color: #6e4a2d;
+    border: 1px solid rgba(184, 134, 69, 0.22);
+}
+
+.spa-form-spotlight-title {
+    font-size: clamp(1.45rem, 2.3vw, 2rem);
+    line-height: 1.15;
+    margin-bottom: 0.55rem;
+}
+
+.spa-form-spotlight-text {
+    color: #6a4f43;
+}
+
 .spa-booking-form .form-control:focus,
 .spa-booking-form .form-select:focus {
     border-color: rgba(184, 134, 69, 0.62);
@@ -100,8 +157,34 @@
 .spa-booking-actions {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 12px;
-    margin-top: 1.5rem;
+    padding: 1rem 1.1rem;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(252, 247, 241, 0.98), rgba(244, 233, 222, 0.95));
+    border: 1px solid rgba(184, 134, 69, 0.16);
+    box-shadow: 0 18px 30px rgba(92, 58, 68, 0.08);
+}
+
+.spa-booking-actions-copy {
+    flex: 1 1 220px;
+}
+
+.spa-booking-actions-copy strong {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 1rem;
+    color: #3d232b;
+}
+
+.spa-booking-actions-copy p {
+    color: #6a4f43;
+}
+
+.spa-booking-submit {
+    padding: 0.95rem 1.5rem;
+    font-size: 1rem;
+    box-shadow: 0 14px 28px rgba(184, 134, 69, 0.24);
 }
 
 @media (max-width: 767.98px) {
@@ -116,9 +199,15 @@
 
     .spa-booking-actions {
         flex-direction: column;
+        align-items: stretch;
     }
 
-    .spa-booking-actions .btn {
+    .spa-booking-actions .btn,
+    .spa-booking-actions-copy {
         width: 100%;
+    }
+
+    .spa-form-spotlight-header {
+        align-items: flex-start;
     }
 }

@@ -188,6 +188,14 @@ include __DIR__ . '/../app/includes/navbar.php';
                     <div class="col-lg-7">
                         <form action="spa_booking.php" method="POST" class="spa-booking-form" novalidate>
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('spa_booking_form'), ENT_QUOTES, 'UTF-8'); ?>">
+                            <div class="spa-form-spotlight">
+                                <div class="spa-form-spotlight-header">
+                                    <span class="spa-form-spotlight-tag">Booking form</span>
+                                    <span class="spa-form-spotlight-note">Takes about 1 minute</span>
+                                </div>
+                                <h2 class="spa-form-spotlight-title">Complete this form to lock in your preferred spa slot.</h2>
+                                <p class="spa-form-spotlight-text mb-0">Choose your treatment, add your ideal date and time, and send the reservation request straight to your dashboard.</p>
+                            </div>
                             <div class="form-honeypot" aria-hidden="true">
                                 <label for="website" class="form-label">Website</label>
                                 <input type="text" class="form-control" id="website" name="website" tabindex="-1" autocomplete="off">
@@ -243,8 +251,12 @@ include __DIR__ . '/../app/includes/navbar.php';
                             </div>
 
                             <div class="spa-booking-actions">
-                                <button type="submit" class="btn btn-gold">Reserve spa treatment</button>
-                                <a class="btn btn-outline-secondary" href="dashboard.php#spa-bookings">Back to dashboard</a>
+                                <div class="spa-booking-actions-copy">
+                                    <strong>Ready to reserve?</strong>
+                                    <p class="mb-0">Submit your request and review it anytime from your dashboard.</p>
+                                </div>
+                                <button type="submit" class="btn btn-gold spa-booking-submit">Reserve spa treatment</button>
+                                <a class="btn btn-back-dashboard" href="dashboard.php#spa-bookings">Back to dashboard</a>
                             </div>
                         </form>
                     </div>
