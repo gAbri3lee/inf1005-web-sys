@@ -21,8 +21,6 @@ DROP TABLE IF EXISTS room_bathroom_features;
 DROP TABLE IF EXISTS room_furnishings;
 DROP TABLE IF EXISTS amenities;
 DROP TABLE IF EXISTS rooms;
-DROP TABLE IF EXISTS loyalty_history;
-DROP TABLE IF EXISTS user_loyalty;
 
 CREATE TABLE IF NOT EXISTS bookings (
     id INT NOT NULL AUTO_INCREMENT,
@@ -377,75 +375,3 @@ WHERE NOT EXISTS (
     WHERE user_name = 'Olivia B.'
       AND title = 'Loved the amenities'
 );
-
-CREATE TABLE IF NOT EXISTS loyalty_tiers (
-  id INT NOT NULL AUTO_INCREMENT,
-  tier_name VARCHAR(50) NOT NULL,
-  min_spending DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-  discount_rate DECIMAL(5, 4) NOT NULL DEFAULT 0.0000,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY loyalty_tiers_name_uk (tier_name),
-  KEY loyalty_tiers_min_spending_idx (min_spending)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO loyalty_tiers (tier_name, min_spending, discount_rate)
-SELECT 'Bronze', 0.00, 0.0000
-WHERE NOT EXISTS (SELECT 1 FROM loyalty_tiers WHERE tier_name = 'Bronze');
-
-INSERT INTO loyalty_tiers (tier_name, min_spending, discount_rate)
-SELECT 'Silver', 500.00, 0.0500
-WHERE NOT EXISTS (SELECT 1 FROM loyalty_tiers WHERE tier_name = 'Silver');
-
-INSERT INTO loyalty_tiers (tier_name, min_spending, discount_rate)
-SELECT 'Gold', 1500.00, 0.1000
-WHERE NOT EXISTS (SELECT 1 FROM loyalty_tiers WHERE tier_name = 'Gold');
-
-SET @users_total_spent_exists := (
-    SELECT COUNT(*)
-    FROM information_schema.columns
-    WHERE table_schema = DATABASE()
-      AND table_name = 'users'
-      AND column_name = 'total_spent'
-);
-SET @users_total_spent_sql := IF(
-    @users_total_spent_exists = 0,
-    'ALTER TABLE users ADD COLUMN total_spent DECIMAL(10, 2) NOT NULL DEFAULT 0.00',
-    'SELECT 1'
-);
-PREPARE users_total_spent_stmt FROM @users_total_spent_sql;
-EXECUTE users_total_spent_stmt;
-DEALLOCATE PREPARE users_total_spent_stmt;
-
-SET @users_loyalty_tier_exists := (
-    SELECT COUNT(*)
-    FROM information_schema.columns
-    WHERE table_schema = DATABASE()
-      AND table_name = 'users'
-      AND column_name = 'loyalty_tier_id'
-);
-SET @users_loyalty_tier_sql := IF(
-    @users_loyalty_tier_exists = 0,
-    'ALTER TABLE users ADD COLUMN loyalty_tier_id INT DEFAULT NULL',
-    'SELECT 1'
-);
-PREPARE users_loyalty_tier_stmt FROM @users_loyalty_tier_sql;
-EXECUTE users_loyalty_tier_stmt;
-DEALLOCATE PREPARE users_loyalty_tier_stmt;
-
-SET @users_loyalty_tier_fk_exists := (
-    SELECT COUNT(*)
-    FROM information_schema.table_constraints
-    WHERE table_schema = DATABASE()
-      AND table_name = 'users'
-      AND constraint_name = 'users_loyalty_tier_fk'
-      AND constraint_type = 'FOREIGN KEY'
-);
-SET @users_loyalty_tier_fk_sql := IF(
-    @users_loyalty_tier_fk_exists = 0,
-    'ALTER TABLE users ADD CONSTRAINT users_loyalty_tier_fk FOREIGN KEY (loyalty_tier_id) REFERENCES loyalty_tiers(id) ON DELETE SET NULL',
-    'SELECT 1'
-);
-PREPARE users_loyalty_tier_fk_stmt FROM @users_loyalty_tier_fk_sql;
-EXECUTE users_loyalty_tier_fk_stmt;
-DEALLOCATE PREPARE users_loyalty_tier_fk_stmt;

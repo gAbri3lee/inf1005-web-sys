@@ -137,7 +137,7 @@ function loyalty_get_user_snapshot(PDO $pdo, int $userId): array
         $message = 'You are ' . loyalty_money($remaining) . ' away from ' . $nextName . ' tier.';
     } else {
         if ($tierName !== '') {
-            $message = 'You are at the highest tier: ' . $tierName . '.';
+            $message = 'You are at our highest tier (' . $tierName . '). Congratulations!';
         } else {
             $message = 'Your loyalty tier will appear once tiers are configured.';
         }

@@ -224,28 +224,61 @@ include __DIR__ . '/../app/includes/navbar.php';
                             Loyalty details are unavailable right now. Please ensure the loyalty tables exist in your schema.
                         </div>
                     <?php else: ?>
-                        <div class="dashboard-entry-grid">
-                            <div>
-                                <span class="dashboard-entry-label">Current tier</span>
-                                <strong><?php echo htmlspecialchars((string)$loyaltySnapshot['tier_name'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                        <?php
+                        $totalSpent = (float)($loyaltySnapshot['total_spent'] ?? 0);
+                        $remainingToNext = (float)($loyaltySnapshot['remaining_to_next'] ?? 0);
+                        $tierName = (string)($loyaltySnapshot['tier_name'] ?? '');
+                        $discountLabel = (string)($loyaltySnapshot['discount_label'] ?? '');
+                        $nextTier = is_array($loyaltySnapshot['next_tier'] ?? null) ? $loyaltySnapshot['next_tier'] : null;
+                        $nextTierName = $nextTier ? (string)($nextTier['tier_name'] ?? '') : '';
+                        $nextTierMin = $nextTier ? (float)($nextTier['min_spending'] ?? 0) : 0.0;
+                        $progressPercent = $nextTierMin > 0 ? min(100.0, max(0.0, ($totalSpent / $nextTierMin) * 100.0)) : 100.0;
+                        ?>
+
+                        <div class="dashboard-loyalty">
+                            <div class="dashboard-loyalty-top">
+                                <div class="dashboard-loyalty-tier">
+                                    <span class="dashboard-entry-label">Current tier</span>
+                                    <div class="dashboard-loyalty-tier-row">
+                                        <strong class="dashboard-loyalty-tier-name"><?php echo htmlspecialchars($tierName, ENT_QUOTES, 'UTF-8'); ?></strong>
+                                        <?php if ($discountLabel !== ''): ?>
+                                            <span class="dashboard-loyalty-pill" aria-label="Current discount">
+                                                <?php echo htmlspecialchars($discountLabel, ENT_QUOTES, 'UTF-8'); ?> discount
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-loyalty-highlights" aria-label="Loyalty summary">
+                                    <div class="dashboard-loyalty-highlight">
+                                        <span class="dashboard-entry-label">Total spent</span>
+                                        <strong>$<?php echo number_format($totalSpent, 2); ?></strong>
+                                    </div>
+                                    <div class="dashboard-loyalty-highlight">
+                                        <span class="dashboard-entry-label">Left for next tier</span>
+                                        <strong><?php echo $nextTier ? ('$' . number_format($remainingToNext, 2)) : '—'; ?></strong>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <span class="dashboard-entry-label">Discount</span>
-                                <strong><?php echo htmlspecialchars((string)$loyaltySnapshot['discount_label'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                            </div>
-                            <div>
-                                <span class="dashboard-entry-label">Total spent</span>
-                                <strong>$<?php echo number_format((float)$loyaltySnapshot['total_spent'], 2); ?></strong>
-                            </div>
-                            <?php if (!empty($loyaltySnapshot['next_tier'])): ?>
-                                <div>
-                                    <span class="dashboard-entry-label">Left for next tier</span>
-                                    <strong>$<?php echo number_format((float)$loyaltySnapshot['remaining_to_next'], 2); ?></strong>
+
+                            <?php if ($nextTier): ?>
+                                <div class="dashboard-loyalty-progress" aria-label="Progress to next tier">
+                                    <div class="dashboard-loyalty-progress-head">
+                                        <span class="dashboard-loyalty-progress-label">
+                                            Progress to <?php echo htmlspecialchars($nextTierName, ENT_QUOTES, 'UTF-8'); ?> tier
+                                        </span>
+                                        <span class="dashboard-loyalty-progress-meta">
+                                            $<?php echo number_format($totalSpent, 2); ?> / $<?php echo number_format($nextTierMin, 2); ?>
+                                        </span>
+                                    </div>
+                                    <div class="dashboard-loyalty-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?php echo (int)round($progressPercent); ?>">
+                                        <span class="dashboard-loyalty-progress-fill" style="width: <?php echo (float)$progressPercent; ?>%;"></span>
+                                    </div>
                                 </div>
                             <?php endif; ?>
-                        </div>
 
-                        <p class="mt-3 mb-0"><?php echo htmlspecialchars((string)$loyaltySnapshot['message'], ENT_QUOTES, 'UTF-8'); ?></p>
+                            <p class="dashboard-loyalty-message"><?php echo htmlspecialchars((string)$loyaltySnapshot['message'], ENT_QUOTES, 'UTF-8'); ?></p>
+                        </div>
                     <?php endif; ?>
                 </section>
 
