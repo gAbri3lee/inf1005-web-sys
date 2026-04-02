@@ -7,6 +7,11 @@ function rooms_catalog_image(string $path): string
     return 'assets/images/' . ltrim($path, '/');
 }
 
+function rooms_catalog_tour_image(string $path): string
+{
+    return rooms_catalog_image('room_tours/' . ltrim($path, '/'));
+}
+
 function rooms_catalog_all(): array
 {
     static $rooms = null;
@@ -30,6 +35,59 @@ function rooms_catalog_all(): array
                 rooms_catalog_image('Suite1.webp'),
                 rooms_catalog_image('HotelHomePage.webp'),
                 rooms_catalog_image('AboutUs.webp'),
+            ],
+            'tour_image' => rooms_catalog_tour_image('Suite1_tour.webp'),
+            'tour_scenes' => [
+                [
+                    'id' => 'overview',
+                    'title' => 'Room overview',
+                    'description' => 'Click the bathroom, bed, or lounge area to jump to that point of view.',
+                    'image' => rooms_catalog_image('Suite1.webp'),
+                    'hotspots' => [
+                        [
+                            'id' => 'bathroom',
+                            'label' => 'Bathroom',
+                            'x' => 73,
+                            'y' => 43,
+                            'target' => 'bathroom',
+                        ],
+                        [
+                            'id' => 'bed',
+                            'label' => 'Bed',
+                            'x' => 77,
+                            'y' => 67,
+                            'target' => 'bed',
+                        ],
+                        [
+                            'id' => 'balcony',
+                            'label' => 'Lounge',
+                            'x' => 39,
+                            'y' => 43,
+                            'target' => 'balcony',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'bathroom',
+                    'title' => 'Bathroom POV',
+                    'description' => 'A closer angle facing the bath and vanity zone.',
+                    'image' => rooms_catalog_tour_image('Suite1_bathroom_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'bed',
+                    'title' => 'Bed POV',
+                    'description' => 'The view from directly in front of the bed and seating area.',
+                    'image' => rooms_catalog_tour_image('Suite1_bed_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'balcony',
+                    'title' => 'Lounge POV',
+                    'description' => 'A closer perspective looking toward the lounge and balcony side.',
+                    'image' => rooms_catalog_tour_image('Suite1_balcony_pov.webp'),
+                    'back_target' => 'overview',
+                ],
             ],
             'benefits' => [
                 'High-speed Wi-Fi',
@@ -70,6 +128,59 @@ function rooms_catalog_all(): array
                 rooms_catalog_image('SpaRoom.webp'),
                 rooms_catalog_image('Sustainability.webp'),
             ],
+            'tour_image' => rooms_catalog_tour_image('Suite2_tour.webp'),
+            'tour_scenes' => [
+                [
+                    'id' => 'overview',
+                    'title' => 'Room overview',
+                    'description' => 'Click the bathroom, bed, or balcony area to jump to that point of view.',
+                    'image' => rooms_catalog_image('Suite2.webp'),
+                    'hotspots' => [
+                        [
+                            'id' => 'balcony',
+                            'label' => 'Balcony',
+                            'x' => 44,
+                            'y' => 58,
+                            'target' => 'balcony',
+                        ],
+                        [
+                            'id' => 'bathroom',
+                            'label' => 'Bathroom',
+                            'x' => 74,
+                            'y' => 52,
+                            'target' => 'bathroom',
+                        ],
+                        [
+                            'id' => 'bed',
+                            'label' => 'Bed',
+                            'x' => 86,
+                            'y' => 72,
+                            'target' => 'bed',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'balcony',
+                    'title' => 'Balcony POV',
+                    'description' => 'The outdoor lounge view facing the ocean.',
+                    'image' => rooms_catalog_tour_image('Suite2_balcony_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'bathroom',
+                    'title' => 'Bathroom POV',
+                    'description' => 'A closer angle of the tub, vanity, and marble bath area.',
+                    'image' => rooms_catalog_tour_image('Suite2_bathroom_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'bed',
+                    'title' => 'Bed POV',
+                    'description' => 'A closer perspective focused on the bed and main sleeping area.',
+                    'image' => rooms_catalog_tour_image('Suite2_bed_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+            ],
             'benefits' => [
                 'Accessible-friendly layout',
                 'High-speed Wi-Fi',
@@ -109,6 +220,65 @@ function rooms_catalog_all(): array
                 rooms_catalog_image('dining/RestaurantSunsetLagoon.webp'),
                 rooms_catalog_image('dining/Cafe.webp'),
             ],
+            'tour_image' => rooms_catalog_tour_image('Suite3_tour.webp'),
+            'tour_scenes' => [
+                [
+                    'id' => 'overview',
+                    'title' => 'Suite overview',
+                    'description' => 'Click the lounge, sleeping area, or stair landing to inspect that part of the suite.',
+                    'image' => rooms_catalog_image('Suite3.webp'),
+                    'hotspots' => [
+                        [
+                            'id' => 'lounge',
+                            'label' => 'Lounge',
+                            'x' => 28,
+                            'y' => 74,
+                            'target' => 'lounge',
+                        ],
+                        [
+                            'id' => 'sleep',
+                            'label' => 'Sleeping area',
+                            'x' => 41,
+                            'y' => 57,
+                            'target' => 'sleep',
+                        ],
+                        [
+                            'id' => 'stair',
+                            'label' => 'Stair landing',
+                            'x' => 80,
+                            'y' => 41,
+                            'target' => 'stair',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'lounge',
+                    'title' => 'Lounge POV',
+                    'description' => 'A closer look at the suite lounge and worktable area.',
+                    'image' => rooms_catalog_tour_image('Suite3_lounge_pov.webp'),
+                    'fit' => 'contain',
+                    'background' => '#ece5d8',
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'sleep',
+                    'title' => 'Sleeping area POV',
+                    'description' => 'A focused view toward the sleeping zone and courtyard-facing curtains.',
+                    'image' => rooms_catalog_tour_image('Suite3_sleep_pov.webp'),
+                    'fit' => 'contain',
+                    'background' => '#efe8dd',
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'stair',
+                    'title' => 'Stair landing POV',
+                    'description' => 'A closer view of the upper landing and staircase detailing.',
+                    'image' => rooms_catalog_tour_image('Suite3_stair_pov.webp'),
+                    'fit' => 'contain',
+                    'background' => '#ece6da',
+                    'back_target' => 'overview',
+                ],
+            ],
             'benefits' => [
                 'Kid-friendly layout',
                 'High-speed Wi-Fi',
@@ -144,9 +314,65 @@ function rooms_catalog_all(): array
             'size' => '92 sqm / 990 sqft',
             'bed' => '2 Bedrooms (1 King + 2 Singles)',
             'images' => [
-                rooms_catalog_image('AboutUsSpa.webp'),
-                rooms_catalog_image('Suite2.webp'),
-                rooms_catalog_image('Suite1.webp'),
+                rooms_catalog_image('horizon_villa_main.webp'),
+                rooms_catalog_tour_image('horizon_villa_balcony_pov.webp'),
+                rooms_catalog_tour_image('horizon_villa_bathroom_pov.webp'),
+                rooms_catalog_tour_image('horizon_villa_bed_pov.webp'),
+            ],
+            'tour_image' => rooms_catalog_tour_image('AboutUsSpa_tour.webp'),
+            'tour_scenes' => [
+                [
+                    'id' => 'overview',
+                    'title' => 'Villa overview',
+                    'description' => 'Click the balcony, bathroom, or bed area to step into that part of the villa.',
+                    'image' => rooms_catalog_image('horizon_villa_main.webp'),
+                    'hotspots' => [
+                        [
+                            'id' => 'balcony',
+                            'label' => 'Balcony',
+                            'x' => 50,
+                            'y' => 56,
+                            'target' => 'balcony',
+                        ],
+                        [
+                            'id' => 'bathroom',
+                            'label' => 'Bathroom',
+                            'x' => 79,
+                            'y' => 48,
+                            'target' => 'bathroom',
+                        ],
+                        [
+                            'id' => 'bed',
+                            'label' => 'Bed',
+                            'x' => 83,
+                            'y' => 72,
+                            'target' => 'bed',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'balcony',
+                    'title' => 'Balcony POV',
+                    'description' => 'The outdoor lounge view facing the villa grounds.',
+                    'image' => rooms_catalog_tour_image('horizon_villa_balcony_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'bathroom',
+                    'title' => 'Bathroom POV',
+                    'description' => 'A closer angle of the tub, vanity, and marble bath area.',
+                    'image' => rooms_catalog_tour_image('horizon_villa_bathroom_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'bed',
+                    'title' => 'Bed POV',
+                    'description' => 'A closer perspective focused on the villa bed and sleeping area.',
+                    'image' => rooms_catalog_tour_image('horizon_villa_bed_pov.webp'),
+                    'fit' => 'contain',
+                    'background' => '#eee6da',
+                    'back_target' => 'overview',
+                ],
             ],
             'benefits' => [
                 'Accessible-friendly layout',
@@ -183,9 +409,63 @@ function rooms_catalog_all(): array
             'size' => '40 sqm / 430 sqft',
             'bed' => '1 Queen',
             'images' => [
-                rooms_catalog_image('parking_and_transport/parking1.webp'),
-                rooms_catalog_image('dining/RestaurantFieryBlaze.webp'),
-                rooms_catalog_image('DiscoverMore.webp'),
+                rooms_catalog_image('city_lights_main.webp'),
+                rooms_catalog_tour_image('city_lights_lounge_pov.webp'),
+                rooms_catalog_tour_image('city_lights_bathroom_pov.webp'),
+                rooms_catalog_tour_image('city_lights_bed_pov.webp'),
+            ],
+            'tour_image' => rooms_catalog_tour_image('parking1_tour.webp'),
+            'tour_scenes' => [
+                [
+                    'id' => 'overview',
+                    'title' => 'Room overview',
+                    'description' => 'Click the lounge, bathroom, or bed area to jump to that point of view.',
+                    'image' => rooms_catalog_image('city_lights_main.webp'),
+                    'hotspots' => [
+                        [
+                            'id' => 'balcony',
+                            'label' => 'Lounge',
+                            'x' => 39,
+                            'y' => 52,
+                            'target' => 'balcony',
+                        ],
+                        [
+                            'id' => 'bathroom',
+                            'label' => 'Bathroom',
+                            'x' => 17,
+                            'y' => 57,
+                            'target' => 'bathroom',
+                        ],
+                        [
+                            'id' => 'bed',
+                            'label' => 'Bed',
+                            'x' => 73,
+                            'y' => 60,
+                            'target' => 'bed',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'bathroom',
+                    'title' => 'Bathroom POV',
+                    'description' => 'A closer angle of the warm stone bathroom and vanity zone.',
+                    'image' => rooms_catalog_tour_image('city_lights_bathroom_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'bed',
+                    'title' => 'Bed POV',
+                    'description' => 'A closer perspective focused on the city-facing bed area.',
+                    'image' => rooms_catalog_tour_image('city_lights_bed_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'balcony',
+                    'title' => 'Lounge POV',
+                    'description' => 'A closer perspective looking toward the lounge and skyline view.',
+                    'image' => rooms_catalog_tour_image('city_lights_lounge_pov.webp'),
+                    'back_target' => 'overview',
+                ],
             ],
             'benefits' => [
                 'High-speed Wi-Fi',
@@ -225,6 +505,59 @@ function rooms_catalog_all(): array
                 rooms_catalog_image('Suite1.webp'),
                 rooms_catalog_image('AboutUs.webp'),
                 rooms_catalog_image('Sustainability.webp'),
+            ],
+            'tour_image' => rooms_catalog_tour_image('Suite1_tour.webp'),
+            'tour_scenes' => [
+                [
+                    'id' => 'overview',
+                    'title' => 'Accessible room overview',
+                    'description' => 'Click the bathroom, bed, or lounge area to jump to that point of view.',
+                    'image' => rooms_catalog_image('Suite1.webp'),
+                    'hotspots' => [
+                        [
+                            'id' => 'bathroom',
+                            'label' => 'Bathroom',
+                            'x' => 73,
+                            'y' => 43,
+                            'target' => 'bathroom',
+                        ],
+                        [
+                            'id' => 'bed',
+                            'label' => 'Bed',
+                            'x' => 77,
+                            'y' => 67,
+                            'target' => 'bed',
+                        ],
+                        [
+                            'id' => 'balcony',
+                            'label' => 'Lounge',
+                            'x' => 39,
+                            'y' => 43,
+                            'target' => 'balcony',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'bathroom',
+                    'title' => 'Bathroom POV',
+                    'description' => 'A closer angle facing the accessible bath and vanity zone.',
+                    'image' => rooms_catalog_tour_image('Suite1_bathroom_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'bed',
+                    'title' => 'Bed POV',
+                    'description' => 'The view from directly in front of the twin sleeping area.',
+                    'image' => rooms_catalog_tour_image('Suite1_bed_pov.webp'),
+                    'back_target' => 'overview',
+                ],
+                [
+                    'id' => 'balcony',
+                    'title' => 'Lounge POV',
+                    'description' => 'A closer perspective looking toward the lounge and window side.',
+                    'image' => rooms_catalog_tour_image('Suite1_balcony_pov.webp'),
+                    'back_target' => 'overview',
+                ],
             ],
             'benefits' => [
                 'Accessible-friendly layout',

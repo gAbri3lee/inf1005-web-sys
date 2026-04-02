@@ -105,11 +105,39 @@
 	const viewChecks = qsa('.js-filter-view');
 	const accessibleCheck = qs('.js-filter-accessible');
 	const clearBtn = qs('.js-clear-filters');
+	const tourToggleBtn = modalEl ? qs('.js-tour-toggle', modalEl) : null;
+	const tourLabelEl = modalEl ? qs('.js-tour-label', modalEl) : null;
+	const tourEl = modalEl ? qs('.js-room-tour', modalEl) : null;
+	const tourTrackEl = modalEl ? qs('.js-room-tour-track', modalEl) : null;
+	const tourHintEl = modalEl ? qs('.js-room-tour-hint', modalEl) : null;
+	const mediaAreaEl = modalEl ? qs('.room-media-area', modalEl) : null;
 
 	let activeRoom = null;
 	let modalSpringTimeout = null;
 	let groupVisibilityTimeout = null;
 	const cardTimeouts = new WeakMap();
+	// Faux 3D tour state for wide room photos.
+	const TOUR_SENSITIVITY = 0.18;          // tour units shifted per pixel dragged
+	const TOUR_MIN = 0;
+	const TOUR_MAX = 360;
+
+	let tourYaw = 180;                      // current horizontal tour position, centered
+	let tourDragStartX = null;
+	let tourDragStartYaw = 0;
+	let tourImg = null;
+	let tourImgLoaded = false;
+	let tourCanvas = null;
+	let tourCtx = null;
+	let tourHintTimeout = null;
+	let activeTourMode = 'panorama';
+	let tourScenes = [];
+	let tourSceneMap = new Map();
+	let activeTourSceneId = '';
+	let tourInteractiveRoot = null;
+	let tourSceneImageEl = null;
+	let tourSceneInfoEl = null;
+	let tourBackBtn = null;
+	let tourHotspotsEl = null;
 
 	let bootstrapModal = null;
 	if (modalEl && window.bootstrap && window.bootstrap.Modal) {
@@ -134,6 +162,309 @@
 				modalContent.classList.remove('is-springing');
 				modalSpringTimeout = null;
 			}, MODAL_SPRING_MS);
+		});
+	}
+
+	// ---------------------------------------------------------------------------
+	// Proportion-preserving room tour — pans a wide room photo horizontally
+	// within the viewport while keeping its natural aspect ratio.
+	// ---------------------------------------------------------------------------
+
+	function clamp(value, min, max) {
+		return Math.min(max, Math.max(min, value));
+	}
+
+	function renderTour() {
+		if (!tourCanvas || !tourCtx || !tourImgLoaded || !tourImg) {
+			return;
+		}
+
+		const cw = tourCanvas.width;
+		const ch = tourCanvas.height;
+		const imgW = tourImg.naturalWidth;
+		const imgH = tourImg.naturalHeight;
+		if (!imgW || !imgH) {
+			return;
+		}
+
+		tourCtx.fillStyle = '#111827';
+		tourCtx.fillRect(0, 0, cw, ch);
+
+		const scale = Math.max(cw / imgW, ch / imgH);
+		const destW = imgW * scale;
+		const destH = imgH * scale;
+		const overflowX = Math.max(0, destW - cw);
+		const overflowY = Math.max(0, destH - ch);
+		const xProgress = clamp((tourYaw - TOUR_MIN) / (TOUR_MAX - TOUR_MIN), 0, 1);
+		const destX = overflowX > 0 ? -overflowX * xProgress : (cw - destW) / 2;
+		const destY = overflowY > 0 ? -overflowY / 2 : (ch - destH) / 2;
+
+		tourCtx.drawImage(tourImg, destX, destY, destW, destH);
+	}
+
+	function resizeTourCanvas() {
+		if (!tourCanvas || !tourEl) {
+			return;
+		}
+		tourCanvas.width = tourEl.clientWidth || tourEl.offsetWidth;
+		tourCanvas.height = tourEl.clientHeight || tourEl.offsetHeight;
+		renderTour();
+	}
+
+	function buildTour(room) {
+		if (!tourTrackEl) {
+			return;
+		}
+
+		tourYaw = 180;
+		tourImgLoaded = false;
+		activeTourMode = 'panorama';
+		tourScenes = Array.isArray(room?.tour_scenes) ? room.tour_scenes : [];
+		tourSceneMap = new Map(tourScenes.map((scene) => [String(scene?.id || ''), scene]));
+		activeTourSceneId = '';
+		tourInteractiveRoot = null;
+		tourSceneImageEl = null;
+		tourSceneInfoEl = null;
+		tourBackBtn = null;
+		tourHotspotsEl = null;
+		tourTrackEl.innerHTML = '';
+
+		if (tourScenes.length > 0) {
+			buildInteractiveTour();
+			return;
+		}
+
+		// Create canvas
+		tourCanvas = document.createElement('canvas');
+		tourCanvas.className = 'room-tour-canvas';
+		tourCanvas.setAttribute('aria-hidden', 'true');
+		tourCtx = tourCanvas.getContext('2d');
+		tourTrackEl.appendChild(tourCanvas);
+
+		// Load the primary room image
+		const src = typeof room?.tour_image === 'string' && room.tour_image.trim() !== ''
+			? room.tour_image.trim()
+			: (Array.isArray(room?.images) && room.images.length
+				? String(room.images[0])
+				: FALLBACK_IMAGE_SRC);
+
+		tourImg = new Image();
+		tourImg.crossOrigin = 'anonymous';
+		tourImg.onload = () => {
+			tourImgLoaded = true;
+			resizeTourCanvas();
+		};
+		tourImg.onerror = () => {
+			tourImg.src = FALLBACK_IMAGE_SRC;
+		};
+		tourImg.src = src;
+	}
+
+	function showTourScene(sceneId) {
+		const scene = tourSceneMap.get(String(sceneId || ''));
+		if (!scene || !tourInteractiveRoot || !tourSceneImageEl || !tourSceneInfoEl || !tourHotspotsEl) {
+			return;
+		}
+
+		activeTourSceneId = String(scene.id || '');
+		tourSceneImageEl.src = String(scene.image || FALLBACK_IMAGE_SRC);
+		tourSceneImageEl.alt = scene.title ? `${scene.title} in the 3D tour` : 'Room tour view';
+		tourSceneImageEl.style.objectFit = scene.fit === 'contain' ? 'contain' : 'cover';
+		attachImageFallback(tourSceneImageEl);
+
+		if (tourInteractiveRoot) {
+			tourInteractiveRoot.style.background = scene.fit === 'contain'
+				? String(scene.background || '#f2ede4')
+				: '';
+		}
+
+		tourSceneInfoEl.innerHTML = '';
+
+		const titleEl = document.createElement('strong');
+		titleEl.className = 'room-tour-scene-title';
+		titleEl.textContent = String(scene.title || 'Room POV');
+		tourSceneInfoEl.appendChild(titleEl);
+
+		if (scene.description) {
+			const descEl = document.createElement('span');
+			descEl.className = 'room-tour-scene-desc';
+			descEl.textContent = String(scene.description);
+			tourSceneInfoEl.appendChild(descEl);
+		}
+
+		if (tourBackBtn) {
+			const backTarget = String(scene.back_target || '');
+			tourBackBtn.hidden = backTarget === '';
+			tourBackBtn.dataset.target = backTarget;
+		}
+
+		tourHotspotsEl.innerHTML = '';
+		(Array.isArray(scene.hotspots) ? scene.hotspots : []).forEach((hotspot) => {
+			const targetId = String(hotspot?.target || '');
+			if (!tourSceneMap.has(targetId)) {
+				return;
+			}
+
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'room-tour-hotspot';
+			button.style.left = `${Number(hotspot?.x || 0)}%`;
+			button.style.top = `${Number(hotspot?.y || 0)}%`;
+			button.dataset.target = targetId;
+			button.setAttribute('aria-label', `Go to ${String(hotspot?.label || targetId)} view`);
+			button.innerHTML = `<span>${String(hotspot?.label || 'View')}</span>`;
+			tourHotspotsEl.appendChild(button);
+		});
+	}
+
+	function buildInteractiveTour() {
+		if (!tourTrackEl || tourScenes.length === 0) {
+			return;
+		}
+
+		activeTourMode = 'hotspots';
+
+		tourInteractiveRoot = document.createElement('div');
+		tourInteractiveRoot.className = 'room-tour-interactive';
+
+		tourSceneImageEl = document.createElement('img');
+		tourSceneImageEl.className = 'room-tour-scene-image';
+		tourSceneImageEl.loading = 'lazy';
+
+		tourHotspotsEl = document.createElement('div');
+		tourHotspotsEl.className = 'room-tour-hotspots';
+
+		tourSceneInfoEl = document.createElement('div');
+		tourSceneInfoEl.className = 'room-tour-scene-info';
+
+		tourBackBtn = document.createElement('button');
+		tourBackBtn.type = 'button';
+		tourBackBtn.className = 'room-tour-back';
+		tourBackBtn.textContent = 'Back to room';
+		tourBackBtn.hidden = true;
+
+		tourInteractiveRoot.appendChild(tourSceneImageEl);
+		tourInteractiveRoot.appendChild(tourHotspotsEl);
+		tourInteractiveRoot.appendChild(tourSceneInfoEl);
+		tourInteractiveRoot.appendChild(tourBackBtn);
+		tourTrackEl.appendChild(tourInteractiveRoot);
+
+		tourHotspotsEl.addEventListener('click', (event) => {
+			const button = event.target.closest('.room-tour-hotspot');
+			if (!button) {
+				return;
+			}
+
+			showTourScene(button.dataset.target);
+		});
+
+		tourBackBtn.addEventListener('click', () => {
+			if (tourBackBtn && tourBackBtn.dataset.target) {
+				showTourScene(tourBackBtn.dataset.target);
+			}
+		});
+
+		showTourScene(tourScenes[0]?.id || '');
+	}
+
+	function enterTour() {
+		if (!mediaAreaEl || !tourToggleBtn || !tourLabelEl || !tourEl) {
+			return;
+		}
+
+		mediaAreaEl.classList.add('is-touring');
+		tourToggleBtn.setAttribute('aria-pressed', 'true');
+		tourLabelEl.textContent = 'Photos';
+		if (activeTourMode === 'panorama') {
+			resizeTourCanvas();
+		}
+
+		if (tourHintEl) {
+			tourHintEl.textContent = activeTourMode === 'hotspots'
+				? 'Tap the highlighted areas to move through the room'
+				: '← Drag to look around →';
+			tourHintEl.classList.add('is-visible');
+			if (tourHintTimeout) {
+				clearTimeout(tourHintTimeout);
+			}
+			tourHintTimeout = setTimeout(() => {
+				tourHintEl.classList.remove('is-visible');
+				tourHintTimeout = null;
+			}, 2600);
+		}
+	}
+
+	function exitTour() {
+		if (!mediaAreaEl || !tourToggleBtn || !tourLabelEl) {
+			return;
+		}
+
+		mediaAreaEl.classList.remove('is-touring');
+		tourToggleBtn.setAttribute('aria-pressed', 'false');
+		tourLabelEl.textContent = '3D Tour';
+
+		if (tourHintEl) {
+			tourHintEl.classList.remove('is-visible');
+		}
+		if (tourHintTimeout) {
+			clearTimeout(tourHintTimeout);
+			tourHintTimeout = null;
+		}
+	}
+
+	function getTourClientX(e) {
+		return e.touches && e.touches.length ? e.touches[0].clientX : e.clientX;
+	}
+
+	if (tourEl) {
+		const onDragStart = (e) => {
+			if (!mediaAreaEl?.classList.contains('is-touring') || activeTourMode !== 'panorama') {
+				return;
+			}
+			tourDragStartX = getTourClientX(e);
+			tourDragStartYaw = tourYaw;
+			tourEl.classList.add('is-dragging');
+		};
+
+		const onDragMove = (e) => {
+			if (tourDragStartX === null) {
+				return;
+			}
+			const dx = getTourClientX(e) - tourDragStartX;
+			// Dragging right moves toward the left side of the photo; clamp to bounds.
+			tourYaw = clamp(tourDragStartYaw - dx * TOUR_SENSITIVITY, TOUR_MIN, TOUR_MAX);
+			renderTour();
+		};
+
+		const onDragEnd = () => {
+			if (tourDragStartX === null) {
+				return;
+			}
+			tourDragStartX = null;
+			tourEl.classList.remove('is-dragging');
+		};
+
+		tourEl.addEventListener('mousedown', onDragStart);
+		tourEl.addEventListener('touchstart', onDragStart, { passive: true });
+		document.addEventListener('mousemove', onDragMove);
+		document.addEventListener('touchmove', onDragMove, { passive: true });
+		document.addEventListener('mouseup', onDragEnd);
+		document.addEventListener('touchend', onDragEnd);
+	}
+
+	window.addEventListener('resize', () => {
+		if (mediaAreaEl?.classList.contains('is-touring') && activeTourMode === 'panorama') {
+			resizeTourCanvas();
+		}
+	});
+
+	if (tourToggleBtn) {
+		tourToggleBtn.addEventListener('click', () => {
+			if (mediaAreaEl?.classList.contains('is-touring')) {
+				exitTour();
+			} else {
+				enterTour();
+			}
 		});
 	}
 
@@ -251,6 +582,8 @@
 		setList(listBath, room.bathroom || []);
 		setList(listFurnish, room.furnishings || []);
 		buildCarousel(room);
+		buildTour(room);
+		exitTour();
 
 		if (checkInEl) {
 			checkInEl.value = '';
