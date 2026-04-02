@@ -7,6 +7,33 @@ USE azure_horizon;
 DROP TABLE IF EXISTS loyalty_history;
 DROP TABLE IF EXISTS user_loyalty;
 
+CREATE TABLE IF NOT EXISTS loyalty_tiers (
+    id INT NOT NULL AUTO_INCREMENT,
+    tier_name VARCHAR(50) NOT NULL,
+    min_spending DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    discount_rate DECIMAL(5, 4) NOT NULL DEFAULT 0.0000,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY loyalty_tiers_name_uk (tier_name),
+    KEY loyalty_tiers_min_idx (min_spending)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO loyalty_tiers (tier_name, min_spending, discount_rate)
+SELECT 'Bronze', 0.00, 0.0000
+WHERE NOT EXISTS (SELECT 1 FROM loyalty_tiers WHERE tier_name = 'Bronze');
+
+INSERT INTO loyalty_tiers (tier_name, min_spending, discount_rate)
+SELECT 'Silver', 500.00, 0.0500
+WHERE NOT EXISTS (SELECT 1 FROM loyalty_tiers WHERE tier_name = 'Silver');
+
+INSERT INTO loyalty_tiers (tier_name, min_spending, discount_rate)
+SELECT 'Gold', 1500.00, 0.1000
+WHERE NOT EXISTS (SELECT 1 FROM loyalty_tiers WHERE tier_name = 'Gold');
+
+INSERT INTO loyalty_tiers (tier_name, min_spending, discount_rate)
+SELECT 'Platinum', 3000.00, 0.1500
+WHERE NOT EXISTS (SELECT 1 FROM loyalty_tiers WHERE tier_name = 'Platinum');
+
 CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL AUTO_INCREMENT,
     full_name VARCHAR(100) NOT NULL,
@@ -14,6 +41,8 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
   phone VARCHAR(50) DEFAULT NULL,
   is_admin TINYINT(1) NOT NULL DEFAULT 0,
+  total_spent DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  loyalty_tier_id INT DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY email (email)
@@ -42,6 +71,47 @@ SET @users_is_admin_sql := IF(@users_is_admin_exists = 0, 'ALTER TABLE users ADD
 PREPARE users_is_admin_stmt FROM @users_is_admin_sql;
 EXECUTE users_is_admin_stmt;
 DEALLOCATE PREPARE users_is_admin_stmt;
+
+SET @users_total_spent_exists := (
+  SELECT COUNT(*)
+  FROM information_schema.columns
+  WHERE table_schema = DATABASE()
+    AND table_name = 'users'
+    AND column_name = 'total_spent'
+);
+SET @users_total_spent_sql := IF(@users_total_spent_exists = 0, 'ALTER TABLE users ADD COLUMN total_spent DECIMAL(10, 2) NOT NULL DEFAULT 0.00 AFTER is_admin', 'SELECT 1');
+PREPARE users_total_spent_stmt FROM @users_total_spent_sql;
+EXECUTE users_total_spent_stmt;
+DEALLOCATE PREPARE users_total_spent_stmt;
+
+SET @users_loyalty_tier_id_exists := (
+  SELECT COUNT(*)
+  FROM information_schema.columns
+  WHERE table_schema = DATABASE()
+    AND table_name = 'users'
+    AND column_name = 'loyalty_tier_id'
+);
+SET @users_loyalty_tier_id_sql := IF(@users_loyalty_tier_id_exists = 0, 'ALTER TABLE users ADD COLUMN loyalty_tier_id INT DEFAULT NULL AFTER total_spent', 'SELECT 1');
+PREPARE users_loyalty_tier_id_stmt FROM @users_loyalty_tier_id_sql;
+EXECUTE users_loyalty_tier_id_stmt;
+DEALLOCATE PREPARE users_loyalty_tier_id_stmt;
+
+SET @users_loyalty_fk_exists := (
+  SELECT COUNT(*)
+  FROM information_schema.table_constraints
+  WHERE table_schema = DATABASE()
+    AND table_name = 'users'
+    AND constraint_name = 'users_loyalty_tier_fk'
+    AND constraint_type = 'FOREIGN KEY'
+);
+SET @users_loyalty_fk_sql := IF(
+  @users_loyalty_fk_exists = 0,
+  'ALTER TABLE users ADD CONSTRAINT users_loyalty_tier_fk FOREIGN KEY (loyalty_tier_id) REFERENCES loyalty_tiers(id) ON DELETE SET NULL',
+  'SELECT 1'
+);
+PREPARE users_loyalty_fk_stmt FROM @users_loyalty_fk_sql;
+EXECUTE users_loyalty_fk_stmt;
+DEALLOCATE PREPARE users_loyalty_fk_stmt;
 
 DROP TABLE IF EXISTS room_images;
 DROP TABLE IF EXISTS room_features;
