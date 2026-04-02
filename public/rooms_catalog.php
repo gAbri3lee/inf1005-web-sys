@@ -305,14 +305,14 @@ function rooms_catalog_all(): array
         ],
         [
             'id' => 104,
-            'name' => 'Horizon Two-Bedroom Villa',
+            'name' => 'Horizon Family Villa',
             'description' => 'A villa-style stay with more privacy - ideal for groups and longer visits.',
             'price_per_night' => 529.00,
             'occupancy' => 4,
             'view' => 'Garden',
             'accessible' => true,
             'size' => '92 sqm / 990 sqft',
-            'bed' => '2 Bedrooms (1 King + 2 Singles)',
+            'bed' => '2 Beds (1 King + 2 Singles)',
             'images' => [
                 rooms_catalog_image('horizon_villa_main.webp'),
                 rooms_catalog_tour_image('horizon_villa_balcony_pov.webp'),
@@ -400,11 +400,11 @@ function rooms_catalog_all(): array
         ],
         [
             'id' => 105,
-            'name' => 'City Lights Executive Room',
-            'description' => 'A refined room with city skyline views and a comfortable workspace.',
+            'name' => 'Grand Ocean View',
+            'description' => 'A serene coastal room with a tranquil sea view, and breezy shoreline mood to relax.',
             'price_per_night' => 259.00,
             'occupancy' => 2,
-            'view' => 'City',
+            'view' => 'Ocean',
             'accessible' => false,
             'size' => '40 sqm / 430 sqft',
             'bed' => '1 Queen',
@@ -614,7 +614,7 @@ function rooms_catalog_occupancy_options(?array $rooms = null): array
 function rooms_catalog_view_options(?array $rooms = null): array
 {
     $rooms ??= rooms_catalog_all();
-    $preferredOrder = ['Garden', 'Ocean', 'City', 'Lagoon'];
+    $preferredOrder = ['Garden', 'Ocean', 'Lagoon'];
     $available = [];
 
     foreach ($rooms as $room) {
