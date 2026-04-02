@@ -67,6 +67,13 @@ body.policies-body .navbar-expand-custom .navbar-collapse {
 	border: 1px solid rgba(168, 124, 96, 0.14);
 }
 
+@media (min-width: 1200px) {
+	body.policies-body .navbar-expand-custom .navbar-collapse {
+		background: transparent;
+		border: 0;
+	}
+}
+
 /* Safety: avoid invisible content if reveal-up isn't toggled. */
 .policies-page .reveal-up {
 	opacity: 1;
