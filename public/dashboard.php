@@ -531,7 +531,7 @@ if (isset($pdo)) {
             }
 
             try {
-                require_once __DIR__ . '/../app/includes/loyalty.php';
+                require_once __DIR__ . '/../app/includes/loyalty_helper.php';
                 if ($userId !== null) {
                     $loyaltySnapshot = loyalty_get_user_snapshot($pdo, (int)$userId);
                 }

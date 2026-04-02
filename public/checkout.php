@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errors) {
         }
 
         try {
-            require_once __DIR__ . '/../app/includes/loyalty.php';
+            require_once __DIR__ . '/../app/includes/loyalty_helper.php';
             $userId = auth_user_id() ?? 0;
             if ($userId > 0) {
                 loyalty_refresh_user($pdo, $userId);

@@ -59,7 +59,7 @@ if (!$errors) {
 
 		try {
 			require_once __DIR__ . '/../app/includes/db.php';
-			require_once __DIR__ . '/../app/includes/loyalty.php';
+			require_once __DIR__ . '/../app/includes/loyalty_helper.php';
 			$snapshot = loyalty_get_user_snapshot($pdo, auth_user_id() ?? 0);
 			$discountRate = (float)($snapshot['discount_rate'] ?? 0);
 			$tierLabel = (string)($snapshot['tier_name'] ?? '');
