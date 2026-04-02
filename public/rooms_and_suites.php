@@ -130,17 +130,29 @@ include __DIR__ . '/../app/includes/navbar.php';
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <div id="roomCarousel" class="carousel slide" data-bs-ride="false" role="region" aria-label="Room images">
-                        <div class="carousel-indicators js-room-carousel-indicators"></div>
-                        <div class="carousel-inner js-room-carousel-inner"></div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
+                    <div class="room-media-area">
+                        <div id="roomCarousel" class="carousel slide" data-bs-ride="false" role="region" aria-label="Room images">
+                            <div class="carousel-indicators js-room-carousel-indicators"></div>
+                            <div class="carousel-inner js-room-carousel-inner"></div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                        <div class="room-tour js-room-tour" aria-label="360 room tour" role="region">
+                            <div class="room-tour-track js-room-tour-track"></div>
+                            <div class="room-tour-hint js-room-tour-hint" aria-hidden="true">← Drag to look around →</div>
+                        </div>
+                        <div class="room-media-toolbar">
+                            <button type="button" class="btn btn-tour js-tour-toggle" aria-pressed="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                                <span class="js-tour-label">3D Tour</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="p-4 p-md-5">

@@ -102,7 +102,7 @@ try {
 
 if (isset($pdo)) {
     try {
-        require_once __DIR__ . '/../app/includes/loyalty.php';
+        require_once __DIR__ . '/../app/includes/loyalty_helper.php';
     } catch (Throwable $exception) {
         // Loyalty is optional.
     }
