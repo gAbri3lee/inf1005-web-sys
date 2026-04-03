@@ -1,7 +1,7 @@
 (() => {
 	'use strict';
 
-	const form = document.querySelector('form[action="checkout.php"]');
+	const form = document.querySelector('form[action^="checkout.php"]');
 	if (!form) return;
 
 	const cardEl = document.getElementById('card_number');

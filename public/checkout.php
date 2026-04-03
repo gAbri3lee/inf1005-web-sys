@@ -13,6 +13,12 @@ $pageScripts = ['assets/js/checkout.js'];
 $errors = [];
 $databaseNotice = '';
 
+$adjustmentId = (int)($_GET['adjustment_id'] ?? 0);
+$adjustBookingId = (int)($_GET['adjust_booking_id'] ?? 0);
+$adjustmentMode = $adjustmentId > 0 || $adjustBookingId > 0;
+$adjustmentBooking = null;
+$amountDue = 0.0;
+
 try {
     require_once __DIR__ . '/../app/includes/db.php';
 } catch (Throwable $exception) {
@@ -20,12 +26,12 @@ try {
 }
 
 $pending = $_SESSION['pending_booking'] ?? null;
-if (!is_array($pending)) {
+if (!$adjustmentMode && !is_array($pending)) {
     $errors[] = 'Your booking selection is missing. Please choose a room and dates first.';
 }
 
 $room = null;
-if (!$errors) {
+if (!$errors && !$adjustmentMode) {
     $roomId = (int)($pending['room_id'] ?? 0);
     $room = $roomId > 0 ? rooms_catalog_find($roomId) : null;
     if (!$room) {
@@ -33,7 +39,53 @@ if (!$errors) {
     }
 }
 
-$checkoutErrorReturnPath = (!$pending || !$room) ? 'rooms_and_suites.php' : 'checkout.php';
+if (!$errors && $adjustmentMode) {
+    if ($databaseNotice !== '' || !isset($pdo)) {
+        $errors[] = $databaseNotice !== '' ? $databaseNotice : 'Unable to connect to the booking database right now. Please try again shortly.';
+    } else {
+        require_once __DIR__ . '/../app/includes/booking_adjustments.php';
+        booking_adjustments_ensure_table($pdo);
+
+        if ($adjustmentId > 0) {
+            $pendingAdjustment = booking_adjustments_get_pending_due($pdo, $adjustmentId, (int)(auth_user_id() ?? 0));
+            if (!$pendingAdjustment) {
+                $errors[] = 'That additional payment request is no longer available.';
+            } else {
+                $amountDue = (float)($pendingAdjustment['amount'] ?? 0);
+                $adjustmentBooking = $pendingAdjustment;
+            }
+        } else {
+            // Back-compat path (legacy link): booking id + amount in querystring.
+            $stmt = $pdo->prepare('SELECT id, user_id, room_id, room_name, check_in, check_out, nights, room_rate, total_price, status FROM bookings WHERE id = ? AND user_id = ? LIMIT 1');
+            $stmt->execute([$adjustBookingId, auth_user_id()]);
+            $adjustmentBooking = $stmt->fetch() ?: null;
+            if (!$adjustmentBooking) {
+                $errors[] = 'That booking could not be found for your account.';
+            }
+        }
+    }
+
+    if ($adjustmentId <= 0) {
+        $amountDueRaw = trim((string)($_GET['amount_due'] ?? ''));
+        $amountDue = is_numeric($amountDueRaw) ? (float)$amountDueRaw : 0.0;
+        if ($amountDue <= 0.009) {
+            $errors[] = 'The additional payment amount is missing or invalid.';
+        }
+    }
+
+    // Provide a minimal room object for the existing template.
+    if (!$errors) {
+        $room = [
+            'name' => (string)($adjustmentBooking['room_name'] ?? 'Room booking'),
+            'view' => '',
+            'occupancy' => 0,
+        ];
+    }
+}
+
+$checkoutErrorReturnPath = $adjustmentMode
+    ? 'dashboard.php'
+    : ((!$pending || !$room) ? 'rooms_and_suites.php' : 'checkout.php');
 
 $formData = [
     'full_name' => auth_user_display_name(),
@@ -139,7 +191,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errors) {
         $errors[] = $databaseNotice;
     }
 
-    if (!$errors && isset($pdo) && $pending && $room) {
+    if (!$errors && $adjustmentMode && isset($pdo) && $adjustmentBooking) {
+        // Only mark the banner as resolved after the user submits checkout successfully.
+        if ($adjustmentId > 0) {
+            require_once __DIR__ . '/../app/includes/booking_adjustments.php';
+            booking_adjustments_ensure_table($pdo);
+            booking_adjustments_mark_paid($pdo, $adjustmentId, (int)(auth_user_id() ?? 0));
+        }
+
+        csrf_refresh('checkout_form');
+        auth_flash_set('dashboard_notice', 'Payment of $' . number_format($amountDue, 2) . ' received. Thank you for confirming your updated room booking.');
+        auth_redirect('dashboard.php#room-bookings');
+    }
+
+    if (!$errors && !$adjustmentMode && isset($pdo) && $pending && $room) {
         $stmt = $pdo->prepare(
             'INSERT INTO bookings (
                 user_id,
@@ -260,40 +325,62 @@ include __DIR__ . '/../app/includes/navbar.php';
                     <?php endif; ?>
                 <?php else: ?>
                     <?php
-                        $checkIn = (string)($pending['check_in'] ?? '');
-                        $checkOut = (string)($pending['check_out'] ?? '');
-                        $nights = (int)($pending['nights'] ?? 0);
-                        $rate = (float)($pending['rate'] ?? 0);
-                        $total = (float)($pending['total'] ?? 0);
-                        $discountRate = (float)($pending['discount_rate'] ?? 0);
-                        $discountAmount = (float)($pending['discount_amount'] ?? 0);
-                        $discountedTotal = (float)($pending['discounted_total'] ?? $total);
-                        $tierName = trim((string)($pending['tier_name'] ?? ''));
+                        if ($adjustmentMode && is_array($adjustmentBooking)) {
+                            $checkIn = (string)($adjustmentBooking['check_in'] ?? '');
+                            $checkOut = (string)($adjustmentBooking['check_out'] ?? '');
+                            $nights = (int)($adjustmentBooking['nights'] ?? 0);
+                            $rate = (float)($adjustmentBooking['room_rate'] ?? 0);
+                            $total = (float)$amountDue;
+                            $discountRate = 0.0;
+                            $discountAmount = 0.0;
+                            $discountedTotal = (float)$amountDue;
+                            $tierName = '';
+                        } else {
+                            $checkIn = (string)($pending['check_in'] ?? '');
+                            $checkOut = (string)($pending['check_out'] ?? '');
+                            $nights = (int)($pending['nights'] ?? 0);
+                            $rate = (float)($pending['rate'] ?? 0);
+                            $total = (float)($pending['total'] ?? 0);
+                            $discountRate = (float)($pending['discount_rate'] ?? 0);
+                            $discountAmount = (float)($pending['discount_amount'] ?? 0);
+                            $discountedTotal = (float)($pending['discounted_total'] ?? $total);
+                            $tierName = trim((string)($pending['tier_name'] ?? ''));
+                        }
                     ?>
 
                     <div class="row g-4">
                         <div class="col-lg-5">
                             <div class="content-card p-4 p-md-5 h-100">
-                                <h2 class="h4 mb-3">Order summary</h2>
+                                <h2 class="h4 mb-3"><?php echo $adjustmentMode ? 'Additional payment' : 'Order summary'; ?></h2>
                                 <p class="mb-1"><strong><?php echo htmlspecialchars((string)($room['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong></p>
-                                <p class="text-muted mb-3"><?php echo htmlspecialchars((string)($room['view'] ?? ''), ENT_QUOTES, 'UTF-8'); ?> view &bull; <?php echo (int)($room['occupancy'] ?? 0); ?> pax</p>
+                                <?php if (!$adjustmentMode): ?>
+                                    <p class="text-muted mb-3"><?php echo htmlspecialchars((string)($room['view'] ?? ''), ENT_QUOTES, 'UTF-8'); ?> view &bull; <?php echo (int)($room['occupancy'] ?? 0); ?> pax</p>
+                                <?php else: ?>
+                                    <p class="text-muted mb-3">Payment required to confirm an admin-updated booking.</p>
+                                <?php endif; ?>
                                 <div class="d-grid gap-2">
                                     <div class="d-flex justify-content-between"><span class="text-muted">Check-in</span><span><?php echo htmlspecialchars($checkIn, ENT_QUOTES, 'UTF-8'); ?></span></div>
                                     <div class="d-flex justify-content-between"><span class="text-muted">Check-out</span><span><?php echo htmlspecialchars($checkOut, ENT_QUOTES, 'UTF-8'); ?></span></div>
                                     <div class="d-flex justify-content-between"><span class="text-muted">Nights</span><span><?php echo $nights; ?></span></div>
                                     <hr class="my-2">
-                                    <div class="d-flex justify-content-between"><span class="text-muted">Rate / night</span><span>$<?php echo number_format($rate, 2); ?></span></div>
-                                    <?php if ($discountRate > 0.000001 && $discountAmount > 0.009): ?>
+                                    <?php if (!$adjustmentMode): ?>
+                                        <div class="d-flex justify-content-between"><span class="text-muted">Rate / night</span><span>$<?php echo number_format($rate, 2); ?></span></div>
+                                    <?php endif; ?>
+                                    <?php if (!$adjustmentMode && $discountRate > 0.000001 && $discountAmount > 0.009): ?>
                                         <div class="d-flex justify-content-between"><span class="text-muted">Subtotal</span><span>$<?php echo number_format($total, 2); ?></span></div>
                                         <div class="d-flex justify-content-between"><span class="text-muted">Loyalty discount<?php echo $tierName !== '' ? ' (' . htmlspecialchars($tierName, ENT_QUOTES, 'UTF-8') . ')' : ''; ?></span><span>-$<?php echo number_format($discountAmount, 2); ?></span></div>
                                         <div class="d-flex justify-content-between"><span class="fw-bold">Total</span><span class="fw-bold">$<?php echo number_format($discountedTotal, 2); ?></span></div>
                                     <?php else: ?>
-                                        <div class="d-flex justify-content-between"><span class="fw-bold">Total</span><span class="fw-bold">$<?php echo number_format($total, 2); ?></span></div>
+                                        <div class="d-flex justify-content-between"><span class="fw-bold"><?php echo $adjustmentMode ? 'Amount due' : 'Total'; ?></span><span class="fw-bold">$<?php echo number_format($adjustmentMode ? $discountedTotal : $total, 2); ?></span></div>
                                     <?php endif; ?>
                                 </div>
 
                                 <div class="d-grid gap-2 mt-4">
-                                    <a class="btn btn-outline-secondary" href="rooms_and_suites.php">Change selection</a>
+                                    <?php if (!$adjustmentMode): ?>
+                                        <a class="btn btn-outline-secondary" href="rooms_and_suites.php">Change selection</a>
+                                    <?php else: ?>
+                                        <a class="btn btn-outline-secondary" href="dashboard.php#room-bookings">Back to dashboard</a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -302,7 +389,17 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <div class="content-card p-4 p-md-5">
                                 <h2 class="h4 mb-3">Billing information</h2>
 
-                                <form action="checkout.php" method="POST" novalidate>
+                                <form action="<?php
+                                    if ($adjustmentMode) {
+                                        if ($adjustmentId > 0) {
+                                            echo 'checkout.php?adjustment_id=' . (int)$adjustmentId;
+                                        } else {
+                                            echo 'checkout.php?adjust_booking_id=' . (int)$adjustBookingId . '&amount_due=' . rawurlencode(number_format((float)$amountDue, 2, '.', ''));
+                                        }
+                                    } else {
+                                        echo 'checkout.php';
+                                    }
+                                ?>" method="POST" novalidate>
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('checkout_form'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <div class="form-honeypot" aria-hidden="true">
                                         <label for="website" class="form-label">Website</label>
@@ -359,7 +456,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                     </div>
 
                                     <div class="d-grid mt-4">
-                                        <button type="submit" class="btn btn-gold">Pay &amp; confirm booking</button>
+                                        <button type="submit" class="btn btn-gold"><?php echo $adjustmentMode ? ('Pay $' . number_format((float)$amountDue, 2)) : 'Pay &amp; confirm booking'; ?></button>
                                     </div>
                                 </form>
                             </div>

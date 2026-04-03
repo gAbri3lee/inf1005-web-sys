@@ -47,7 +47,10 @@ try {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = trim((string)($_POST['action'] ?? ''));
-    $redirectTarget = 'admin_user_details.php?user_id=' . $targetUserId . '#room-bookings';
+    $redirectTarget = match ($action) {
+        'admin_update_user_details' => 'admin_user_details.php?user_id=' . $targetUserId . '#account',
+        default => 'admin_user_details.php?user_id=' . $targetUserId . '#room-bookings',
+    };
 
     if ($databaseNotice !== '' || !isset($pdo)) {
         auth_flash_set('dashboard_error', 'Unable to update the booking right now because the database is unavailable.');
@@ -61,6 +64,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         switch ($action) {
+            case 'admin_update_user_details':
+                $fullName = trim((string)($_POST['full_name'] ?? ''));
+                $email = strtolower(trim((string)($_POST['email'] ?? '')));
+                $phone = trim((string)($_POST['phone'] ?? ''));
+                $phone = $phone === '' ? null : $phone;
+
+                if ($fullName === '') {
+                    auth_flash_set('dashboard_error', 'Please enter the guest\'s name.');
+                    break;
+                }
+
+                if (app_string_length($fullName) > 100) {
+                    auth_flash_set('dashboard_error', 'Name must be 100 characters or fewer.');
+                    break;
+                }
+
+                if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    auth_flash_set('dashboard_error', 'Please enter a valid email address.');
+                    break;
+                }
+
+                if (app_string_length($email) > 100) {
+                    auth_flash_set('dashboard_error', 'Email must be 100 characters or fewer.');
+                    break;
+                }
+
+                if ($phone !== null && app_string_length($phone) > 50) {
+                    auth_flash_set('dashboard_error', 'Phone number must be 50 characters or fewer.');
+                    break;
+                }
+
+                if ($phone !== null && $phone !== '' && !preg_match('/^\d+$/', $phone)) {
+                    auth_flash_set('dashboard_error', 'Numbers only');
+                    break;
+                }
+
+                $checkStmt = $pdo->prepare('SELECT id FROM users WHERE email = ? AND id <> ? LIMIT 1');
+                $checkStmt->execute([$email, $targetUserId]);
+                if ($checkStmt->fetch()) {
+                    auth_flash_set('dashboard_error', 'That email address is already in use.');
+                    break;
+                }
+
+                $updateStmt = $pdo->prepare('UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?');
+                $updateStmt->execute([$fullName, $email, $phone, $targetUserId]);
+                auth_flash_set('dashboard_notice', 'User account details updated.');
+                break;
+
             case 'admin_delete_booking':
                 $bookingId = (int)($_POST['booking_id'] ?? 0);
                 if ($bookingId <= 0) {
@@ -117,10 +168,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $checkOutDate = DateTimeImmutable::createFromFormat('Y-m-d', $checkOut);
 
                 if ($checkInDate && $checkOutDate && $checkInDate->format('Y-m-d') === $checkIn && $checkOutDate->format('Y-m-d') === $checkOut) {
-                    if ($checkOutDate > $checkInDate) {
-                        $diffDays = (int)$checkInDate->diff($checkOutDate)->days;
-                        $nights = max(1, $diffDays);
-                    }
+                    $diffDays = (int)$checkInDate->diff($checkOutDate)->days;
+                    $nights = max(1, $diffDays);
                 }
 
                 $updateStmt = $pdo->prepare(
@@ -140,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $targetUserId,
                 ]);
 
-                auth_flash_set('dashboard_notice', 'Booking updated.');
+                auth_flash_set('dashboard_notice', 'Booking updated. The guest will see updated totals on their next dashboard login.');
                 break;
 
             default:
@@ -148,7 +197,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
         }
     } catch (Throwable $exception) {
-        auth_flash_set('dashboard_error', 'Unable to update the booking right now. Please try again.');
+        $fallbackMessage = match ($action) {
+            'admin_update_user_details' => 'Unable to update the user account right now. Please try again.',
+            default => 'Unable to update the booking right now. Please try again.',
+        };
+        auth_flash_set('dashboard_error', $fallbackMessage);
     }
 
     auth_redirect($redirectTarget);
@@ -268,7 +321,7 @@ include __DIR__ . '/../app/includes/navbar.php';
             <?php endif; ?>
 
             <?php if ($userRecord): ?>
-                <section class="content-card dashboard-panel reveal-up">
+                <section id="account" class="content-card dashboard-panel reveal-up">
                     <div class="dashboard-panel-head">
                         <div>
                             <p class="dashboard-panel-label">Account</p>
@@ -282,6 +335,55 @@ include __DIR__ . '/../app/includes/navbar.php';
                         <div><span class="dashboard-entry-label">Phone</span><strong><?php echo htmlspecialchars((string)(($userRecord['phone'] ?? '') !== '' ? $userRecord['phone'] : '—'), ENT_QUOTES, 'UTF-8'); ?></strong></div>
                         <div><span class="dashboard-entry-label">Created</span><strong><?php echo htmlspecialchars((string)($userRecord['created_at'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong></div>
                     </div>
+
+                    <form action="admin_user_details.php?user_id=<?php echo $targetUserId; ?>#account" method="POST" class="mt-3" style="max-width: 640px;">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('admin_user_details_form'), ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="action" value="admin_update_user_details">
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label" for="admin_full_name">Full name</label>
+                                <input
+                                    class="form-control"
+                                    id="admin_full_name"
+                                    type="text"
+                                    name="full_name"
+                                    value="<?php echo htmlspecialchars((string)($userRecord['full_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                    maxlength="100"
+                                    required
+                                >
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="admin_email">Email</label>
+                                <input
+                                    class="form-control"
+                                    id="admin_email"
+                                    type="email"
+                                    name="email"
+                                    value="<?php echo htmlspecialchars((string)($userRecord['email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                    maxlength="100"
+                                    required
+                                >
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="admin_phone">Phone (optional)</label>
+                                <input
+                                    class="form-control"
+                                    id="admin_phone"
+                                    type="text"
+                                    name="phone"
+                                    inputmode="numeric"
+                                    pattern="[0-9]*"
+                                    value="<?php echo htmlspecialchars((string)($userRecord['phone'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                    maxlength="50"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-gold btn-sm">Save user details</button>
+                        </div>
+                    </form>
                 </section>
 
                 <section id="room-bookings" class="content-card dashboard-panel reveal-up">

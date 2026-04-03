@@ -69,6 +69,8 @@ function dashboard_validate_password_strength(string $password, array &$errors):
 
 $dashboardNotice = auth_flash_get('dashboard_notice');
 $dashboardError = auth_flash_get('dashboard_error');
+$bookingAdjustmentNoticeHtml = '';
+$pendingBookingAdjustment = null;
 
 try {
     require_once __DIR__ . '/../app/includes/db.php';
@@ -82,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'cancel_spa_booking' => 'dashboard.php#spa-bookings',
         'update_account_details' => 'dashboard.php#account-details',
         'change_password' => 'dashboard.php#account-details',
+        'acknowledge_booking_refund' => 'dashboard.php#room-bookings',
         'admin_update_user_phone' => 'dashboard.php#admin-users',
         'admin_delete_user' => 'dashboard.php#admin-users',
         'admin_update_booking' => 'dashboard.php#admin-users',
@@ -120,6 +123,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         switch ($action) {
+            case 'acknowledge_booking_refund':
+                if (auth_is_admin()) {
+                    auth_flash_set('dashboard_error', 'Refund acknowledgements are unavailable for admin accounts.');
+                    break;
+                }
+
+                $adjustmentId = (int)($_POST['adjustment_id'] ?? 0);
+                if ($userId <= 0 || $adjustmentId <= 0) {
+                    auth_flash_set('dashboard_error', 'Unable to acknowledge this refund right now.');
+                    break;
+                }
+
+                require_once __DIR__ . '/../app/includes/booking_adjustments.php';
+                booking_adjustments_ensure_table($pdo);
+                booking_adjustments_acknowledge_refund($pdo, $adjustmentId, $userId);
+                auth_flash_set('dashboard_notice', 'Thanks — we\'ll proceed with the refund and keep you updated.');
+                break;
+
             case 'update_account_details':
                 if (auth_is_admin()) {
                     auth_flash_set('dashboard_error', 'Account updates are unavailable for admin accounts.');
@@ -373,10 +394,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $checkOutDate = DateTimeImmutable::createFromFormat('Y-m-d', $checkOut);
 
                 if ($checkInDate && $checkOutDate && $checkInDate->format('Y-m-d') === $checkIn && $checkOutDate->format('Y-m-d') === $checkOut) {
-                    if ($checkOutDate > $checkInDate) {
-                        $diffDays = (int)$checkInDate->diff($checkOutDate)->days;
-                        $nights = max(1, $diffDays);
-                    }
+                    $diffDays = (int)$checkInDate->diff($checkOutDate)->days;
+                    $nights = max(1, $diffDays);
                 }
 
                 $updateStmt = $pdo->prepare(
@@ -395,7 +414,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $bookingId,
                 ]);
 
-                auth_flash_set('dashboard_notice', 'Booking updated.');
+                auth_flash_set('dashboard_notice', 'Booking updated. The guest will see updated totals on their next dashboard login.');
                 break;
 
             case 'cancel_spa_booking':
@@ -565,6 +584,127 @@ if (isset($pdo)) {
             $bookingStmt->execute([$userId]);
             $roomBookings = $bookingStmt->fetchAll();
 
+            require_once __DIR__ . '/../app/includes/booking_adjustments.php';
+            booking_adjustments_ensure_table($pdo);
+
+            // If an admin updated a booking (or any out-of-band edit occurred) without recalculating totals,
+            // ensure the dashboard reflects the correct nights and total_price and record a pending adjustment.
+            try {
+                foreach ($roomBookings as $index => $booking) {
+                    $bookingId = (int)($booking['id'] ?? 0);
+                    if ($bookingId <= 0) {
+                        continue;
+                    }
+
+                    $storedNights = (int)($booking['nights'] ?? 1);
+                    $storedTotal = (float)($booking['total_price'] ?? 0);
+                    $roomRate = (float)($booking['room_rate'] ?? 0);
+                    $roomName = (string)($booking['room_name'] ?? 'this room');
+
+                    // Admin edits can update the nights column without updating total_price.
+                    // When that happens, the stored nights equals the *new* value, but storedTotal
+                    // still reflects the *old* amount. Prefer inferring the old nights from the old total.
+                    $displayOldNights = $storedNights;
+                    if ($roomRate > 0.009 && $storedTotal > 0.009) {
+                        $inferredOldNights = (int)round($storedTotal / $roomRate);
+                        if ($inferredOldNights > 0 && abs($storedTotal - ($inferredOldNights * $roomRate)) < 0.02) {
+                            $displayOldNights = $inferredOldNights;
+                        }
+                    }
+
+                    $expectedNights = $storedNights;
+                    $checkInRaw = trim((string)($booking['check_in'] ?? ''));
+                    $checkOutRaw = trim((string)($booking['check_out'] ?? ''));
+                    $checkInDate = $checkInRaw !== '' ? DateTimeImmutable::createFromFormat('Y-m-d', $checkInRaw) : false;
+                    $checkOutDate = $checkOutRaw !== '' ? DateTimeImmutable::createFromFormat('Y-m-d', $checkOutRaw) : false;
+
+                    if ($checkInDate && $checkOutDate && $checkInDate->format('Y-m-d') === $checkInRaw && $checkOutDate->format('Y-m-d') === $checkOutRaw) {
+                        $diffDays = (int)$checkInDate->diff($checkOutDate)->days;
+                        $expectedNights = max(1, $diffDays);
+                    }
+
+                    $expectedTotal = round($expectedNights * $roomRate, 2);
+                    $totalDelta = $expectedTotal - $storedTotal;
+                    $needsUpdate = abs($totalDelta) > 0.009 || $expectedNights !== $storedNights;
+
+                    if (!$needsUpdate) {
+                        continue;
+                    }
+
+                    $updateStmt = $pdo->prepare('UPDATE bookings SET nights = ?, total_price = ? WHERE id = ? AND user_id = ?');
+                    $updateStmt->execute([$expectedNights, $expectedTotal, $bookingId, $userId]);
+
+                    $roomBookings[$index]['nights'] = $expectedNights;
+                    $roomBookings[$index]['total_price'] = $expectedTotal;
+
+                    if (abs($totalDelta) > 0.009) {
+                        $kind = $totalDelta > 0 ? 'due' : 'refund';
+                        $amount = abs($totalDelta);
+                        booking_adjustments_upsert_pending(
+                            $pdo,
+                            $bookingId,
+                            $userId,
+                            $kind,
+                            $amount,
+                            $displayOldNights,
+                            $expectedNights,
+                            $storedTotal,
+                            $expectedTotal
+                        );
+                    } else {
+                        // If there was an older pending adjustment for this booking and the totals now match,
+                        // clear it so the user is not blocked by a stale banner.
+                        booking_adjustments_clear_pending($pdo, $bookingId, $userId);
+                    }
+                }
+            } catch (Throwable $exception) {
+                // Best-effort: a failure to auto-recalculate should not block the dashboard.
+            }
+
+            try {
+                $pendingBookingAdjustment = booking_adjustments_get_latest_pending_for_user($pdo, (int)$userId);
+            } catch (Throwable $exception) {
+                $pendingBookingAdjustment = null;
+            }
+
+            if ($pendingBookingAdjustment) {
+                $roomName = (string)($pendingBookingAdjustment['room_name'] ?? 'this room');
+                $kind = strtolower(trim((string)($pendingBookingAdjustment['kind'] ?? '')));
+                $amount = (float)($pendingBookingAdjustment['amount'] ?? 0);
+                $oldNights = (int)($pendingBookingAdjustment['old_nights'] ?? 0);
+                $newNights = (int)($pendingBookingAdjustment['new_nights'] ?? 0);
+                $oldTotal = (float)($pendingBookingAdjustment['old_total'] ?? 0);
+                $newTotal = (float)($pendingBookingAdjustment['new_total'] ?? 0);
+                $adjustmentId = (int)($pendingBookingAdjustment['id'] ?? 0);
+
+                $safeRoomName = htmlspecialchars($roomName !== '' ? $roomName : 'this room', ENT_QUOTES, 'UTF-8');
+                $safeOldTotal = htmlspecialchars('$' . number_format($oldTotal, 2), ENT_QUOTES, 'UTF-8');
+                $safeNewTotal = htmlspecialchars('$' . number_format($newTotal, 2), ENT_QUOTES, 'UTF-8');
+                $safeOldNights = htmlspecialchars((string)max(1, $oldNights > 0 ? $oldNights : 1), ENT_QUOTES, 'UTF-8');
+                $safeNewNights = htmlspecialchars((string)max(1, $newNights > 0 ? $newNights : 1), ENT_QUOTES, 'UTF-8');
+
+                if ($kind === 'due' && $amount > 0.009 && $adjustmentId > 0) {
+                    $safeAmount = htmlspecialchars('$' . number_format($amount, 2), ENT_QUOTES, 'UTF-8');
+                    $checkoutUrl = 'checkout.php?adjustment_id=' . rawurlencode((string)$adjustmentId);
+                    $safeCheckoutUrl = htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8');
+                    $bookingAdjustmentNoticeHtml = 'Your room booking has been updated by our team for <strong>' . $safeRoomName . '</strong>. '
+                        . 'It is now <strong>' . $safeNewNights . '</strong> nights and totals <strong>' . $safeNewTotal . '</strong> (was ' . $safeOldNights . ' nights / ' . $safeOldTotal . '). '
+                        . 'An additional <strong>' . $safeAmount . '</strong> is due. You can <a href="' . $safeCheckoutUrl . '">pay now</a>. If you have any questions, please <a href="contact.php">contact us</a>.';
+                } elseif ($kind === 'refund' && $amount > 0.009 && $adjustmentId > 0) {
+                    $safeAmount = htmlspecialchars('$' . number_format($amount, 2), ENT_QUOTES, 'UTF-8');
+                    $bookingAdjustmentNoticeHtml = 'Your room booking has been updated by our team for <strong>' . $safeRoomName . '</strong>. '
+                        . 'It is now <strong>' . $safeNewNights . '</strong> nights and totals <strong>' . $safeNewTotal . '</strong> (was ' . $safeOldNights . ' nights / ' . $safeOldTotal . '). '
+                        . 'A refund of <strong>' . $safeAmount . '</strong> will be processed. '
+                        . '<form action="dashboard.php" method="POST" class="d-inline ms-2">'
+                        . '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(csrf_token('dashboard_action_form'), ENT_QUOTES, 'UTF-8') . '">' 
+                        . '<input type="hidden" name="action" value="acknowledge_booking_refund">'
+                        . '<input type="hidden" name="adjustment_id" value="' . htmlspecialchars((string)$adjustmentId, ENT_QUOTES, 'UTF-8') . '">' 
+                        . '<button type="submit" class="btn btn-outline-secondary btn-sm">Acknowledge</button>'
+                        . '</form> '
+                        . 'If you have any questions, please <a href="contact.php">contact us</a>.';
+                }
+            }
+
             $spaStmt = $pdo->prepare(
                 'SELECT id, treatment_name, treatment_date, treatment_time, guests, status, notes, created_at
                  FROM spa_bookings
@@ -646,6 +786,12 @@ include __DIR__ . '/../app/includes/navbar.php';
             <?php if ($dashboardNotice): ?>
                 <div class="alert alert-success reveal-up" role="alert">
                     <?php echo htmlspecialchars($dashboardNotice, ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($bookingAdjustmentNoticeHtml): ?>
+                <div class="alert alert-warning reveal-up" role="alert">
+                    <?php echo $bookingAdjustmentNoticeHtml; ?>
                 </div>
             <?php endif; ?>
 
@@ -905,38 +1051,6 @@ include __DIR__ . '/../app/includes/navbar.php';
                 <section class="content-card dashboard-panel reveal-up">
                     <div class="dashboard-panel-head">
                         <div>
-                            <p class="dashboard-panel-label">Quick actions</p>
-                            <h2 class="dashboard-panel-title">Plan your next experience</h2>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-actions-grid">
-                        <article class="dashboard-action-card">
-                            <h3>Book a room</h3>
-                            <p>Browse the suites and villas collection, choose your dates, and confirm your next stay.</p>
-                            <a class="btn btn-gold" href="rooms_and_suites.php">Explore rooms</a>
-                        </article>
-                        <article class="dashboard-action-card">
-                            <h3>Manage stays</h3>
-                            <p>Open your room-bookings page to edit guest details, adjust dates, or cancel a reservation.</p>
-                            <a class="btn btn-gold" href="room_bookings.php">Open room bookings</a>
-                        </article>
-                        <article class="dashboard-action-card">
-                            <h3>Reserve the spa</h3>
-                            <p>Schedule a treatment and keep track of every wellness booking in your account.</p>
-                            <a class="btn btn-gold" href="spa_booking.php">Book the spa</a>
-                        </article>
-                        <article class="dashboard-action-card">
-                            <h3>Leave a review</h3>
-                            <p>Share your experience with future guests and keep your published feedback in one place.</p>
-                            <a class="btn btn-gold" href="reviews.php">Write a review</a>
-                        </article>
-                    </div>
-                </section>
-
-                <section class="content-card dashboard-panel reveal-up">
-                    <div class="dashboard-panel-head">
-                        <div>
                             <p class="dashboard-panel-label">Room bookings</p>
                             <h2 class="dashboard-panel-title">Recent stay activity</h2>
                         </div>
@@ -1068,6 +1182,38 @@ include __DIR__ . '/../app/includes/navbar.php';
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
+                </section>
+
+                <section class="content-card dashboard-panel reveal-up">
+                    <div class="dashboard-panel-head">
+                        <div>
+                            <p class="dashboard-panel-label">Quick actions</p>
+                            <h2 class="dashboard-panel-title">Plan your next experience</h2>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-actions-grid">
+                        <article class="dashboard-action-card">
+                            <h3>Book a room</h3>
+                            <p>Browse the suites and villas collection, choose your dates, and confirm your next stay.</p>
+                            <a class="btn btn-gold" href="rooms_and_suites.php">Explore rooms</a>
+                        </article>
+                        <article class="dashboard-action-card">
+                            <h3>Manage stays</h3>
+                            <p>Open your room-bookings page to edit guest details, adjust dates, or cancel a reservation.</p>
+                            <a class="btn btn-gold" href="room_bookings.php">Open room bookings</a>
+                        </article>
+                        <article class="dashboard-action-card">
+                            <h3>Reserve the spa</h3>
+                            <p>Schedule a treatment and keep track of every wellness booking in your account.</p>
+                            <a class="btn btn-gold" href="spa_booking.php">Book the spa</a>
+                        </article>
+                        <article class="dashboard-action-card">
+                            <h3>Leave a review</h3>
+                            <p>Share your experience with future guests and keep your published feedback in one place.</p>
+                            <a class="btn btn-gold" href="reviews.php">Write a review</a>
+                        </article>
+                    </div>
                 </section>
                 <?php endif; ?>
             </div>
