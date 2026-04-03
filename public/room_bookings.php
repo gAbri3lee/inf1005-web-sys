@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../app/includes/auth.php';
-
+//room bookings login 
 auth_require_login(
     'room_bookings.php',
     'Please sign in or create an account to manage your room bookings.'
