@@ -401,7 +401,7 @@ function rooms_catalog_all(): array
         [
             'id' => 105,
             'name' => 'Grand Ocean View',
-            'description' => 'A serene coastal room with a tranquil sea view, and breezy shoreline mood to relax.',
+            'description' => 'A serene coastal room with a tranquil sky view, and breezy skyline mood to relax.',
             'price_per_night' => 259.00,
             'occupancy' => 2,
             'view' => 'Ocean',

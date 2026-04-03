@@ -113,6 +113,14 @@ PREPARE users_loyalty_fk_stmt FROM @users_loyalty_fk_sql;
 EXECUTE users_loyalty_fk_stmt;
 DEALLOCATE PREPARE users_loyalty_fk_stmt;
 
+INSERT INTO users (full_name, email, password, phone, is_admin, total_spent, loyalty_tier_id)
+SELECT 'Administrator', 'admin@horizonsands.test', 'password', NULL, 1, 0.00, NULL
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM users
+  WHERE email = 'admin@horizonsands.test'
+);
+
 DROP TABLE IF EXISTS room_images;
 DROP TABLE IF EXISTS room_features;
 DROP TABLE IF EXISTS room_benefits;
