@@ -438,17 +438,34 @@ if (isset($pdo)) {
         if (auth_is_admin()) {
             try {
                 $usersStmt = $pdo->query(
-                    'SELECT id, full_name, email, phone, COALESCE(is_admin, 0) AS is_admin, created_at
-                     FROM users
-                     WHERE COALESCE(is_admin, 0) = 0
-                     ORDER BY created_at DESC, id DESC'
+                    'SELECT u.id,
+                            u.full_name,
+                            u.email,
+                            u.phone,
+                            COALESCE(u.is_admin, 0) AS is_admin,
+                            u.created_at,
+                            (
+                                SELECT t.tier_name
+                                FROM loyalty_tiers t
+                                WHERE t.min_spending <= (
+                                    SELECT COALESCE(SUM(COALESCE(b.total_price, 0)), 0)
+                                    FROM bookings b
+                                    WHERE b.user_id = u.id
+                                      AND LOWER(TRIM(COALESCE(b.status, \'\'))) <> \'cancelled\'
+                                )
+                                ORDER BY t.min_spending DESC, t.id DESC
+                                LIMIT 1
+                            ) AS loyalty_tier
+                     FROM users u
+                     WHERE COALESCE(u.is_admin, 0) = 0
+                     ORDER BY u.created_at DESC, u.id DESC'
                 );
                 $adminUsers = $usersStmt->fetchAll();
             } catch (Throwable $exception) {
                 // Fallback for older schemas: still hide the seeded admin account by email.
                 try {
                     $usersStmt = $pdo->prepare(
-                        'SELECT id, full_name, email, phone, created_at
+                        'SELECT id, full_name, email, phone, created_at, NULL AS loyalty_tier
                          FROM users
                          WHERE email <> ?
                          ORDER BY created_at DESC, id DESC'
@@ -667,6 +684,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         $uEmail = (string)($user['email'] ?? '');
                                         $uPhone = (string)($user['phone'] ?? '');
                                         $uIsAdmin = (int)($user['is_admin'] ?? 0) === 1;
+                                        $uTier = (string)($user['loyalty_tier'] ?? '');
                                         $userBookings = $adminBookingsByUser[$uId] ?? [];
                                         $userSpaBookings = $adminSpaBookingsByUser[$uId] ?? [];
                                         $userReviews = $adminReviewsByUser[$uId] ?? [];
@@ -689,6 +707,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         <div class="dashboard-entry-grid">
                                             <div><span class="dashboard-entry-label">User ID</span><strong><?php echo $uId; ?></strong></div>
                                             <div><span class="dashboard-entry-label">Phone</span><strong><?php echo htmlspecialchars($uPhone !== '' ? $uPhone : '—', ENT_QUOTES, 'UTF-8'); ?></strong></div>
+                                            <div><span class="dashboard-entry-label">Loyalty tier</span><strong><?php echo htmlspecialchars($uTier !== '' ? $uTier : '—', ENT_QUOTES, 'UTF-8'); ?></strong></div>
                                             <div><span class="dashboard-entry-label">Bookings</span><strong><?php echo $totalBookings; ?></strong></div>
                                             <div><span class="dashboard-entry-label">Created</span><strong><?php echo htmlspecialchars((string)($user['created_at'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong></div>
                                         </div>
