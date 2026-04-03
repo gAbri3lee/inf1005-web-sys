@@ -1,4 +1,6 @@
 <?php
+// This file serves as the "Parking & Transport" page for the Horizon Sands Bali website. It provides information about parking options, airport transfers, local travel tips, and estimated travel times to nearby destinations. The page is designed to help guests plan their arrival and transportation needs when visiting the hotel. It includes a hero section with key information, detailed sections on parking and transport options, and useful notes for guests. The page also integrates with the site's authentication system to customize the navigation bar based on the user's login status.
+// The page uses Bootstrap for styling and layout, and it includes custom CSS and JavaScript for the parking and transport content. It also includes a section with an accordion for additional arrival notes and a call-to-action section for guests who need further assistance with their arrival plans.
 require_once __DIR__ . '/../app/includes/auth.php';
 $pageStylesheets = ['assets/css/parking_transport.css'];
 $pageScripts = ['assets/js/parking_transport.js'];

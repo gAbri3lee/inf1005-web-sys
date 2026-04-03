@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+// This file defines the navigation bar for the Horizon Sands Bali website. It includes links to various pages such as Home, About Us, Suites & Villas, Amenities, Dining, Reviews, FAQs, What's Happening, Parking & Transport, and Contact. The navigation bar also includes login and registration buttons for unauthenticated users, and a dashboard link and logout button for authenticated users. The navbar is responsive and uses Bootstrap for styling and layout.
+// The navbar also dynamically highlights the active page based on the current URL, providing users with visual feedback on their location within the site. Additionally, it includes a logo and brand name for Horizon Sands Bali, enhancing the site's branding and user experience. The navbar is designed to be fixed at the top of the page, ensuring easy access to navigation links regardless of scroll position.
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +20,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/navbar.css">
 
+    // Include any additional page-specific stylesheets defined in $pageStylesheets. This allows individual pages to specify their own styles while still using the common navbar and overall site styling. The code checks if $pageStylesheets is set and can handle both a single stylesheet (as a string) or multiple stylesheets (as an array), ensuring flexibility in how styles are included on different pages.
     <?php
     if (isset($pageStylesheets)) {
         $styles = is_array($pageStylesheets) ? $pageStylesheets : [$pageStylesheets];
@@ -34,6 +37,7 @@
 <?php
 require_once __DIR__ . '/auth.php';
 
+// Get the currently logged-in user's information and the current page URL. This information is used to customize the navigation bar based on the user's authentication status and to highlight the active page in the navbar. The $currentUser variable holds the user's information, while $authReturnPath captures the current URL for redirecting after login, and $currentPage is used to determine which navbar link should be marked as active.
 $currentUser = auth_current_user();
 $authReturnPath = auth_current_relative_url();
 $currentPage = basename(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '');

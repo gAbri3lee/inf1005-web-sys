@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../app/includes/auth.php';
+// This page is publicly accessible, so no authentication check is needed.
+// FAQ data can be fetched from a database or API in a real application. Here, we use hardcoded arrays for demonstration.
 
+// Define FAQ categories and their labels
 $faqCategories = [
 	'booking' => 'Booking & Check-in',
 	'rooms' => 'Rooms & Amenities',
@@ -9,6 +12,7 @@ $faqCategories = [
 	'policies' => 'Policies',
 ];
 
+// Define FAQ items with category, question, and answer
 $faqItems = [
 	[
 		'category' => 'booking',
@@ -82,6 +86,7 @@ $faqItems = [
 	],
 ];
 
+// Count the number of FAQ items in each category for display in the category tabs
 $faqCounts = array_fill_keys(array_keys($faqCategories), 0);
 foreach ($faqItems as $item) {
 	$key = $item['category'];
@@ -90,12 +95,13 @@ foreach ($faqItems as $item) {
 	}
 }
 
+// Set page-specific stylesheets and scripts
 $pageStylesheets = ['assets/css/FAQ.css'];
 $pageScripts = ['assets/js/FAQ.js'];
 
 include __DIR__ . '/../app/includes/navbar.php';
 ?>
-
+// The main content of the FAQ page is structured with a hero section, a toolbar for searching and filtering FAQs, and an accordion layout for displaying questions and answers. An aside section highlights popular topics and provides contact options for further assistance.
 <main class="faq-page">
 	<section class="faq-hero">
 		<div class="container">
@@ -173,6 +179,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 						<?php endforeach; ?>
 					</div>
 
+					// Meta information about the current filter and result count, updated dynamically via JavaScript
 					<div class="faq-meta">
 						<div class="faq-meta-chip">
 							<span class="faq-meta-label">Showing</span>
@@ -185,12 +192,14 @@ include __DIR__ . '/../app/includes/navbar.php';
 					</div>
 				</div>
 
+				// Empty state message when no FAQs match the search or filter criteria, shown dynamically via JavaScript
 				<div id="faqEmptyState" class="faq-empty-state" hidden>
 					<h3>No matching questions found</h3>
 					<p class="mb-0">Try a simpler keyword or switch to another category to explore more answers.</p>
 				</div>
 			</div>
 
+			// The FAQ items are displayed in an accordion format, allowing users to expand and collapse answers. Each item is tagged with its category for filtering purposes.
 			<div class="row g-4 mt-1">
 				<div class="col-xl-8">
 					<div class="accordion faq-accordion reveal-up" id="faqAccordion">
@@ -232,6 +241,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 						<?php endforeach; ?>
 					</div>
 
+					// Load more button for pagination, shown dynamically when there are more FAQs to display based on the current filter or search criteria
 					<div class="faq-load-more-wrap reveal-up">
 						<button type="button" id="faqLoadMore" class="btn btn-outline-dark faq-load-more-btn">
 							Show more questions
@@ -239,6 +249,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 					</div>
 				</div>
 
+				// The aside section provides a quick guide to popular topics and encourages users to contact the hotel for further assistance. It highlights key information about arrival, room comfort, and dining, along with clear calls to action for contacting the team or learning about parking and transport options.
 				<div class="col-xl-4">
 					<div class="faq-aside reveal-up">
 						<div class="content-card faq-aside-card">
@@ -250,6 +261,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 								</p>
 							</div>
 
+							// The FAQ highlight list features key topics that are commonly asked about, such as arrival and check-in procedures, room amenities, and dining options. Each item is numbered and includes a brief description to provide quick insights for guests.
 							<div class="faq-highlight-list">
 								<div class="faq-highlight-item">
 									<div class="faq-highlight-icon">01</div>
@@ -277,6 +289,7 @@ include __DIR__ . '/../app/includes/navbar.php';
 							</div>
 						</div>
 
+						// The FAQ help card encourages guests to reach out to the Horizon Sands team for any specific requests or questions that may not be covered in the FAQs. It provides clear calls to action for contacting the hotel directly or learning about parking and transport options, ensuring guests feel supported and informed before their stay.
 						<div class="content-card faq-help-card">
 							<span class="faq-help-kicker">Still need help?</span>
 							<h2 class="faq-help-title">Talk to the Horizon Sands team</h2>
