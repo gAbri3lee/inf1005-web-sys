@@ -6,6 +6,7 @@ auth_require_login(
     'Please sign in or create an account to reserve a spa treatment.'
 );
 
+$pageBodyClass = 'light-navbar';
 $pageStylesheets = ['assets/css/spa_booking.css'];
 $pageScripts = ['assets/js/spa_booking.js'];
 $errors = [];

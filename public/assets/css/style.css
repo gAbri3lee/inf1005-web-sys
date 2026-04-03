@@ -971,3 +971,8 @@ section {
         font-size: 0.92rem;
     }
 }
+
+/* QUICK FIX FOR MOBILE HORIZONTAL SCROLL */
+html, body {
+    overflow-x: hidden;
+}

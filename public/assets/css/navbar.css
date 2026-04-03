@@ -20,24 +20,27 @@
     max-width: 100%;
     padding-left: 20px;
     padding-right: 20px;
+    display: flex;
     align-items: center;
+    gap: 16px;
 }
 
 .navbar-brand {
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    margin-right: 16px;
     padding: 0;
-    flex-shrink: 0;
-    color: var(--white) !important;
+    margin-right: 0;
+    flex: 0 0 auto;
     min-width: 0;
+    color: var(--white) !important;
 }
 
 .navbar-logo-link {
     display: inline-flex;
     align-items: center;
     gap: 12px;
+    text-decoration: none;
 }
 
 .navbar-logo {
@@ -78,6 +81,7 @@
     margin-left: auto;
     color: #111111;
     border-color: rgba(17, 17, 17, 0.18);
+    flex: 0 0 auto;
 }
 
 .site-navbar .navbar-toggler-icon {
@@ -100,25 +104,11 @@
     opacity: 1;
 }
 
-.nav-link.nav-link-active-black,
-.nav-link.nav-link-active-black:hover,
-.nav-link.nav-link-active-black:focus {
-    color: #111111 !important;
-    opacity: 1;
-}
-
-.nav-link.nav-link-active-dark-gold,
-.nav-link.nav-link-active-dark-gold:hover,
-.nav-link.nav-link-active-dark-gold:focus {
-    color: #8b6a2f !important;
-    opacity: 1;
-}
-
 .navbar-actions {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-shrink: 0;
+    flex: 0 0 auto;
 }
 
 .navbar-logout-form {
@@ -155,18 +145,6 @@
     color: #e2be81 !important;
 }
 
-.site-navbar.scrolled .nav-link.nav-link-active-black,
-.site-navbar.scrolled .nav-link.nav-link-active-black:hover,
-.site-navbar.scrolled .nav-link.nav-link-active-black:focus {
-    color: #111111 !important;
-}
-
-.site-navbar.scrolled .nav-link.nav-link-active-dark-gold,
-.site-navbar.scrolled .nav-link.nav-link-active-dark-gold:hover,
-.site-navbar.scrolled .nav-link.nav-link-active-dark-gold:focus {
-    color: #8b6a2f !important;
-}
-
 .site-navbar.scrolled .btn-outline-light {
     color: #5c3a44;
     border-color: rgba(92, 58, 68, 0.45);
@@ -183,7 +161,10 @@
     color: #2b1a13;
 }
 
-/* Default collapsed state */
+/* =========================
+   COLLAPSED NAVBAR DEFAULT
+========================= */
+
 .navbar-expand-custom .navbar-collapse {
     width: 100%;
     margin-top: 14px;
@@ -198,7 +179,7 @@
     width: 100%;
 }
 
-.navbar-expand-custom .nav-link {
+.navbar-expand-custom .navbar-collapse .nav-link {
     color: #4f2f38 !important;
     white-space: normal;
     padding: 10px 0 !important;
@@ -211,20 +192,17 @@
     align-items: stretch;
 }
 
-.navbar-expand-custom .navbar-actions .btn {
-    width: 100%;
-}
-
-.navbar-expand-custom .navbar-logout-form {
-    width: 100%;
-}
-
+.navbar-expand-custom .navbar-actions .btn,
+.navbar-expand-custom .navbar-logout-form,
 .navbar-expand-custom .navbar-logout-form .btn {
     width: 100%;
 }
 
-/* Only expand when there is enough real space */
-@media (min-width: 1200px) {
+/* =========================
+   DESKTOP ONLY WHEN THERE IS REAL SPACE
+========================= */
+
+@media (min-width: 1450px) {
     .navbar-expand-custom {
         flex-wrap: nowrap;
         justify-content: flex-start;
@@ -236,17 +214,17 @@
 
     .navbar-expand-custom .navbar-collapse {
         display: flex !important;
-        flex-basis: auto;
+        flex: 1 1 auto;
+        min-width: 0;
         align-items: center;
         justify-content: space-between;
-        background: transparent;
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
+        width: auto;
         margin-top: 0;
         padding: 0;
         border-radius: 0;
-        width: auto;
-        flex-grow: 1;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
         overflow: hidden;
     }
 
@@ -256,66 +234,102 @@
         flex-wrap: nowrap;
         align-items: center;
         justify-content: center;
-        margin: 0 auto;
+        gap: 0;
+        flex: 1 1 auto;
+        min-width: 0;
+        margin: 0 16px;
+        overflow: hidden;
+    }
+
+    .navbar-expand-custom .nav-item {
+        flex: 0 1 auto;
         min-width: 0;
     }
 
-    .navbar-expand-custom .nav-link {
+    .navbar-expand-custom .navbar-collapse .nav-link {
         color: rgba(255, 255, 255, 0.9) !important;
         white-space: nowrap;
         font-size: 0.84rem;
-        padding: 0.5rem 0.55rem !important;
+        padding: 0.5rem 0.5rem !important;
     }
 
-    .navbar-expand-custom .nav-link:hover,
-    .navbar-expand-custom .nav-link:focus,
-    .navbar-expand-custom .nav-link.active {
-        color: #e2be81 !important;
-    }
-
-    .navbar-expand-custom .nav-link.nav-link-active-black,
-    .navbar-expand-custom .nav-link.nav-link-active-black:hover,
-    .navbar-expand-custom .nav-link.nav-link-active-black:focus {
-        color: #111111 !important;
-    }
-
-    .navbar-expand-custom .nav-link.nav-link-active-dark-gold,
-    .navbar-expand-custom .nav-link.nav-link-active-dark-gold:hover,
-    .navbar-expand-custom .nav-link.nav-link-active-dark-gold:focus {
-        color: #8b6a2f !important;
+    .site-navbar.scrolled .navbar-collapse .nav-link {
+        color: #5c3a44 !important;
     }
 
     .navbar-expand-custom .navbar-actions {
         margin-top: 0;
-        margin-left: 18px;
+        margin-left: 0;
+        flex: 0 0 auto;
         flex-direction: row;
         align-items: center;
     }
 
-    .navbar-expand-custom .navbar-actions .btn {
-        width: auto;
-    }
-
-    .navbar-expand-custom .navbar-logout-form {
+    .navbar-expand-custom .navbar-actions .btn,
+    .navbar-expand-custom .navbar-logout-form,
+    .navbar-expand-custom .navbar-logout-form .btn {
         width: auto;
     }
 }
 
-@media (max-width: 991.98px) {
-    .site-navbar {
-        background: transparent;
-        backdrop-filter: none;
-    }
+/* =========================
+   COMPACT DESKTOP RANGE
+========================= */
 
+@media (min-width: 1450px) and (max-width: 1650px) {
     .navbar-shell {
+        gap: 12px;
         padding-left: 16px;
         padding-right: 16px;
     }
 
+    .navbar-logo {
+        height: 38px;
+        max-height: 38px;
+    }
+
+    .navbar-brand-title {
+        font-size: 0.98rem;
+        letter-spacing: 0.08em;
+    }
+
+    .navbar-brand-subtitle {
+        font-size: 0.54rem;
+        letter-spacing: 0.18em;
+    }
+
+    .navbar-expand-custom .navbar-main-nav {
+        margin: 0 12px;
+    }
+
+    .navbar-expand-custom .navbar-collapse .nav-link {
+        font-size: 0.78rem;
+        padding: 0.45rem 0.35rem !important;
+    }
+
+    .navbar-actions {
+        gap: 6px;
+    }
+
+    .navbar-actions .btn {
+        padding: 0.45rem 0.85rem;
+        font-size: 0.82rem;
+    }
+}
+
+/* =========================
+   TABLET / MOBILE
+========================= */
+
+@media (max-width: 991.98px) {
+    .navbar-shell {
+        padding-left: 16px;
+        padding-right: 16px;
+        gap: 10px;
+    }
+
     .navbar-brand {
         gap: 10px;
-        margin-right: 12px;
-        color: #ffffff !important;
     }
 
     .navbar-logo {
@@ -332,4 +346,130 @@
         font-size: 0.56rem;
         letter-spacing: 0.2em;
     }
+}
+
+@media (max-width: 575.98px) {
+    .navbar-brand-title {
+        font-size: 0.86rem;
+    }
+
+    .navbar-brand-subtitle {
+        font-size: 0.5rem;
+    }
+
+    .navbar-logo {
+        height: 34px;
+        max-height: 34px;
+    }
+
+}
+
+/* =========================
+   FORCE GOLD HOVER + ACTIVE
+========================= */
+
+.site-navbar .nav-link:hover,
+.site-navbar .nav-link:focus,
+.site-navbar .nav-link.active,
+.site-navbar.scrolled .nav-link:hover,
+.site-navbar.scrolled .nav-link:focus,
+.site-navbar.scrolled .nav-link.active,
+.navbar-expand-custom .navbar-collapse .nav-link:hover,
+.navbar-expand-custom .navbar-collapse .nav-link:focus,
+.navbar-expand-custom .navbar-collapse .nav-link.active {
+    color: #D0A961 !important;
+}
+
+/* =========================
+   BUTTON HOVER → GOLD
+========================= */
+
+.navbar-actions .btn-outline-light:hover,
+.navbar-actions .btn-outline-light:focus {
+    background-color: #D0A961 !important;
+    border-color: #D0A961 !important;
+    color: #ffffff !important;
+}
+
+/* FIX GOLD BUTTON HOVER (REGISTER / LOGOUT) */
+.navbar-actions .btn-gold:hover{
+    background-color: #D0A961 !important;
+    border-color: #D0A961 !important;
+    color: #ffffff !important;
+}
+
+.navbar-actions .btn-gold,
+.navbar-actions .btn-gold:focus,
+.navbar-actions .btn-gold:active {
+    background-color: #997c47 !important;
+    border-color: #997c47 !important;
+    color: #ffffff !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+.navbar-actions .btn-gold::before,
+.navbar-actions .btn-gold::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* =========================
+   STOP BUTTON JUMP ON HOVER
+========================= */
+
+.navbar-actions .btn,
+.navbar-actions .btn:hover,
+.navbar-actions .btn:focus,
+.navbar-actions .btn:active {
+    transform: none !important;
+    margin-top: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+}
+
+/* =========================
+   LIGHT NAVBAR (SPA PAGE FIX)
+========================= */
+
+body.light-navbar .site-navbar {
+    background: rgba(244, 214, 220, 0.55) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(120, 90, 100, 0.12);
+}
+
+/* TEXT COLOR FIX */
+body.light-navbar .nav-link {
+    color: #5c3a44 !important;;
+}
+
+body.light-navbar .nav-link:hover,
+body.light-navbar .nav-link.active {
+    color: #D0A961 !important;
+}
+
+/* BRAND TEXT */
+body.light-navbar .navbar-brand-title {
+    color: #3f2530 !important;
+}
+
+body.light-navbar .navbar-brand-subtitle {
+    color: rgba(79, 47, 56, 0.75) !important;
+}
+
+/* SPA BOOKING ONLY: FORCE DARK NAV TEXT */
+body.light-navbar .site-navbar .navbar-expand-custom .navbar-collapse .nav-link,
+body.light-navbar .site-navbar .nav-link {
+    color: #5c3a44 !important;
+}
+
+body.light-navbar .site-navbar .navbar-expand-custom .navbar-collapse .nav-link:hover,
+body.light-navbar .site-navbar .navbar-expand-custom .navbar-collapse .nav-link:focus,
+body.light-navbar .site-navbar .navbar-expand-custom .navbar-collapse .nav-link.active,
+body.light-navbar .site-navbar .nav-link:hover,
+body.light-navbar .site-navbar .nav-link:focus,
+body.light-navbar .site-navbar .nav-link.active {
+    color: #D0A961 !important;
 }
