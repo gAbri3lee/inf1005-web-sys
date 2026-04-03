@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../app/includes/auth.php';
-
+//login for spa booking
 auth_require_login(
     'spa_booking.php',
     'Please sign in or create an account to reserve a spa treatment.'
