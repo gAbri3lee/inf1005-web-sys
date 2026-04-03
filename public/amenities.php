@@ -9,6 +9,7 @@ function e(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
+// Showcase featured amenities
 $featuredAmenities = [
     [
         'title' => 'Club Lounge',
@@ -63,7 +64,7 @@ $hotelFeatures = [
     ['label' => 'Fitness Center', 'value' => '24-hour access'],
     ['label' => 'Lounge', 'value' => 'Evening service'],
     ['label' => 'Accessibility', 'value' => 'Support available'],
-    ['label' => 'Public transport', 'value' => 'Nearby access'],
+    ['label' => 'Ride-hailing', 'value' => 'Easy island travel'],
 ];
 
 $hotelDetails = [
