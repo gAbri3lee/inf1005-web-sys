@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-// This file defines the navigation bar for the Horizon Sands Bali website. It includes links to various pages such as Home, About Us, Suites & Villas, Amenities, Dining, Reviews, FAQs, What's Happening, Parking & Transport, and Contact. The navigation bar also includes login and registration buttons for unauthenticated users, and a dashboard link and logout button for authenticated users. The navbar is responsive and uses Bootstrap for styling and layout.
-// The navbar also dynamically highlights the active page based on the current URL, providing users with visual feedback on their location within the site. Additionally, it includes a logo and brand name for Horizon Sands Bali, enhancing the site's branding and user experience. The navbar is designed to be fixed at the top of the page, ensuring easy access to navigation links regardless of scroll position.
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -20,7 +18,6 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/navbar.css">
 
-    // Include any additional page-specific stylesheets defined in $pageStylesheets. This allows individual pages to specify their own styles while still using the common navbar and overall site styling. The code checks if $pageStylesheets is set and can handle both a single stylesheet (as a string) or multiple stylesheets (as an array), ensuring flexibility in how styles are included on different pages.
     <?php
     if (isset($pageStylesheets)) {
         $styles = is_array($pageStylesheets) ? $pageStylesheets : [$pageStylesheets];
