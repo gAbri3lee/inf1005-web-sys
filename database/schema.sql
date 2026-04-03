@@ -121,6 +121,14 @@ WHERE NOT EXISTS (
   WHERE email = 'admin@horizonsands.test'
 );
 
+INSERT INTO users (full_name, email, password, phone, is_admin, total_spent, loyalty_tier_id)
+SELECT 'Testing Customer', 'testing1@gmail.com', 'Password!1', NULL, 0, 0.00, NULL
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM users
+  WHERE email = 'testing1@gmail.com'
+);
+
 DROP TABLE IF EXISTS room_images;
 DROP TABLE IF EXISTS room_features;
 DROP TABLE IF EXISTS room_benefits;
