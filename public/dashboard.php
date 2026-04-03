@@ -67,6 +67,25 @@ function dashboard_validate_password_strength(string $password, array &$errors):
     return true;
 }
 
+function dashboard_cleanup_uploaded_review_image(?string $imagePath): void
+{
+    if ($imagePath === null) {
+        return;
+    }
+
+    $relativePath = trim($imagePath);
+    if ($relativePath === '') {
+        return;
+    }
+
+    $relativePath = ltrim($relativePath, './\\');
+    $absolutePath = __DIR__ . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath);
+
+    if (is_file($absolutePath)) {
+        @unlink($absolutePath);
+    }
+}
+
 $dashboardNotice = auth_flash_get('dashboard_notice');
 $dashboardError = auth_flash_get('dashboard_error');
 $bookingAdjustmentNoticeHtml = '';
@@ -89,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'admin_delete_user' => 'dashboard.php#admin-users',
         'admin_update_booking' => 'dashboard.php#admin-users',
         'admin_delete_booking' => 'dashboard.php#admin-users',
+        'delete_review' => 'dashboard.php#my-reviews',
         default => 'dashboard.php',
     };
 
@@ -431,6 +451,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $updateStmt = $pdo->prepare('UPDATE spa_bookings SET status = ? WHERE id = ? AND user_id = ?');
                     $updateStmt->execute(['Cancelled', $spaBookingId, $userId]);
                     auth_flash_set('dashboard_notice', 'Your spa treatment has been cancelled.');
+                }
+                break;
+
+            case 'delete_review':
+                $reviewId = (int)($_POST['review_id'] ?? 0);
+                if ($reviewId <= 0) {
+                    auth_flash_set('dashboard_error', 'Invalid review selected.');
+                    break;
+                }
+
+                $reviewStmt = $pdo->prepare('SELECT id, user_id, image_path FROM reviews WHERE id = ? LIMIT 1');
+                $reviewStmt->execute([$reviewId]);
+                $review = $reviewStmt->fetch();
+                if (!$review) {
+                    auth_flash_set('dashboard_error', 'That review could not be found.');
+                    break;
+                }
+
+                $reviewUserId = isset($review['user_id']) ? (int)$review['user_id'] : 0;
+                $imagePath = (string)($review['image_path'] ?? '');
+
+                if (!auth_is_admin()) {
+                    if ($userId <= 0 || $reviewUserId !== $userId) {
+                        auth_flash_set('dashboard_error', 'You can only delete your own reviews.');
+                        break;
+                    }
+
+                    $deleteStmt = $pdo->prepare('DELETE FROM reviews WHERE id = ? AND user_id = ?');
+                    $deleteStmt->execute([$reviewId, $userId]);
+                } else {
+                    $deleteStmt = $pdo->prepare('DELETE FROM reviews WHERE id = ?');
+                    $deleteStmt->execute([$reviewId]);
+                }
+
+                if ($deleteStmt->rowCount() === 1) {
+                    dashboard_cleanup_uploaded_review_image($imagePath);
+                    auth_flash_set('dashboard_notice', 'Review deleted.');
+                } else {
+                    auth_flash_set('dashboard_error', 'Review was not deleted. Please try again.');
                 }
                 break;
 
@@ -1178,6 +1237,15 @@ include __DIR__ . '/../app/includes/navbar.php';
                                         </div>
                                     </div>
                                     <p class="dashboard-review-body mb-0"><?php echo htmlspecialchars((string)($review['body'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
+
+                                    <div class="dashboard-entry-actions mt-3">
+                                        <form action="dashboard.php#my-reviews" method="POST" class="dashboard-inline-form">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('dashboard_action_form'), ENT_QUOTES, 'UTF-8'); ?>">
+                                            <input type="hidden" name="action" value="delete_review">
+                                            <input type="hidden" name="review_id" value="<?php echo (int)($review['id'] ?? 0); ?>">
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm('Delete this review?');">Delete review</button>
+                                        </form>
+                                    </div>
                                 </article>
                             <?php endforeach; ?>
                         </div>

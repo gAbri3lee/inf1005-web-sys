@@ -33,6 +33,25 @@ function admin_user_details_status_badge_class(string $status): string
     };
 }
 
+function admin_user_details_cleanup_uploaded_review_image(?string $imagePath): void
+{
+    if ($imagePath === null) {
+        return;
+    }
+
+    $relativePath = trim($imagePath);
+    if ($relativePath === '') {
+        return;
+    }
+
+    $relativePath = ltrim($relativePath, './\\');
+    $absolutePath = __DIR__ . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath);
+
+    if (is_file($absolutePath)) {
+        @unlink($absolutePath);
+    }
+}
+
 $targetUserId = (int)($_GET['user_id'] ?? 0);
 if ($targetUserId <= 0) {
     auth_flash_set('dashboard_error', 'Invalid user selected.');
@@ -49,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = trim((string)($_POST['action'] ?? ''));
     $redirectTarget = match ($action) {
         'admin_update_user_details' => 'admin_user_details.php?user_id=' . $targetUserId . '#account',
+        'admin_delete_review' => 'admin_user_details.php?user_id=' . $targetUserId . '#reviews',
         default => 'admin_user_details.php?user_id=' . $targetUserId . '#room-bookings',
     };
 
@@ -192,6 +212,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 auth_flash_set('dashboard_notice', 'Booking updated. The guest will see updated totals on their next dashboard login.');
                 break;
 
+            case 'admin_delete_review':
+                $reviewId = (int)($_POST['review_id'] ?? 0);
+                if ($reviewId <= 0) {
+                    auth_flash_set('dashboard_error', 'Invalid review selected.');
+                    break;
+                }
+
+                $checkStmt = $pdo->prepare('SELECT id, image_path FROM reviews WHERE id = ? AND user_id = ? LIMIT 1');
+                $checkStmt->execute([$reviewId, $targetUserId]);
+                $review = $checkStmt->fetch();
+                if (!$review) {
+                    auth_flash_set('dashboard_error', 'That review could not be found for this user.');
+                    break;
+                }
+
+                $deleteStmt = $pdo->prepare('DELETE FROM reviews WHERE id = ? AND user_id = ?');
+                $deleteStmt->execute([$reviewId, $targetUserId]);
+
+                if ($deleteStmt->rowCount() === 1) {
+                    admin_user_details_cleanup_uploaded_review_image((string)($review['image_path'] ?? ''));
+                    auth_flash_set('dashboard_notice', 'Review deleted.');
+                } else {
+                    auth_flash_set('dashboard_error', 'Review was not deleted. Please try again.');
+                }
+                break;
+
             default:
                 auth_flash_set('dashboard_error', 'That admin action is not supported.');
                 break;
@@ -247,7 +293,7 @@ if (isset($pdo)) {
         $userSpaBookings = $spaStmt->fetchAll();
 
         $reviewStmt = $pdo->prepare(
-            'SELECT id, rating, title, body, created_at
+            'SELECT id, rating, title, body, image_path, created_at
              FROM reviews
              WHERE user_id = ?
              ORDER BY created_at DESC, id DESC'
@@ -507,7 +553,7 @@ include __DIR__ . '/../app/includes/navbar.php';
                     <?php endif; ?>
                 </section>
 
-                <section class="content-card dashboard-panel reveal-up">
+                <section id="reviews" class="content-card dashboard-panel reveal-up">
                     <div class="dashboard-panel-head">
                         <div>
                             <p class="dashboard-panel-label">Reviews</p>
@@ -538,6 +584,15 @@ include __DIR__ . '/../app/includes/navbar.php';
                                     <?php if ($body !== ''): ?>
                                         <p class="dashboard-review-body mb-0"><?php echo htmlspecialchars($body, ENT_QUOTES, 'UTF-8'); ?></p>
                                     <?php endif; ?>
+
+                                    <div class="dashboard-entry-actions mt-3">
+                                        <form action="admin_user_details.php?user_id=<?php echo $targetUserId; ?>#reviews" method="POST" class="dashboard-inline-form">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token('admin_user_details_form'), ENT_QUOTES, 'UTF-8'); ?>">
+                                            <input type="hidden" name="action" value="admin_delete_review">
+                                            <input type="hidden" name="review_id" value="<?php echo (int)($review['id'] ?? 0); ?>">
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm('Delete this review?');">Delete review</button>
+                                        </form>
+                                    </div>
                                 </article>
                             <?php endforeach; ?>
                         </div>
